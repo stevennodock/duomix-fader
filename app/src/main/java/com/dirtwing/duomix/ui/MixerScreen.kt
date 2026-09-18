@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -22,14 +24,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dirtwing.duomix.AppTarget
 import com.dirtwing.duomix.Channel
 import com.dirtwing.duomix.MixerViewModel
 import com.dirtwing.duomix.R
+import com.dirtwing.duomix.Slot
 import kotlin.math.roundToInt
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
@@ -67,6 +74,19 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
             }
         }
 
+        // --- Carte choix des apps ---
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.apps_title), style = MaterialTheme.typography.titleMedium)
+                AppPicker(stringResource(R.string.slot_music), state.music, state.installedMusic) {
+                    viewModel.selectApp(Slot.MUSIC, it)
+                }
+                AppPicker(stringResource(R.string.slot_video), state.video, state.installedVideo) {
+                    viewModel.selectApp(Slot.VIDEO, it)
+                }
+            }
+        }
+
         // --- Carte audio focus ---
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -75,11 +95,11 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
                     stringResource(R.string.focus_description),
                     style = MaterialTheme.typography.bodySmall,
                 )
-                FocusSwitch(state.ytm, enabled = state.serviceBound) {
-                    viewModel.setFocusIgnored(state.ytm.pkg, it)
+                FocusSwitch(state.music, enabled = state.serviceBound) {
+                    viewModel.setFocusIgnored(state.music.pkg, it)
                 }
-                FocusSwitch(state.yt, enabled = state.serviceBound) {
-                    viewModel.setFocusIgnored(state.yt.pkg, it)
+                FocusSwitch(state.video, enabled = state.serviceBound) {
+                    viewModel.setFocusIgnored(state.video.pkg, it)
                 }
             }
         }
@@ -88,15 +108,15 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.mixer_title), style = MaterialTheme.typography.titleMedium)
-                ChannelSlider(state.ytm, enabled = state.serviceBound) {
-                    viewModel.setChannelVolume(state.ytm.pkg, it)
+                ChannelSlider(state.music, enabled = state.serviceBound) {
+                    viewModel.setChannelVolume(Slot.MUSIC, it)
                 }
-                ChannelSlider(state.yt, enabled = state.serviceBound) {
-                    viewModel.setChannelVolume(state.yt.pkg, it)
+                ChannelSlider(state.video, enabled = state.serviceBound) {
+                    viewModel.setChannelVolume(Slot.VIDEO, it)
                 }
                 Text(stringResource(R.string.crossfader_title), style = MaterialTheme.typography.titleSmall)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.crossfader_music), style = MaterialTheme.typography.labelMedium)
+                    Text(state.music.label, style = MaterialTheme.typography.labelMedium)
                     Slider(
                         value = state.crossfader,
                         onValueChange = { viewModel.setCrossfader(it) },
@@ -105,7 +125,7 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
                             .weight(1f)
                             .padding(horizontal = 8.dp),
                     )
-                    Text(stringResource(R.string.crossfader_video), style = MaterialTheme.typography.labelMedium)
+                    Text(state.video.label, style = MaterialTheme.typography.labelMedium)
                 }
                 Text(
                     stringResource(R.string.mixer_hint),
@@ -122,6 +142,39 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
             )
         }
         TextButton(onClick = onShowLicenses) { Text(stringResource(R.string.action_licenses)) }
+    }
+}
+
+/** Sélecteur d'app d'un canal : ne propose que les apps du catalogue installées. */
+@Composable
+private fun AppPicker(
+    title: String,
+    channel: Channel,
+    installed: List<AppTarget>,
+    onSelect: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(title, modifier = Modifier.weight(1f))
+        if (installed.isEmpty()) {
+            Text(
+                stringResource(R.string.apps_none_installed),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        } else {
+            TextButton(onClick = { expanded = true }) { Text("${channel.label} ▾") }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                for (app in installed) {
+                    DropdownMenuItem(
+                        text = { Text(app.label) },
+                        onClick = {
+                            expanded = false
+                            onSelect(app.pkg)
+                        },
+                    )
+                }
+            }
+        }
     }
 }
 

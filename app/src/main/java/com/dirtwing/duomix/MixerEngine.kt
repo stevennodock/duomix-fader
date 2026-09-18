@@ -27,12 +27,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** Paquets cibles du mixeur. */
-object Targets {
-    const val YT = "com.google.android.youtube"
-    const val YTM = "com.google.android.apps.youtube.music"
-}
-
 /** État d'un canal du mixeur (une app = un canal). */
 data class Channel(
     val pkg: String,
@@ -47,11 +41,19 @@ data class MixerUiState(
     val shizukuAvailable: Boolean = false,
     val shizukuGranted: Boolean = false,
     val serviceBound: Boolean = false,
-    val ytm: Channel = Channel(Targets.YTM, "YouTube Music"),
-    val yt: Channel = Channel(Targets.YT, "YouTube"),
+    val music: Channel,
+    val video: Channel,
+    /** Apps du catalogue réellement installées, proposées dans les sélecteurs. */
+    val installedMusic: List<AppTarget> = emptyList(),
+    val installedVideo: List<AppTarget> = emptyList(),
     val crossfader: Float = 0.5f,
     val lastError: String? = null,
-)
+) {
+    fun channel(slot: Slot): Channel = if (slot == Slot.MUSIC) music else video
+
+    fun withChannel(slot: Slot, channel: Channel): MixerUiState =
+        if (slot == Slot.MUSIC) copy(music = channel) else copy(video = channel)
+}
 
 /**
  * Moteur du mixeur, unique par processus : connexion Shizuku, bascule de l'audio focus
@@ -77,8 +79,11 @@ class MixerEngine private constructor(private val appContext: Context) {
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val prefs = appContext.getSharedPreferences("mixer", Context.MODE_PRIVATE)
 
-    private val _state = MutableStateFlow(MixerUiState())
+    private val _state = MutableStateFlow(
+        MixerUiState(music = savedChannel(Slot.MUSIC), video = savedChannel(Slot.VIDEO))
+    )
     val state: StateFlow<MixerUiState> = _state.asStateFlow()
 
     private var users = 0
@@ -138,6 +143,7 @@ class MixerEngine private constructor(private val appContext: Context) {
         Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
         Shizuku.addRequestPermissionResultListener(permissionListener)
+        refreshInstalledApps()
         refreshShizukuState()
     }
 
@@ -146,6 +152,9 @@ class MixerEngine private constructor(private val appContext: Context) {
         if (--users > 0) return
         users = 0
         pollJob?.cancel()
+        // Plus d'écran ni de notification pour régler le mixage : on ne laisse pas
+        // les apps à un volume atténué que l'utilisateur ne pourrait plus corriger
+        _state.value.let { restoreFullVolume(it.music); restoreFullVolume(it.video) }
         runCatching { Shizuku.unbindUserService(userServiceArgs, connection, true) }
         service = null
         applied.clear()
@@ -200,14 +209,66 @@ class MixerEngine private constructor(private val appContext: Context) {
             val svc = service ?: return@launch
             fun ignored(pkg: String): Boolean =
                 runCatching { svc.isFocusIgnored(pkg) }.getOrDefault(false)
-            val ytmIgnored = ignored(Targets.YTM)
-            val ytIgnored = ignored(Targets.YT)
+            val current = _state.value
+            val musicIgnored = ignored(current.music.pkg)
+            val videoIgnored = ignored(current.video.pkg)
             _state.update {
+                // L'app d'un canal a pu changer pendant l'appel : on ne marque que la bonne
                 it.copy(
-                    ytm = it.ytm.copy(focusIgnored = ytmIgnored),
-                    yt = it.yt.copy(focusIgnored = ytIgnored),
+                    music = if (it.music.pkg == current.music.pkg) it.music.copy(focusIgnored = musicIgnored) else it.music,
+                    video = if (it.video.pkg == current.video.pkg) it.video.copy(focusIgnored = videoIgnored) else it.video,
                 )
             }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Choix de l'app de chaque canal (liste fermée : AppCatalog)
+    // ------------------------------------------------------------------
+
+    private fun prefKey(slot: Slot) = "app_${slot.name.lowercase()}"
+
+    /** Canal initial : dernière app choisie, volume cohérent avec le fader au centre. */
+    private fun savedChannel(slot: Slot): Channel {
+        val apps = AppCatalog.apps(slot)
+        val app = apps.firstOrNull { it.pkg == prefs.getString(prefKey(slot), null) } ?: apps.first()
+        return Channel(app.pkg, app.label, volume = cos(PI.toFloat() / 4f))
+    }
+
+    /** Recense les apps du catalogue installées (déclarées dans <queries> du manifest). */
+    fun refreshInstalledApps() {
+        fun installed(slot: Slot) = AppCatalog.apps(slot).filter { app ->
+            runCatching { appContext.packageManager.getPackageInfo(app.pkg, 0) }.isSuccess
+        }
+        val music = installed(Slot.MUSIC)
+        val video = installed(Slot.VIDEO)
+        _state.update { it.copy(installedMusic = music, installedVideo = video) }
+    }
+
+    /** Affecte une app du catalogue à un canal ; l'app quittée retrouve un audio focus normal. */
+    fun selectApp(slot: Slot, pkg: String) {
+        val app = AppCatalog.apps(slot).firstOrNull { it.pkg == pkg } ?: return
+        val previous = _state.value.channel(slot)
+        if (previous.pkg == app.pkg) return
+        prefs.edit().putString(prefKey(slot), app.pkg).apply()
+        _state.update {
+            it.withChannel(slot, Channel(app.pkg, app.label, volume = it.channel(slot).volume))
+        }
+        scope.launch {
+            restoreFullVolume(previous)
+            if (previous.focusIgnored) {
+                runCatching { service?.setFocusIgnored(previous.pkg, false) }
+            }
+            refreshFocusStates()
+        }
+    }
+
+    /** Rend leur plein volume aux lecteurs d'un canal que DuoMix cesse de piloter. */
+    private fun restoreFullVolume(channel: Channel) {
+        val svc = service ?: return
+        for (piid in channel.piids) {
+            runCatching { svc.setVolume(piid, 1f) }
+            synchronized(applied) { applied.remove(piid) }
         }
     }
 
@@ -248,20 +309,20 @@ class MixerEngine private constructor(private val appContext: Context) {
         }
         val updated = _state.updateAndGet {
             it.copy(
-                ytm = it.ytm.copy(
-                    piids = piidsByPkg[Targets.YTM].orEmpty(),
-                    playing = Targets.YTM in playingPkgs,
+                music = it.music.copy(
+                    piids = piidsByPkg[it.music.pkg].orEmpty(),
+                    playing = it.music.pkg in playingPkgs,
                 ),
-                yt = it.yt.copy(
-                    piids = piidsByPkg[Targets.YT].orEmpty(),
-                    playing = Targets.YT in playingPkgs,
+                video = it.video.copy(
+                    piids = piidsByPkg[it.video.pkg].orEmpty(),
+                    playing = it.video.pkg in playingPkgs,
                 ),
             )
         }
         // Ré-application aux nouveaux lecteurs (un flux redémarré repart à plein volume)
-        applyChannel(updated.ytm)
-        applyChannel(updated.yt)
-        synchronized(applied) { applied.keys.retainAll((updated.ytm.piids + updated.yt.piids).toSet()) }
+        applyChannel(updated.music)
+        applyChannel(updated.video)
+        synchronized(applied) { applied.keys.retainAll((updated.music.piids + updated.video.piids).toSet()) }
     }
 
     private fun applyChannel(channel: Channel) {
@@ -277,35 +338,31 @@ class MixerEngine private constructor(private val appContext: Context) {
     }
 
     /** Slider individuel d'un canal. */
-    fun setChannelVolume(pkg: String, volume: Float) {
+    fun setChannelVolume(slot: Slot, volume: Float) {
         val updated = _state.updateAndGet {
-            when (pkg) {
-                Targets.YTM -> it.copy(ytm = it.ytm.copy(volume = volume))
-                Targets.YT -> it.copy(yt = it.yt.copy(volume = volume))
-                else -> it
-            }
+            it.withChannel(slot, it.channel(slot).copy(volume = volume))
         }
-        scope.launch { applyChannel(if (pkg == Targets.YTM) updated.ytm else updated.yt) }
+        scope.launch { applyChannel(updated.channel(slot)) }
     }
 
     /**
      * Crossfader à puissance constante (loi équi-énergie type table DJ) :
-     * x = 0 -> 100% YouTube Music, x = 1 -> 100% YouTube.
+     * x = 0 -> 100% canal musique, x = 1 -> 100% canal vidéo.
      */
     fun setCrossfader(position: Float) {
         val x = position.coerceIn(0f, 1f)
-        val ytmVol = cos(x * PI.toFloat() / 2f)
-        val ytVol = sin(x * PI.toFloat() / 2f)
+        val musicVol = cos(x * PI.toFloat() / 2f)
+        val videoVol = sin(x * PI.toFloat() / 2f)
         val updated = _state.updateAndGet {
             it.copy(
                 crossfader = x,
-                ytm = it.ytm.copy(volume = ytmVol),
-                yt = it.yt.copy(volume = ytVol),
+                music = it.music.copy(volume = musicVol),
+                video = it.video.copy(volume = videoVol),
             )
         }
         scope.launch {
-            applyChannel(updated.ytm)
-            applyChannel(updated.yt)
+            applyChannel(updated.music)
+            applyChannel(updated.video)
         }
     }
 }

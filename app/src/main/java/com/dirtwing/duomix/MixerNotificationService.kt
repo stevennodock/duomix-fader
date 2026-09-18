@@ -82,7 +82,7 @@ class MixerNotificationService : Service() {
         publish(engine.state.value)
         scope.launch {
             engine.state
-                .map { Triple(it.crossfader, it.ytm.volume, it.yt.volume) }
+                .map { listOf(it.crossfader, it.music.volume, it.video.volume, it.music.pkg, it.video.pkg) }
                 .distinctUntilChanged()
                 .collect { publish(engine.state.value) }
         }
@@ -102,8 +102,10 @@ class MixerNotificationService : Service() {
     private fun publish(state: MixerUiState) {
         val balance = getString(
             R.string.notif_balance,
-            (state.ytm.volume * 100).roundToInt(),
-            (state.yt.volume * 100).roundToInt(),
+            state.music.label,
+            (state.music.volume * 100).roundToInt(),
+            state.video.label,
+            (state.video.volume * 100).roundToInt(),
         )
         session.setMetadata(
             MediaMetadata.Builder()

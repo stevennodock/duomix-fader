@@ -1,7 +1,8 @@
-# DuoMix — Mixeur audio YouTube / YouTube Music pour Pixel
+# DuoMix — Mixeur audio à deux apps pour Android
 
 Mini-app Android (Kotlin + Jetpack Compose) qui contourne l'*audio focus* d'Android
-pour permettre la **lecture simultanée** de YouTube (vidéo) et YouTube Music, et offre
+pour permettre la **lecture simultanée** de deux apps — une de musique (YouTube Music,
+Spotify, Deezer…) et une de vidéo ou de voix (YouTube, X, Telegram, VLC, Chrome…) — et offre
 un **mixeur 2 canaux avec crossfader** à puissance constante, le tout **sans root**
 grâce à [Shizuku](https://shizuku.rikka.app/).
 
@@ -24,7 +25,10 @@ duomix/
 ├── app/src/main/aidl/com/dirtwing/duomix/IMixerService.aidl   # Interface app <-> service shell
 ├── app/src/main/java/com/dirtwing/duomix/
 │   ├── MainActivity.kt              # Activité unique Compose
-│   ├── MixerViewModel.kt            # État, Shizuku, polling, crossfader
+│   ├── AppCatalog.kt                # Liste FERMÉE des apps mixables = liste blanche du shell
+│   ├── MixerEngine.kt               # Moteur partagé : Shizuku, polling, volumes, crossfader
+│   ├── MixerNotificationService.kt  # Crossfader dans une notification (MediaSession)
+│   ├── MixerViewModel.kt            # Façade de l'écran sur le moteur
 │   ├── shizuku/MixerUserService.kt  # Côté shell : appops (liste blanche) + volumes (réflexion)
 │   ├── ui/MixerScreen.kt            # UI : statut, toggles focus, sliders, crossfader
 │   └── ui/LicensesScreen.kt         # Écran « Licences open source » (NOTICE + LICENSE)
@@ -34,7 +38,11 @@ duomix/
 ```
 
 Le service shell n'expose **aucune exécution de commande arbitraire** : seul
-`appops … TAKE_AUDIO_FOCUS` est possible, et uniquement pour YouTube et YouTube Music.
+`appops … TAKE_AUDIO_FOCUS` est possible, et uniquement pour les apps d'`AppCatalog`.
+
+**Ajouter une app** : une ligne dans `AppCatalog.kt`, une entrée `<queries>` dans le
+manifest, et incrémenter `versionCode` (sinon Shizuku réutilise l'ancien service shell).
+Toutes les apps ne sont pas pilotables : à valider une par une sur l'appareil.
 
 ## Build
 

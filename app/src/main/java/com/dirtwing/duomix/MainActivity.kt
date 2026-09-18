@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Shizuku peut avoir été (re)démarré pendant que l'app était en arrière-plan
-        viewModel.refreshShizukuState()
+        // Shizuku peut avoir été (re)démarré, ou une app installée, pendant l'arrière-plan
+        viewModel.refresh()
     }
 }

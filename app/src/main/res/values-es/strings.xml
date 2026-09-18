@@ -9,12 +9,15 @@
     <string name="action_request_permission">Solicitar permiso de Shizuku</string>
 
     <string name="focus_title">Reproducción simultánea (foco de audio)</string>
-    <string name="focus_description">Cuando una app «ignora» el foco de audio, la otra ya no la pone en pausa. Normalmente basta con activarlo para YouTube Music.</string>
+    <string name="focus_description">Cuando una app «ignora» el foco de audio, la otra ya no la pone en pausa. Normalmente basta con activarlo para la app de música.</string>
+
+    <string name="apps_title">Apps a mezclar</string>
+    <string name="slot_music">Canal de música</string>
+    <string name="slot_video">Canal de vídeo / voz</string>
+    <string name="apps_none_installed">Ninguna app compatible instalada</string>
 
     <string name="mixer_title">Mezclador</string>
     <string name="crossfader_title">Crossfader</string>
-    <string name="crossfader_music">Música</string>
-    <string name="crossfader_video">Vídeo</string>
     <string name="mixer_hint">El volumen se aplica a los flujos activos; inicia la reproducción en ambas apps para ver los canales pasar a «reproduciendo».</string>
     <string name="state_playing">▶ reproduciendo</string>
     <string name="state_silent">· en silencio</string>
@@ -24,7 +27,7 @@
 
     <string name="notif_channel_name">Crossfader DuoMix</string>
     <string name="notif_title">Crossfader DuoMix</string>
-    <string name="notif_balance">Música %1$d %% · Vídeo %2$d %%</string>
+    <string name="notif_balance">%1$s %2$d %% · %3$s %4$d %%</string>
     <string name="notif_action_stop">Ocultar el crossfader</string>
 
     <string name="action_licenses">Licencias de código abierto</string>

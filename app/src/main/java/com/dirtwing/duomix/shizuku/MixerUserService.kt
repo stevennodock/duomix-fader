@@ -9,6 +9,7 @@ import android.media.AudioManager
 import android.os.IBinder
 import android.os.RemoteException
 import androidx.annotation.Keep
+import com.dirtwing.duomix.AppCatalog
 import com.dirtwing.duomix.IMixerService
 import org.json.JSONArray
 import org.json.JSONObject
@@ -32,10 +33,7 @@ class MixerUserService() : IMixerService.Stub() {
     private companion object {
         const val FOCUS_OP = "TAKE_AUDIO_FOCUS"
         /** Liste blanche appliquée côté shell : l'appelant ne peut viser aucun autre paquet. */
-        val ALLOWED_PACKAGES = setOf(
-            "com.google.android.youtube",
-            "com.google.android.apps.youtube.music",
-        )
+        val ALLOWED_PACKAGES = AppCatalog.allowedPackages
     }
 
     private var context: Context? = null

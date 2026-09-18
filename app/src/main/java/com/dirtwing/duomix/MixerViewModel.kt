@@ -16,9 +16,15 @@ class MixerViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() = engine.release()
 
-    fun refreshShizukuState() = engine.refreshShizukuState()
+    /** À chaque retour au premier plan : Shizuku ou une app ont pu changer entre-temps. */
+    fun refresh() {
+        engine.refreshInstalledApps()
+        engine.refreshShizukuState()
+    }
+
     fun requestPermission() = engine.requestPermission()
+    fun selectApp(slot: Slot, pkg: String) = engine.selectApp(slot, pkg)
     fun setFocusIgnored(pkg: String, ignored: Boolean) = engine.setFocusIgnored(pkg, ignored)
-    fun setChannelVolume(pkg: String, volume: Float) = engine.setChannelVolume(pkg, volume)
+    fun setChannelVolume(slot: Slot, volume: Float) = engine.setChannelVolume(slot, volume)
     fun setCrossfader(x: Float) = engine.setCrossfader(x)
 }
