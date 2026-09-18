@@ -23,6 +23,11 @@
     <string name="error_prefix">Error: %1$s</string>
     <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS denied for %1$s</string>
 
+    <string name="notif_channel_name">Crossfader DuoMix</string>
+    <string name="notif_title">Crossfader DuoMix</string>
+    <string name="notif_balance">Music %1$d%% · Video %2$d%%</string>
+    <string name="notif_action_stop">Hide the crossfader</string>
+
     <string name="action_licenses">Open source licenses</string>
     <string name="action_back">← Back</string>
     <string name="licenses_missing">%1$s not found in the APK</string>

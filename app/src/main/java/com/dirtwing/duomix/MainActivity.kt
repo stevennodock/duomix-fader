@@ -3,6 +3,8 @@
 
 package com.dirtwing.duomix
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,6 +43,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Un service de premier plan ne peut être lancé que depuis une app visible.
+        // Les notifications de lecteur multimédia sont exemptées de POST_NOTIFICATIONS,
+        // on la demande quand même pour que la notification apparaisse aussi dans le volet.
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0)
+        }
+        MixerNotificationService.start(this)
     }
 
     override fun onResume() {

@@ -67,6 +67,10 @@ Ces points ne relèvent pas des licences mais peuvent entraîner un refus ou un 
 - [ ] **API non publiques** : l'app utilise HiddenApiBypass et la réflexion sur
       `AudioPlaybackConfiguration`. Play le tolère en pratique mais ne garantit rien ;
       prévoir une dégradation propre si une API disparaît.
+- [ ] **Service de premier plan `mediaPlayback`** : Play exige une déclaration (et une vidéo
+      de démonstration) pour chaque type de service de premier plan. DuoMix ne joue aucun
+      son : sa MediaSession n'est qu'une surface de contrôle (barre de progression =
+      crossfader). Usage détourné à justifier ; repli possible sur le type `specialUse`.
 - [ ] Plan B si refus : distribution hors Play (GitHub Releases, F-Droid — ce dernier
       exige un build reproductible depuis les sources et aucune dépendance propriétaire).
 
