@@ -68,8 +68,11 @@ class MixerUserService() : IMixerService.Stub() {
     }
 
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {
-        if (pkg !in ALLOWED_PACKAGES) return false
-        val mode = if (ignored) "ignore" else "allow"
+        val app = AppCatalog.find(pkg) ?: return false
+        // Une app qui se met en pause quand on lui refuse le focus ne doit jamais l'ignorer
+        if (ignored && !app.toleratesFocusDenial) return false
+        // « default » et non « allow » : l'état d'origine varie selon l'app (souvent foreground)
+        val mode = if (ignored) "ignore" else "default"
         val out = appops("set", pkg, FOCUS_OP, mode) ?: return false
         // appops set est silencieux en cas de succès
         return out.isEmpty()

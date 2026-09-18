@@ -6,8 +6,20 @@ package com.dirtwing.duomix
 /** Les deux voies du mixeur : le crossfader va de MUSIC (0) à VIDEO (1). */
 enum class Slot { MUSIC, VIDEO }
 
-/** Une app que DuoMix sait mixer. Les noms de marque ne sont pas traduits. */
-data class AppTarget(val pkg: String, val label: String)
+/**
+ * Une app que DuoMix sait mixer. Les noms de marque ne sont pas traduits.
+ *
+ * [toleratesFocusDenial] : l'app continue de jouer quand sa demande d'audio focus est
+ * refusée (effet de `TAKE_AUDIO_FOCUS ignore`). Faux pour les apps dont le lecteur gère
+ * lui-même le focus (Media3/ExoPlayer avec handleAudioFocus) : elles se mettent en pause
+ * toutes seules. Pour celles-là, c'est l'AUTRE canal qui doit ignorer le focus.
+ * Constaté sur appareil ; vrai par défaut pour les apps pas encore testées.
+ */
+data class AppTarget(
+    val pkg: String,
+    val label: String,
+    val toleratesFocusDenial: Boolean = true,
+)
 
 /**
  * Liste FERMÉE des apps mixables, source unique pour l'UI et pour le service shell :
@@ -30,7 +42,8 @@ object AppCatalog {
 
     val video = listOf(
         AppTarget("com.google.android.youtube", "YouTube"),
-        AppTarget("com.twitter.android", "X"),
+        // Media3 : se met en pause si le focus lui est refusé (constaté le 2026-09-19)
+        AppTarget("com.twitter.android", "X", toleratesFocusDenial = false),
         AppTarget("org.telegram.messenger", "Telegram"),
         AppTarget("tv.twitch.android.app", "Twitch"),
         AppTarget("org.videolan.vlc", "VLC"),

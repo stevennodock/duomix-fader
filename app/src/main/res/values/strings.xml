@@ -12,6 +12,8 @@
     <string name="focus_title">Simultaneous playback (audio focus)</string>
     <string name="focus_description">When an app “ignores” audio focus, the other app no longer pauses it. Enabling it for the music app is usually enough.</string>
 
+    <string name="focus_not_supported">Pauses itself when refused audio focus: enable the option on the other app instead.</string>
+
     <string name="apps_title">Apps to mix</string>
     <string name="slot_music">Music channel</string>
     <string name="slot_video">Video / voice channel</string>

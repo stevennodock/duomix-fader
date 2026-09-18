@@ -35,6 +35,8 @@ data class Channel(
     val focusIgnored: Boolean = false,
     val playing: Boolean = false,
     val piids: List<Int> = emptyList(),
+    /** Faux : l'app se met en pause si on lui refuse le focus (voir AppTarget). */
+    val toleratesFocusDenial: Boolean = true,
 )
 
 data class MixerUiState(
@@ -210,8 +212,15 @@ class MixerEngine private constructor(private val appContext: Context) {
             fun ignored(pkg: String): Boolean =
                 runCatching { svc.isFocusIgnored(pkg) }.getOrDefault(false)
             val current = _state.value
-            val musicIgnored = ignored(current.music.pkg)
-            val videoIgnored = ignored(current.video.pkg)
+            // Une app qui ne tolère pas le refus de focus ne doit jamais rester en « ignore »
+            fun ignoredOrReset(channel: Channel): Boolean {
+                val isIgnored = ignored(channel.pkg)
+                if (!isIgnored || channel.toleratesFocusDenial) return isIgnored
+                runCatching { svc.setFocusIgnored(channel.pkg, false) }
+                return false
+            }
+            val musicIgnored = ignoredOrReset(current.music)
+            val videoIgnored = ignoredOrReset(current.video)
             _state.update {
                 // L'app d'un canal a pu changer pendant l'appel : on ne marque que la bonne
                 it.copy(
@@ -228,11 +237,14 @@ class MixerEngine private constructor(private val appContext: Context) {
 
     private fun prefKey(slot: Slot) = "app_${slot.name.lowercase()}"
 
+    private fun channelFor(app: AppTarget, volume: Float) =
+        Channel(app.pkg, app.label, volume = volume, toleratesFocusDenial = app.toleratesFocusDenial)
+
     /** Canal initial : dernière app choisie, volume cohérent avec le fader au centre. */
     private fun savedChannel(slot: Slot): Channel {
         val apps = AppCatalog.apps(slot)
         val app = apps.firstOrNull { it.pkg == prefs.getString(prefKey(slot), null) } ?: apps.first()
-        return Channel(app.pkg, app.label, volume = cos(PI.toFloat() / 4f))
+        return channelFor(app, volume = cos(PI.toFloat() / 4f))
     }
 
     /** Recense les apps du catalogue installées (déclarées dans <queries> du manifest). */
@@ -252,7 +264,7 @@ class MixerEngine private constructor(private val appContext: Context) {
         if (previous.pkg == app.pkg) return
         prefs.edit().putString(prefKey(slot), app.pkg).apply()
         _state.update {
-            it.withChannel(slot, Channel(app.pkg, app.label, volume = it.channel(slot).volume))
+            it.withChannel(slot, channelFor(app, volume = it.channel(slot).volume))
         }
         scope.launch {
             restoreFullVolume(previous)

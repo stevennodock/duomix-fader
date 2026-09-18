@@ -11,6 +11,8 @@
     <string name="focus_title">Reproducción simultánea (foco de audio)</string>
     <string name="focus_description">Cuando una app «ignora» el foco de audio, la otra ya no la pone en pausa. Normalmente basta con activarlo para la app de música.</string>
 
+    <string name="focus_not_supported">Se pausa si se le deniega el foco de audio: activa la opción en la otra app.</string>
+
     <string name="apps_title">Apps a mezclar</string>
     <string name="slot_music">Canal de música</string>
     <string name="slot_video">Canal de vídeo / voz</string>

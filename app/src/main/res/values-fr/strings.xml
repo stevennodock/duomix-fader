@@ -11,6 +11,8 @@
     <string name="focus_title">Lecture simultanée (audio focus)</string>
     <string name="focus_description">Quand une app « ignore » l\'audio focus, elle n\'est plus mise en pause par l\'autre. Activer sur l\'app de musique suffit en général.</string>
 
+    <string name="focus_not_supported">Se met en pause si on lui refuse l\'audio focus : active plutôt l\'option sur l\'autre app.</string>
+
     <string name="apps_title">Apps à mixer</string>
     <string name="slot_music">Canal musique</string>
     <string name="slot_video">Canal vidéo / voix</string>

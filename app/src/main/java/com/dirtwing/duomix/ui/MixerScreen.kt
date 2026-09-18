@@ -193,8 +193,20 @@ private fun FocusSwitch(channel: Channel, enabled: Boolean, onToggle: (Boolean) 
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(channel.label, modifier = Modifier.weight(1f))
-        Switch(checked = channel.focusIgnored, onCheckedChange = onToggle, enabled = enabled)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(channel.label)
+            if (!channel.toleratesFocusDenial) {
+                Text(
+                    stringResource(R.string.focus_not_supported),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+        Switch(
+            checked = channel.focusIgnored,
+            onCheckedChange = onToggle,
+            enabled = enabled && channel.toleratesFocusDenial,
+        )
     }
 }
 
