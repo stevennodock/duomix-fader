@@ -87,11 +87,16 @@ Ces points ne relèvent pas des licences mais peuvent entraîner un refus ou un 
       *Data safety* : DuoMix ne collecte ni ne transmet aucune donnée et ne demande pas
       la permission `INTERNET` — à déclarer tel quel, et à re-vérifier à chaque release.
 - [ ] Classification du contenu, public cible, déclaration « pas de publicité ».
-- [ ] Activer R8 (`isMinifyEnabled = true`) et conserver `MixerUserService`
-      (`@Keep` déjà présent) ; tester le UserService Shizuku sur le build release.
+- [x] R8 + réduction des ressources activés en release ; `MixerUserService` et l'AIDL
+      conservés (`proguard-rules.pro`). AAB 0.3.0 testé le 2026-09-19 sur Pixel 11 Pro XL
+      via `bundletool` (APK générés depuis l'AAB, comme le fait Play) : service shell lié,
+      fader de la notification fonctionnel, lecture simultanée OK.
+- [ ] Conserver le `mapping.txt` de chaque release (désobfuscation des traces de crash) :
+      à téléverser dans la Play Console avec l'AAB.
 
 ## Journal des audits
 
 | Date | Version | Auditeur | Résultat |
 | --- | --- | --- | --- |
 | 2026-09-18 | 0.1.0 | Steve Nodock | 95 modules, Apache 2.0 + MIT, conforme |
+| 2026-09-19 | 0.3.0 | Steve Nodock | AAB release (R8) testé sur appareil ; dépendances inchangées depuis 0.1.0 |
