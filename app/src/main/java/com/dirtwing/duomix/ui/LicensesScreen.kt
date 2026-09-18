@@ -17,8 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.dirtwing.duomix.R
 
 /**
  * Écran « Licences open source » : affiche NOTICE puis LICENSE, copiés depuis la racine
@@ -27,12 +29,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LicensesScreen(onBack: () -> Unit) {
     BackHandler(onBack = onBack)
-    val assets = LocalContext.current.assets
+    val context = LocalContext.current
     val texts = remember {
         listOf("NOTICE", "LICENSE").map { name ->
             runCatching {
-                assets.open("licenses/$name").bufferedReader().use { it.readText() }
-            }.getOrDefault("$name introuvable dans l'APK")
+                context.assets.open("licenses/$name").bufferedReader().use { it.readText() }
+            }.getOrDefault(context.getString(R.string.licenses_missing, name))
         }
     }
 
@@ -43,8 +45,8 @@ fun LicensesScreen(onBack: () -> Unit) {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        TextButton(onClick = onBack) { Text("← Retour") }
-        Text("Licences open source", style = MaterialTheme.typography.headlineSmall)
+        TextButton(onClick = onBack) { Text(stringResource(R.string.action_back)) }
+        Text(stringResource(R.string.action_licenses), style = MaterialTheme.typography.headlineSmall)
         for (text in texts) {
             Text(
                 text,

@@ -24,10 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dirtwing.duomix.Channel
 import com.dirtwing.duomix.MixerViewModel
+import com.dirtwing.duomix.R
 import kotlin.math.roundToInt
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
@@ -43,26 +45,23 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("DuoMix", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "Mixeur YouTube / YouTube Music via Shizuku",
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        Text(stringResource(R.string.app_subtitle), style = MaterialTheme.typography.bodyMedium)
 
         // --- Carte état Shizuku ---
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Shizuku", style = MaterialTheme.typography.titleMedium)
-                StatusLine("Service Shizuku détecté", state.shizukuAvailable)
-                StatusLine("Permission accordée", state.shizukuGranted)
-                StatusLine("Service mixeur connecté", state.serviceBound)
+                StatusLine(stringResource(R.string.status_shizuku_detected), state.shizukuAvailable)
+                StatusLine(stringResource(R.string.status_permission_granted), state.shizukuGranted)
+                StatusLine(stringResource(R.string.status_service_bound), state.serviceBound)
                 if (!state.shizukuAvailable) {
                     Text(
-                        "Lance l'app Shizuku et démarre-la via « Débogage sans fil ».",
+                        stringResource(R.string.hint_start_shizuku),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 } else if (!state.shizukuGranted) {
                     Button(onClick = { viewModel.requestPermission() }) {
-                        Text("Demander la permission Shizuku")
+                        Text(stringResource(R.string.action_request_permission))
                     }
                 }
             }
@@ -71,10 +70,9 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
         // --- Carte audio focus ---
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Lecture simultanée (audio focus)", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.focus_title), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Quand une app « ignore » l'audio focus, elle n'est plus mise en pause " +
-                        "par l'autre. Activer sur YouTube Music suffit en général.",
+                    stringResource(R.string.focus_description),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 FocusSwitch(state.ytm, enabled = state.serviceBound) {
@@ -89,16 +87,16 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
         // --- Carte mixeur ---
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Mixeur", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.mixer_title), style = MaterialTheme.typography.titleMedium)
                 ChannelSlider(state.ytm, enabled = state.serviceBound) {
                     viewModel.setChannelVolume(state.ytm.pkg, it)
                 }
                 ChannelSlider(state.yt, enabled = state.serviceBound) {
                     viewModel.setChannelVolume(state.yt.pkg, it)
                 }
-                Text("Crossfader", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.crossfader_title), style = MaterialTheme.typography.titleSmall)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Music", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.crossfader_music), style = MaterialTheme.typography.labelMedium)
                     Slider(
                         value = state.crossfader,
                         onValueChange = { viewModel.setCrossfader(it) },
@@ -107,11 +105,10 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
                             .weight(1f)
                             .padding(horizontal = 8.dp),
                     )
-                    Text("Vidéo", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.crossfader_video), style = MaterialTheme.typography.labelMedium)
                 }
                 Text(
-                    "Le volume est appliqué aux flux actifs ; lance la lecture dans les deux " +
-                        "apps pour voir les canaux passer en « lecture ».",
+                    stringResource(R.string.mixer_hint),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -119,12 +116,12 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
 
         state.lastError?.let {
             Text(
-                "Erreur : $it",
+                stringResource(R.string.error_prefix, it),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        TextButton(onClick = onShowLicenses) { Text("Licences open source") }
+        TextButton(onClick = onShowLicenses) { Text(stringResource(R.string.action_licenses)) }
     }
 }
 
@@ -154,7 +151,7 @@ private fun ChannelSlider(channel: Channel, enabled: Boolean, onChange: (Float) 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(channel.label, modifier = Modifier.weight(1f))
             Text(
-                if (channel.playing) "▶ lecture" else "· silencieux",
+                stringResource(if (channel.playing) R.string.state_playing else R.string.state_silent),
                 style = MaterialTheme.typography.labelMedium,
             )
         }

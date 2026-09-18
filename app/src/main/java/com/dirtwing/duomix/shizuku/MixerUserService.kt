@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioManager
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.annotation.Keep
 import com.dirtwing.duomix.IMixerService
 import org.json.JSONArray
@@ -55,6 +56,17 @@ class MixerUserService() : IMixerService.Stub() {
 
     override fun destroy() {
         exitProcess(0)
+    }
+
+    override fun attachClient(token: IBinder) {
+        // Shizuku arrête normalement ce processus (daemon = false), mais s'il est lui-même
+        // tué, plus personne ne le fait : on ne laisse jamais un processus shell orphelin.
+        try {
+            token.linkToDeath({ exitProcess(0) }, 0)
+        } catch (e: RemoteException) {
+            // Le client est déjà mort
+            exitProcess(0)
+        }
     }
 
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {

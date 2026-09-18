@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_subtitle">Mixeur YouTube / YouTube Music via Shizuku</string>
+
+    <string name="status_shizuku_detected">Service Shizuku détecté</string>
+    <string name="status_permission_granted">Permission accordée</string>
+    <string name="status_service_bound">Service mixeur connecté</string>
+    <string name="hint_start_shizuku">Lance l\'app Shizuku et démarre-la via « Débogage sans fil ».</string>
+    <string name="action_request_permission">Demander la permission Shizuku</string>
+
+    <string name="focus_title">Lecture simultanée (audio focus)</string>
+    <string name="focus_description">Quand une app « ignore » l\'audio focus, elle n\'est plus mise en pause par l\'autre. Activer sur YouTube Music suffit en général.</string>
+
+    <string name="mixer_title">Mixeur</string>
+    <string name="crossfader_title">Crossfader</string>
+    <string name="crossfader_music">Music</string>
+    <string name="crossfader_video">Vidéo</string>
+    <string name="mixer_hint">Le volume est appliqué aux flux actifs ; lance la lecture dans les deux apps pour voir les canaux passer en « lecture ».</string>
+    <string name="state_playing">▶ lecture</string>
+    <string name="state_silent">· silencieux</string>
+
+    <string name="error_prefix">Erreur : %1$s</string>
+    <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS refusé pour %1$s</string>
+
+    <string name="action_licenses">Licences open source</string>
+    <string name="action_back">← Retour</string>
+    <string name="licenses_missing">%1$s introuvable dans l\'APK</string>
+</resources>

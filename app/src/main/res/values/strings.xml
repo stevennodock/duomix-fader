@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DuoMix</string>
+    <string name="app_name" translatable="false">DuoMix</string>
+    <string name="app_subtitle">YouTube / YouTube Music mixer powered by Shizuku</string>
+
+    <string name="status_shizuku_detected">Shizuku service detected</string>
+    <string name="status_permission_granted">Permission granted</string>
+    <string name="status_service_bound">Mixer service connected</string>
+    <string name="hint_start_shizuku">Open the Shizuku app and start it through “Wireless debugging”.</string>
+    <string name="action_request_permission">Request Shizuku permission</string>
+
+    <string name="focus_title">Simultaneous playback (audio focus)</string>
+    <string name="focus_description">When an app “ignores” audio focus, the other app no longer pauses it. Enabling it for YouTube Music is usually enough.</string>
+
+    <string name="mixer_title">Mixer</string>
+    <string name="crossfader_title">Crossfader</string>
+    <string name="crossfader_music">Music</string>
+    <string name="crossfader_video">Video</string>
+    <string name="mixer_hint">Volume is applied to active streams; start playback in both apps to see the channels switch to “playing”.</string>
+    <string name="state_playing">▶ playing</string>
+    <string name="state_silent">· silent</string>
+
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS denied for %1$s</string>
+
+    <string name="action_licenses">Open source licenses</string>
+    <string name="action_back">← Back</string>
+    <string name="licenses_missing">%1$s not found in the APK</string>
 </resources>

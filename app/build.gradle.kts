@@ -15,8 +15,16 @@ android {
         applicationId = "com.dirtwing.duomix"
         minSdk = 31
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // Sert aussi de version du UserService Shizuku : à incrémenter dès que
+        // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
+        versionCode = 2
+        versionName = "0.1.1"
+    }
+
+    androidResources {
+        // Déclare en/fr/es au système (choix de langue par app, Android 13+) ;
+        // la langue par défaut est définie dans res/resources.properties
+        generateLocaleConfig = true
     }
 
     buildFeatures {

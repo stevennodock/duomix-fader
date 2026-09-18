@@ -3,11 +3,13 @@
 
 package com.dirtwing.duomix
 
+import android.app.Application
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Binder
 import android.os.IBinder
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dirtwing.duomix.shizuku.MixerUserService
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +55,7 @@ data class MixerUiState(
  * Orchestration : connexion Shizuku, bascule de l'audio focus via appops,
  * polling des flux actifs et application des volumes.
  */
-class MixerViewModel : ViewModel() {
+class MixerViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         const val SHIZUKU_PERMISSION_CODE = 4242
@@ -65,6 +67,8 @@ class MixerViewModel : ViewModel() {
     val state: StateFlow<MixerUiState> = _state.asStateFlow()
 
     private var service: IMixerService? = null
+    /** Jeton dont la mort (= mort de ce processus) fait s'arrêter le service shell. */
+    private val clientToken = Binder()
     private var pollJob: Job? = null
     /** Volumes déjà appliqués (piid -> volume) pour ne pousser que les changements. */
     private val applied = mutableMapOf<Int, Float>()
@@ -81,6 +85,7 @@ class MixerViewModel : ViewModel() {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             if (binder != null && binder.pingBinder()) {
                 service = IMixerService.Stub.asInterface(binder)
+                runCatching { service?.attachClient(clientToken) }
                 _state.value = _state.value.copy(serviceBound = true, lastError = null)
                 refreshFocusStates()
                 startPolling()
@@ -154,7 +159,8 @@ class MixerViewModel : ViewModel() {
             val svc = service ?: return@launch
             val ok = runCatching { svc.setFocusIgnored(pkg, ignored) }.getOrDefault(false)
             if (!ok) {
-                _state.value = _state.value.copy(lastError = "appops TAKE_AUDIO_FOCUS refusé pour $pkg")
+                val message = getApplication<Application>().getString(R.string.error_appops_denied, pkg)
+                _state.value = _state.value.copy(lastError = message)
             }
             refreshFocusStates()
         }

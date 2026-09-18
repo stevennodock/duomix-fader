@@ -38,8 +38,11 @@ Responsable : Steve Nodock <stb@outlook.fr>
 - [ ] Le Shizuku réduit (`stb-duomix/Shizuku`, branche `duomix-minimal`) reste **privé**.
       Le README amont interdit aux dérivés le nom « Shizuku », l'identifiant
       `moe.shizuku.privileged.api` et les permissions `moe.shizuku.manager.permission.*`.
-- [ ] DuoMix publié doit fonctionner avec le **Shizuku officiel** (Play Store / GitHub) :
-      tester cette combinaison, c'est celle qu'auront les utilisateurs.
+- [x] DuoMix fonctionne avec le **Shizuku officiel** : testé le 2026-09-18 sur Pixel 11
+      Pro XL / Android 17 avec la release GitHub v13.6.0 (signée `CN=Rikka`, `classes.dex`
+      identique au bit près à un build depuis les sources). Lecture simultanée, sliders
+      et crossfader validés. **Décision : Shizuku officiel = dépendance retenue.**
+      À re-tester à chaque nouvelle version majeure de Shizuku ou d'Android.
 - [ ] Ne pas utiliser le logo ni les captures de Shizuku dans la fiche Play.
 
 ## 3. Marques et fiche Play

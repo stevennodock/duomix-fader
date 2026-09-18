@@ -21,4 +21,8 @@ interface IMixerService {
 
     // Indique si TAKE_AUDIO_FOCUS est en mode ignore pour un paquet de la liste blanche
     boolean isFocusIgnored(String pkg) = 4;
+
+    // Lie la vie du service à celle de l'app : à la mort du jeton (processus client
+    // tué), le service shell se termine de lui-même, même si Shizuku n'est plus là.
+    void attachClient(IBinder token) = 5;
 }
