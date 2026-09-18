@@ -1,3 +1,3 @@
 # Réflexion sur les API média cachées — ne pas obfusquer le service mixeur
--keep class com.dirtwing.duomix.shizuku.** { *; }
--keep class com.dirtwing.duomix.IMixerService* { *; }
+-keep class com.dirtwing.duomixfader.shizuku.** { *; }
+-keep class com.dirtwing.duomixfader.IMixerService* { *; }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix
+package com.dirtwing.duomixfader
 
 /** Les deux voies du mixeur : le crossfader va de MUSIC (0) à VIDEO (1). */
 enum class Slot { MUSIC, VIDEO }

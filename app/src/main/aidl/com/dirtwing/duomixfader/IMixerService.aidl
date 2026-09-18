@@ -3,7 +3,7 @@
 
 // Interface du UserService exécuté par Shizuku dans le processus shell (uid 2000).
 // Les retours sont en JSON (String) pour éviter des Parcelable custom.
-package com.dirtwing.duomix;
+package com.dirtwing.duomixfader;
 
 interface IMixerService {
     // Méthode de destruction réservée Shizuku (id imposé par la lib)

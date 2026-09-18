@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix.shizuku
+package com.dirtwing.duomixfader.shizuku
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,8 +9,9 @@ import android.media.AudioManager
 import android.os.IBinder
 import android.os.RemoteException
 import androidx.annotation.Keep
-import com.dirtwing.duomix.AppCatalog
-import com.dirtwing.duomix.IMixerService
+import com.dirtwing.duomixfader.AppCatalog
+import com.dirtwing.duomixfader.BuildConfig
+import com.dirtwing.duomixfader.IMixerService
 import org.json.JSONArray
 import org.json.JSONObject
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -71,11 +72,23 @@ class MixerUserService() : IMixerService.Stub() {
         val app = AppCatalog.find(pkg) ?: return false
         // Une app qui se met en pause quand on lui refuse le focus ne doit jamais l'ignorer
         if (ignored && !app.toleratesFocusDenial) return false
-        // « default » et non « allow » : l'état d'origine varie selon l'app (souvent foreground)
-        val mode = if (ignored) "ignore" else "default"
+        val mode = if (ignored) "ignore" else normalFocusMode
         val out = appops("set", pkg, FOCUS_OP, mode) ?: return false
         // appops set est silencieux en cas de succès
         return out.isEmpty()
+    }
+
+    /**
+     * Mode normal de TAKE_AUDIO_FOCUS sur cet appareil (`foreground` sur Android récent,
+     * `allow` avant), lu sur notre propre paquet, qui n'a jamais d'entrée pour cette op.
+     * Surtout pas le mot-clé `default` : c'est un mode distinct (MODE_DEFAULT) que le
+     * service audio traite comme un refus — l'app resterait privée d'audio focus.
+     */
+    private val normalFocusMode: String by lazy {
+        val out = appops("get", BuildConfig.APPLICATION_ID, FOCUS_OP).orEmpty()
+        Regex("Default mode: (\\w+)").find(out)?.groupValues?.get(1)
+            ?.takeIf { it == "allow" || it == "foreground" }
+            ?: "allow"
     }
 
     override fun isFocusIgnored(pkg: String): Boolean {

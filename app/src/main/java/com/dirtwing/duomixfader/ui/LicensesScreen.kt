@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix.ui
+package com.dirtwing.duomixfader.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.dirtwing.duomix.R
+import com.dirtwing.duomixfader.R
 
 /**
  * Écran « Licences open source » : affiche NOTICE puis LICENSE, copiés depuis la racine

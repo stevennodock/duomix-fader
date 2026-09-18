@@ -22,8 +22,8 @@ grâce à [Shizuku](https://shizuku.rikka.app/).
 
 ```
 duomix/
-├── app/src/main/aidl/com/dirtwing/duomix/IMixerService.aidl   # Interface app <-> service shell
-├── app/src/main/java/com/dirtwing/duomix/
+├── app/src/main/aidl/com/dirtwing/duomixfader/IMixerService.aidl   # Interface app <-> service shell
+├── app/src/main/java/com/dirtwing/duomixfader/
 │   ├── MainActivity.kt              # Activité unique Compose
 │   ├── AppCatalog.kt                # Liste FERMÉE des apps mixables = liste blanche du shell
 │   ├── MixerEngine.kt               # Moteur partagé : Shizuku, polling, volumes, crossfader

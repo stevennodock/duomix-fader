@@ -11,17 +11,17 @@ plugins {
 base.archivesName = "duomix-fader"
 
 android {
-    namespace = "com.dirtwing.duomix"
+    namespace = "com.dirtwing.duomixfader"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.dirtwing.duomix"
+        applicationId = "com.dirtwing.duomixfader"
         minSdk = 31
         targetSdk = 36
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
-        versionCode = 4
-        versionName = "0.2.1"
+        versionCode = 5
+        versionName = "0.3.0"
     }
 
     androidResources {

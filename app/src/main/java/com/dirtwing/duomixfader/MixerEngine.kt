@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix
+package com.dirtwing.duomixfader
 
 import android.content.ComponentName
 import android.content.Context
@@ -9,7 +9,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
-import com.dirtwing.duomix.shizuku.MixerUserService
+import com.dirtwing.duomixfader.shizuku.MixerUserService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

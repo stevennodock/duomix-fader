@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix.ui
+package com.dirtwing.duomixfader.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,11 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dirtwing.duomix.AppTarget
-import com.dirtwing.duomix.Channel
-import com.dirtwing.duomix.MixerViewModel
-import com.dirtwing.duomix.R
-import com.dirtwing.duomix.Slot
+import com.dirtwing.duomixfader.AppTarget
+import com.dirtwing.duomixfader.Channel
+import com.dirtwing.duomixfader.MixerViewModel
+import com.dirtwing.duomixfader.R
+import com.dirtwing.duomixfader.Slot
 import kotlin.math.roundToInt
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */

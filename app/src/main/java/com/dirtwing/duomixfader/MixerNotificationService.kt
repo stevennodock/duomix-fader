@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix
+package com.dirtwing.duomixfader
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -38,7 +38,7 @@ class MixerNotificationService : Service() {
     companion object {
         private const val CHANNEL_ID = "crossfader"
         private const val NOTIFICATION_ID = 1
-        private const val ACTION_STOP = "com.dirtwing.duomix.action.STOP"
+        private const val ACTION_STOP = "com.dirtwing.duomixfader.action.STOP"
         /** Durée fictive : 100 s, pour que « 0:50 » se lise comme 50 %. */
         private const val FADER_DURATION_MS = 100_000L
         private const val STEP = 0.1f

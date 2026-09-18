@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Steve Nodock <stb@outlook.fr>
 
-package com.dirtwing.duomix
+package com.dirtwing.duomixfader
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -20,8 +20,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.dirtwing.duomix.ui.LicensesScreen
-import com.dirtwing.duomix.ui.MixerScreen
+import com.dirtwing.duomixfader.ui.LicensesScreen
+import com.dirtwing.duomixfader.ui.MixerScreen
 
 /** Activité unique : héberge l'écran mixeur Compose. */
 class MainActivity : ComponentActivity() {
