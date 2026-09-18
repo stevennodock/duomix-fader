@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">DuoMix</string>
+    <string name="app_name" translatable="false">DuoMix Fader</string>
     <string name="app_subtitle">YouTube / YouTube Music mixer powered by Shizuku</string>
 
     <string name="status_shizuku_detected">Shizuku service detected</string>

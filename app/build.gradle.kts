@@ -7,6 +7,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Nom des fichiers produits : duomix-fader-debug.apk, duomix-fader-release.aab…
+base.archivesName = "duomix-fader"
+
 android {
     namespace = "com.dirtwing.duomix"
     compileSdk = 36

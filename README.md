@@ -1,4 +1,4 @@
-# DuoMix — Mixeur audio à deux apps pour Android
+# DuoMix Fader — Mixeur audio à deux apps pour Android
 
 Mini-app Android (Kotlin + Jetpack Compose) qui contourne l'*audio focus* d'Android
 pour permettre la **lecture simultanée** de deux apps — une de musique (YouTube Music,
@@ -64,7 +64,7 @@ les builds debug et release sont signés avec ce keystore ; sinon avec la clé d
 
 1. Installer **Shizuku** (Play Store), le démarrer via *Options développeur →
    Débogage sans fil* (à refaire après chaque reboot).
-2. Lancer **DuoMix** → « Demander la permission Shizuku ».
+2. Lancer **DuoMix Fader** → « Demander la permission Shizuku ».
 3. Activer le switch *ignorer l'audio focus* pour **YouTube Music** (suffisant en général).
 4. Lancer une musique dans YT Music, puis une vidéo dans YouTube (PiP ou à l'écran) :
    les deux jouent ensemble.

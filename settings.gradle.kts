@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DuoMix"
+rootProject.name = "DuoMix Fader"
 include(":app")

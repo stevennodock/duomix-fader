@@ -51,7 +51,7 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("DuoMix", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
         Text(stringResource(R.string.app_subtitle), style = MaterialTheme.typography.bodyMedium)
 
         // --- Carte état Shizuku ---

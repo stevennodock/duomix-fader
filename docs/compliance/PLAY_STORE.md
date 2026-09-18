@@ -1,4 +1,4 @@
-# Conformité — publication de DuoMix sur Google Play
+# Conformité — publication de DuoMix Fader sur Google Play
 
 Squelette à compléter avant toute soumission. Les cases cochées sont déjà en place dans
 le dépôt ; les autres restent à faire. Ce document n'est pas un avis juridique.
