@@ -14,6 +14,10 @@ enum class Slot { MUSIC, VIDEO }
  * lui-même le focus (Media3/ExoPlayer avec handleAudioFocus) : elles se mettent en pause
  * toutes seules. Pour celles-là, c'est l'AUTRE canal qui doit ignorer le focus.
  * Constaté sur appareil ; vrai par défaut pour les apps pas encore testées.
+ *
+ * Validées sur Pixel 11 Pro XL / Android 17 (2026-09-19) : YouTube Music, YouTube et
+ * Telegram (tolèrent le refus de focus) ; X (ne le tolère pas, joue quand c'est l'autre
+ * canal qui ignore le focus). Les autres entrées restent à valider.
  */
 data class AppTarget(
     val pkg: String,
