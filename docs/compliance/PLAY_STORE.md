@@ -52,7 +52,9 @@ Responsable : Steve Nodock <stb@outlook.fr>
       manière suggérant une affiliation. Pas de logo YouTube dans l'icône ni les captures.
 - [ ] Mention « projet indépendant, non affilié à Google/YouTube » dans la description
       (déjà dans `NOTICE` et le README).
-- [ ] Icône propre à l'app (actuellement `@android:drawable/ic_media_play`, à remplacer).
+- [x] Icône propre à l'app : icône adaptative vectorielle originale (anneau à dégradé
+      circulaire + crossfader), sans logo ni élément graphique de tiers. Sources :
+      `docs/icon/` (SVG + PNG 512 px pour la fiche Play), `res/drawable/ic_launcher_*.xml`.
 
 ## 4. Risques de politique Play — À TRANCHER AVANT D'INVESTIR
 

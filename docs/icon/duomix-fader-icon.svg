@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: Apache-2.0 — Copyright 2026 Steve Nodock <stb@outlook.fr>
+     Icône DuoMix Fader, source de référence (512 px pour la fiche Play).
+     Même géométrie que res/drawable/ic_launcher_*.xml (grille 108 x 108). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="bg" cx="46%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#161A2E"/>
+      <stop offset="1" stop-color="#05060B"/>
+    </radialGradient>
+    <!-- Le dégradé circulaire (sweep) n'existe pas en SVG : conic-gradient via foreignObject -->
+    <clipPath id="ring" clip-rule="evenodd">
+      <path clip-rule="evenodd" d="M54,25a29,29 0 1,1 0,58a29,29 0 1,1 0,-58Z M57,33.5a19.5,19.5 0 1,0 0,39a19.5,19.5 0 1,0 0,-39Z"/>
+    </clipPath>
+    <clipPath id="halo" clip-rule="evenodd">
+      <path clip-rule="evenodd" d="M54,21a33,33 0 1,1 0,66a33,33 0 1,1 0,-66Z M57,35a17.5,17.5 0 1,0 0,35a17.5,17.5 0 1,0 0,-35Z"/>
+    </clipPath>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+  <g clip-path="url(#halo)" opacity="0.28">
+    <foreignObject x="0" y="0" width="108" height="108">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="width:108px;height:108px;background:conic-gradient(from 90deg at 50% 50%,#FF1744 0%,#FF5A36 9%,#FF2D87 21%,#B14DFF 36%,#3D5AFE 52%,#00B0FF 72%,#2962FF 86%,#FF1744 100%)"></div>
+    </foreignObject>
+  </g>
+  <g clip-path="url(#ring)">
+    <foreignObject x="0" y="0" width="108" height="108">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="width:108px;height:108px;background:conic-gradient(from 90deg at 50% 50%,#FF1744 0%,#FF5A36 9%,#FF2D87 21%,#B14DFF 36%,#3D5AFE 52%,#00B0FF 72%,#2962FF 86%,#FF1744 100%)"></div>
+    </foreignObject>
+  </g>
+  <!-- Crossfader : piste + curseur décentré -->
+  <rect x="43" y="53" width="28" height="2.4" rx="1.2" fill="#FFFFFF" opacity="0.55"/>
+  <rect x="59.5" y="46" width="6" height="16.4" rx="2" fill="#FFFFFF"/>
+</svg>

@@ -31,7 +31,8 @@
 
     <application
         android:label="@string/app_name"
-        android:icon="@android:drawable/ic_media_play"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.DuoMix"
         android:supportsRtl="true">
 

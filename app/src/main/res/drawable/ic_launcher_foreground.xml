@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premier plan de l'icône adaptative (même géométrie que docs/icon/duomix-fader-icon.svg) :
+     anneau à dégradé circulaire rouge -> bleu, d'épaisseur asymétrique (le cercle intérieur
+     est décentré), halo translucide, et crossfader au centre. Tout tient dans la zone
+     sûre de 66 dp. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Halo -->
+    <path
+        android:fillAlpha="0.28"
+        android:fillType="evenOdd"
+        android:pathData="M54,21a33,33 0 1,1 0,66a33,33 0 1,1 0,-66Z M57,35a17.5,17.5 0 1,0 0,35a17.5,17.5 0 1,0 0,-35Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="sweep"
+                android:centerX="54"
+                android:centerY="54">
+                <item android:offset="0.00" android:color="#FFFF1744" />
+                <item android:offset="0.09" android:color="#FFFF5A36" />
+                <item android:offset="0.21" android:color="#FFFF2D87" />
+                <item android:offset="0.36" android:color="#FFB14DFF" />
+                <item android:offset="0.52" android:color="#FF3D5AFE" />
+                <item android:offset="0.72" android:color="#FF00B0FF" />
+                <item android:offset="0.86" android:color="#FF2962FF" />
+                <item android:offset="1.00" android:color="#FFFF1744" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Anneau -->
+    <path
+        android:fillType="evenOdd"
+        android:pathData="M54,25a29,29 0 1,1 0,58a29,29 0 1,1 0,-58Z M57,33.5a19.5,19.5 0 1,0 0,39a19.5,19.5 0 1,0 0,-39Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="sweep"
+                android:centerX="54"
+                android:centerY="54">
+                <item android:offset="0.00" android:color="#FFFF1744" />
+                <item android:offset="0.09" android:color="#FFFF5A36" />
+                <item android:offset="0.21" android:color="#FFFF2D87" />
+                <item android:offset="0.36" android:color="#FFB14DFF" />
+                <item android:offset="0.52" android:color="#FF3D5AFE" />
+                <item android:offset="0.72" android:color="#FF00B0FF" />
+                <item android:offset="0.86" android:color="#FF2962FF" />
+                <item android:offset="1.00" android:color="#FFFF1744" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Crossfader : piste + curseur décentré -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillAlpha="0.55"
+        android:pathData="M44.2,53h25.6a1.2,1.2 0 0,1 0,2.4h-25.6a1.2,1.2 0 0,1 0,-2.4Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M61.5,46h2a2,2 0 0,1 2,2v12.4a2,2 0 0,1 -2,2h-2a2,2 0 0,1 -2,-2v-12.4a2,2 0 0,1 2,-2Z" />
+</vector>
