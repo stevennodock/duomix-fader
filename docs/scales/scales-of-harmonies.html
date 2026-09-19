@@ -34,7 +34,7 @@
   .chip { display: inline-block; width: 7px; height: 7px; border-radius: 50%; vertical-align: 0; margin-right: 2px; }
   table { border-collapse: collapse; width: 100%; margin-top: 5px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
   th { font: 600 7.6pt "Segoe UI", sans-serif; text-align: left; color: var(--soft); text-transform: uppercase; letter-spacing: .6px; padding: 3px 7px; border-bottom: 1.5px solid var(--ink); }
-  td { padding: 0 7px; height: 4.92mm; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 0 7px; height: var(--row, 19px); line-height: 1; border-bottom: 1px solid var(--line); white-space: nowrap; }
   tr.last td { border-bottom: 1.5px solid #c9c5b8; }
   td.fam { width: 11mm; text-align: center; font: 700 13pt Georgia, serif; color: #fff; border-bottom: 1.5px solid #fff; }
   td.pop { font-weight: 500; }
@@ -148,28 +148,30 @@ document.getElementById('head').innerHTML = t.head.map(h => `<th>${h}</th>`).joi
 // Grille chromatique : une colonne par demi-ton. La couleur d'une colonne est celle de la
 // gamme par tons à laquelle elle appartient (paire = bleu, comme do ; impaire = rouge).
 // Dans une famille, la ligne n° i commence sur le degré i de la première ligne : l'escalier.
-const COL = 11.6, PAD = 9, W = PAD * 2 + COL * 23, H = 19;
+const COL = 11.6, PAD = 9, W = PAD * 2 + COL * 23;
+let H = 22;   // hauteur de départ d'une ligne du tableau, en px : réduite plus bas jusqu'à ce que la page tienne
 function stepsSvg(steps, offset) {
   let x = offset, out = '';
   const xs = [x];
   for (const s of steps) { x += +s; xs.push(x); }
-  for (let c = 0; c <= 23; c++) out += `<circle cx="${PAD + c * COL}" cy="13.2" r="0.75" fill="#D8D4C8"/>`;
-  out += `<line x1="${PAD + xs[0] * COL}" y1="13.2" x2="${PAD + xs[xs.length - 1] * COL}" y2="13.2" stroke="#CFCBC0" stroke-width="1"/>`;
+  for (let c = 0; c <= 23; c++) out += `<circle cx="${PAD + c * COL}" cy="${H * 0.7}" r="0.75" fill="#D8D4C8"/>`;
+  out += `<line x1="${PAD + xs[0] * COL}" y1="${H * 0.7}" x2="${PAD + xs[xs.length - 1] * COL}" y2="${H * 0.7}" stroke="#CFCBC0" stroke-width="1"/>`;
   steps.split('').forEach((s, i) => {
     const mid = PAD + (xs[i] + xs[i + 1]) / 2 * COL;
     const crossing = s !== '2';
-    out += `<text x="${mid}" y="6.6" font-size="${s === '3' ? 6.4 : 7}" text-anchor="middle" fill="${crossing ? '#141413' : '#9A978D'}" font-weight="${crossing ? 700 : 400}">${STEP_LABEL[s]}</text>`;
+    out += `<text x="${mid}" y="${H * 0.35}" font-size="${s === '3' ? 6.4 : 7}" text-anchor="middle" fill="${crossing ? '#141413' : '#9A978D'}" font-weight="${crossing ? 700 : 400}">${STEP_LABEL[s]}</text>`;
   });
   xs.forEach((col, i) => {
     const color = col % 2 === 0 ? BLUE : RED;
     const edge = i === 0 || i === xs.length - 1;   // tonique et son octave
-    out += `<circle cx="${PAD + col * COL}" cy="13.2" r="${edge ? 4.1 : 3.3}" fill="${color}"${edge ? ' stroke="#141413" stroke-width="1.1"' : ''}/>`;
+    out += `<circle cx="${PAD + col * COL}" cy="${H * 0.7}" r="${edge ? 4.1 : 3.3}" fill="${color}"${edge ? ' stroke="#141413" stroke-width="1.1"' : ''}/>`;
   });
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${out}</svg>`;
 }
 
-let html = '', i = 0;
-while (i < SCALES.length) {
+function renderRows() {
+  let html = '', i = 0;
+  while (i < SCALES.length) {
   const family = SCALES[i][0];
   const members = SCALES.filter(s => s[0] === family);
   const parent = members[0][2];
@@ -181,8 +183,22 @@ while (i < SCALES.length) {
       `<td class="steps">${stepsSvg(s[2], offset)}</td><td class="sys">${s[3]}</td><td class="chord">${s[4]}</td></tr>`;
   });
   i += members.length;
+  }
+  document.documentElement.style.setProperty('--row', H + 'px');
+  document.getElementById('rows').innerHTML = html;
 }
-document.getElementById('rows').innerHTML = html;
+
+// La page doit tenir sur UNE feuille, pied de page compris, dans les trois langues (dont les
+// textes n'ont pas la même longueur). On resserre les lignes du tableau jusqu'à ce que tout
+// tienne, avec 3 mm de marge : une hauteur fixe tronquait la dernière ligne du pied de page.
+function fits() {
+  const foot = document.querySelector('.foot').getBoundingClientRect();
+  return foot.bottom <= document.body.getBoundingClientRect().bottom - 11;
+}
+renderRows();
+while (!fits() && H > 15.5) { H -= 0.25; renderRows(); }
+document.body.dataset.rowHeight = H;
+document.body.dataset.fits = fits();
 
 // Légende : une octave de clavier avec les pastilles, comme sur le clavier de référence
 (function keyboard() {
