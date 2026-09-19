@@ -112,16 +112,19 @@
 <section>
   <h2><span>4</span> · The fader in your notifications</h2>
   <p>You do not have to keep the app open. While DuoMix Fader runs, a media-player card called <b>DuoMix fader</b> appears next to your other players — in the notification shade and on the lock screen.</p>
+  <img src="img/09-notification-card.png" alt="" style="width:118mm; display:block; margin:6px auto 4px; border-radius:14px">
+  <p style="text-align:center; font-size:8.4pt; color:var(--soft); margin-bottom:10px">The card, cropped from the notification shade. Here: B Phrygian, family 1 — B in red, C D E F♯ in blue, G A B in red. The name of the audio output is masked.</p>
   <table>
-    <tr><th style="width:42mm">Control</th><th>What it does</th></tr>
-    <tr><td><b>Progress bar</b></td><td>It <i>is</i> the crossfader: drag it. Left is the music app, right is the video app. The bar spans a fictitious 100 seconds, so “0:50” reads as 50 %.</td></tr>
+    <tr><th style="width:42mm">On the card</th><th>What it shows or does</th></tr>
+    <tr><td><b>Title</b></td><td>The essential: the mode. Tonic, popular name and family — “E Mixolydian · F1”.</td></tr>
+    <tr><td><b>Colour tiles</b></td><td>The key, in letter notation — “A”, “D♭” — then <b>one tile per note of the scale, from the tonic to its octave</b>. Blue and red are the two whole-tone sets of the keyboard, so a change of colour means a half step or a step and a half. A minor reads R R B B B R R R. This sequence is the fingerprint of the mode.</td></tr>
+    <tr><td><b>Small text, top</b></td><td>To the right of the app icon, the two apps and their volumes: “YT Music 71 · YouTube 71”. Beneath, on two lines, the artist and the title of the piece; a long title is cut short. This text is drawn in the card's background artwork, which Android darkens.</td></tr>
+    <tr><td><b>Progress bar</b></td><td>It <i>is</i> the crossfader: drag it. Left is the music app, right is the video app. To re-centre, drag it to the middle.</td></tr>
     <tr><td><b>⏮ / ⏭</b></td><td>Move the fader 10 % towards music / towards video.</td></tr>
-    <tr><td><b>Play / pause</b></td><td>Re-centre the fader.</td></tr>
     <tr><td><b>♪</b></td><td>Close the shade and open the Harmony panel.</td></tr>
     <tr><td><b>✕</b></td><td>Hide the card. It comes back the next time you open the app.</td></tr>
-    <tr><td><b>Title line</b></td><td>The scale found so far, for instance “B♭ Major · family 1”. When the piece modulates it reads “old → new” for a few seconds. The line below gives each app's volume.</td></tr>
   </table>
-  <div class="note">DuoMix Fader plays no sound itself: this player card is only a control surface. That is also why this guide shows no screenshot of it — the notification shade belongs to your other apps too.</div>
+  <div class="note">DuoMix Fader plays no sound itself: this player card is only a control surface, which is why it has no play button. Its layout, its two text lines and their size belong to Android. Nothing scrolls or blinks on the card: it only changes when the scale, the piece or the balance does.</div>
 </section>
 
 <section>
@@ -149,9 +152,15 @@
 <section>
   <h2><span>6</span> · History, one section per piece</h2>
   <div class="shots">
-    <figure><img src="img/06-history.png" alt=""><figcaption>Each piece keeps its scales, its chord loop and the time you listened to it.</figcaption></figure>
+    <figure><img src="img/06-history.png" alt=""><figcaption>One section per piece: main scale, scales held in turn with their degree, chord progression.</figcaption></figure>
     <div class="side">
       <p>Tap the <b>Chord progression</b> card of the Harmony panel to open the history. The piece being played comes first, marked <i>now playing</i>; earlier pieces follow, most recent first, up to fifty.</p>
+      <p>Each section reads in three levels, separated by thin lines:</p>
+      <ul>
+        <li><b>The main scale</b> of the piece, under its name: the key in large letters, the scale and its <b>colour tiles</b>.</li>
+        <li><b>The scales held in turn</b>, one row each, in fixed columns: the time, the <b>degree in Roman numerals</b> relative to the main key, the tonic, the tiles. Read down a column to follow the move from one degree to the next.</li>
+        <li><b>The chord progression</b>, at the foot: one cell per chord, the degree above its name, and the length of the loop.</li>
+      </ul>
       <p>Pieces are told apart by the title and artist that the music app announces itself — the same information your lock screen shows. Nothing is recognised by listening and nothing is looked up online. When an app announces no title, a silence of a few seconds marks the boundary and the section is called <i>Unknown piece</i>.</p>
       <p><b>Clear</b> empties the list. The history is a private file of the app; it contains names of pieces, scales and chords, never any sound.</p>
     </div>
@@ -169,8 +178,8 @@
   <p style="margin-top:8px">The sheet reproduces the data of Oliver Prehn's overview — 33 scales in 7 families, with popular name, interval steps, systematic name and chords — and adds a colour code:</p>
   <ul>
     <li><span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard: C D E F♯ G♯ A♯ and C♯ D♯ F G A B.</li>
-    <li>A <b>whole step</b> stays in the same colour; a <b>half step</b> or a <b>step and a half</b> crosses to the other. The steps that cross are printed in bold.</li>
-    <li>Each column of the grid is one semitone, so step sizes are visible as distances, and the scales of a family line up as a <b>staircase</b>: each one is the family's pattern read from the next degree.</li>
+    <li>Each scale is a <b>row of square tiles</b>, one per note, from the tonic to its octave — the same notation as the notification card and the history. A <b>whole step</b> stays in the same colour; a <b>half step</b> or a <b>step and a half</b> crosses to the other.</li>
+    <li>Colours are given with the first scale of each family starting on C. The scales of a family line up as a <b>staircase</b> — each one is the family's pattern read from the next degree — so every column is one and the same note. From a red tonic (C♯, F, G, A…), swap the two colours: the app always shows the real ones.</li>
     <li>Each family has its own colour; the scales printed in bold in the original are bold here too.</li>
   </ul>
   <div class="note">The musical content of this sheet is Oliver Prehn's work and remains his. Only the layout and the colour code were added. See <i>Credits</i>.</div>

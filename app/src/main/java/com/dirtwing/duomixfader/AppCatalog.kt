@@ -23,6 +23,8 @@ data class AppTarget(
     val pkg: String,
     val label: String,
     val toleratesFocusDenial: Boolean = true,
+    /** Libellé abrégé pour la carte de notification, dont la ligne de titre est étroite. */
+    val shortLabel: String = label,
 )
 
 /**
@@ -34,11 +36,11 @@ data class AppTarget(
 object AppCatalog {
 
     val music = listOf(
-        AppTarget("com.google.android.apps.youtube.music", "YouTube Music"),
+        AppTarget("com.google.android.apps.youtube.music", "YouTube Music", shortLabel = "YT Music"),
         AppTarget("com.spotify.music", "Spotify"),
         AppTarget("deezer.android.app", "Deezer"),
         AppTarget("com.apple.android.music", "Apple Music"),
-        AppTarget("com.amazon.mp3", "Amazon Music"),
+        AppTarget("com.amazon.mp3", "Amazon Music", shortLabel = "Amazon"),
         AppTarget("com.soundcloud.android", "SoundCloud"),
         AppTarget("com.aspiro.tidal", "Tidal"),
         AppTarget("com.qobuz.music", "Qobuz"),

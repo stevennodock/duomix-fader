@@ -11,12 +11,14 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.Bitmap
 import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Bundle
 import android.os.IBinder
 import com.dirtwing.duomixfader.harmony.Detection
+import com.dirtwing.duomixfader.ui.ScaleArt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -43,8 +45,6 @@ class MixerNotificationService : Service() {
         private const val NOTIFICATION_ID = 1
         private const val ACTION_STOP = "com.dirtwing.duomixfader.action.STOP"
         private const val ACTION_HARMONY = "com.dirtwing.duomixfader.action.HARMONY"
-        /** Durée d'affichage de « ancienne → nouvelle » quand la gamme change. */
-        private const val TRANSITION_MS = 6_000L
         /** Durée fictive : 100 s, pour que « 0:50 » se lise comme 50 %. */
         private const val FADER_DURATION_MS = 100_000L
         private const val STEP = 0.1f
@@ -62,8 +62,8 @@ class MixerNotificationService : Service() {
         override fun onSeekTo(pos: Long) = engine.setCrossfader(pos.toFloat() / FADER_DURATION_MS)
         override fun onSkipToPrevious() = engine.setCrossfader(engine.state.value.crossfader - STEP)
         override fun onSkipToNext() = engine.setCrossfader(engine.state.value.crossfader + STEP)
-        override fun onPlay() = engine.setCrossfader(0.5f)
-        override fun onPause() = engine.setCrossfader(0.5f)
+        // Pas de lecture/pause : ce gros bouton, qui recentrait le fader, prenait la moitié de
+        // la largeur de la carte et tronquait les deux lignes de texte. On recentre à la barre.
         override fun onCustomAction(action: String, extras: Bundle?) {
             when (action) {
                 ACTION_STOP -> stopSelf()
@@ -96,21 +96,15 @@ class MixerNotificationService : Service() {
                 .collect { publish(engine.state.value) }
         }
         scope.launch {
-            // Une notification ne sait pas animer un texte : la modulation s'y lit en deux
-            // temps, « ancienne -> nouvelle » puis la nouvelle seule. La vraie rotation du
-            // texte est dans l'app (CurrentScale).
-            var shown: Detection? = null
-            engine.harmony.map { it.current }.distinctUntilChanged().collectLatest { detection ->
-                val previous = shown
-                shown = detection
-                if (previous != null && detection != null) {
-                    scaleLine = getString(R.string.harmony_transition, shortName(previous), shortName(detection))
-                    publish(engine.state.value)
-                    delay(TRANSITION_MS)
+            // Rien ne tourne ni ne clignote sur la carte : elle n'est republiée que lorsque
+            // quelque chose change vraiment (gamme retenue, morceau, balance).
+            engine.harmony.map { it.current to it.track }.distinctUntilChanged().collect { (detection, track) ->
+                scaleName = detection?.let {
+                    getString(R.string.notif_scale, noteName(it.root), it.scale.popularName, it.scale.family)
                 }
-                scaleLine = detection?.let {
-                    getString(R.string.harmony_summary, noteName(it.root), it.scale.popularName, it.scale.family)
-                }
+                pastilles = detection?.let { ScaleArt.pastilles(it) }
+                artist = track?.artist
+                trackTitle = track?.title
                 publish(engine.state.value)
             }
         }
@@ -126,12 +120,32 @@ class MixerNotificationService : Service() {
         super.onDestroy()
     }
 
-    /** Ligne de titre quand une gamme est connue ; sinon le nom du fader. */
-    private var scaleLine: String? = null
+    // Une carte multimédia n'a que deux lignes de texte, imposées par le système (taille,
+    // place, aucun défilement). Elles vont à l'essentiel pour l'accompagnateur :
+    //  1. le nom du mode : « A Major · F1 » ;
+    //  2. la tonalité et les pavés de couleur de la gamme.
+    // Le secondaire — les flux et leur balance, l'artiste, le titre — est dessiné en petit dans
+    // l'illustration (voir ScaleArt), que le système assombrit.
+
+    /** Première ligne : le nom du mode ; sinon le nom du fader. */
+    private var scaleName: String? = null
+
+    /**
+     * Seconde ligne : pavés colorés (voir ScaleArt.pastilles). Les métadonnées du lecteur ne
+     * portent que du texte brut ; mais quand elles ne donnent pas d'« artiste », la carte
+     * reprend le texte de la notification, qui, lui, conserve ses couleurs. On laisse donc ce
+     * champ vide.
+     */
+    private var pastilles: CharSequence? = null
+
+    private var artist: String? = null
+    private var trackTitle: String? = null
+
+    /** Illustration, redessinée seulement quand son contenu change. */
+    private var artwork: Bitmap? = null
+    private var artworkKey: String? = null
 
     private fun noteName(root: Int): String = resources.getStringArray(R.array.notes_primary)[root]
-
-    private fun shortName(detection: Detection) = "${noteName(detection.root)} ${detection.scale.popularName}"
 
     /**
      * Ouvre le panneau des gammes, par le service shell : lui seul peut refermer le volet de
@@ -151,18 +165,24 @@ class MixerNotificationService : Service() {
 
     /** Reflète l'état du mixeur dans la session et la notification. */
     private fun publish(state: MixerUiState) {
-        val balance = getString(
-            R.string.notif_balance,
-            state.music.label,
-            (state.music.volume * 100).roundToInt(),
-            state.video.label,
-            (state.video.volume * 100).roundToInt(),
-        )
+        // Les deux flux et leur balance, en abrégé : dessinés dans l'illustration
+        fun short(channel: Channel) = AppCatalog.find(channel.pkg)?.shortLabel ?: channel.label
+        val balance = "${short(state.music)} ${(state.music.volume * 100).roundToInt()} · " +
+            "${short(state.video)} ${(state.video.volume * 100).roundToInt()}"
+        val title = scaleName ?: getString(R.string.notif_title)
+        val key = "$balance|$artist|$trackTitle"
+        if (key != artworkKey) {
+            artworkKey = key
+            artwork = ScaleArt.artwork(balance, artist, trackTitle)
+        }
         session.setMetadata(
             MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE, scaleLine ?: getString(R.string.notif_title))
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, balance)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, title)
+                // Pas d'« artiste » quand on a des pavés : la carte prendra le texte coloré de
+                // la notification (voir buildNotification)
+                .apply { if (pastilles == null) putString(MediaMetadata.METADATA_KEY_ARTIST, getString(R.string.notif_title)) }
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, FADER_DURATION_MS)
+                .apply { artwork?.let { putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, it) } }
                 .build()
         )
         session.setPlaybackState(
@@ -170,10 +190,7 @@ class MixerNotificationService : Service() {
                 .setActions(
                     PlaybackState.ACTION_SEEK_TO or
                         PlaybackState.ACTION_SKIP_TO_PREVIOUS or
-                        PlaybackState.ACTION_SKIP_TO_NEXT or
-                        PlaybackState.ACTION_PLAY_PAUSE or
-                        PlaybackState.ACTION_PLAY or
-                        PlaybackState.ACTION_PAUSE
+                        PlaybackState.ACTION_SKIP_TO_NEXT
                 )
                 .addCustomAction(
                     PlaybackState.CustomAction.Builder(
@@ -199,19 +216,19 @@ class MixerNotificationService : Service() {
         )
         startForeground(
             NOTIFICATION_ID,
-            buildNotification(balance),
+            buildNotification(title),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
         )
     }
 
-    private fun buildNotification(balance: String): Notification {
+    private fun buildNotification(title: String): Notification {
         val openApp = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
         )
         return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_mixer)
-            .setContentTitle(scaleLine ?: getString(R.string.notif_title))
-            .setContentText(balance)
+            .setContentTitle(title)
+            .setContentText(pastilles ?: getString(R.string.notif_title))
             .setContentIntent(openApp)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)

@@ -45,8 +45,9 @@ Concretely, this is what the app takes from your work:
 2. It bundles a one-page study sheet, attached, that reproduces the data of your table.
    I re-typeset it and added a colour code: blue and red are the two whole-tone sets of
    the keyboard, so a whole step stays in its colour and a half step or a step and a half
-   crosses to the other; the interval steps are drawn on a semitone grid, which makes your
-   staircase alignment of the modes visible at a glance. Your introduction and footnote
+   crosses to the other; each scale is drawn as a row of square tiles, one per note from the
+   tonic to its octave, which keeps your staircase alignment of the modes visible at a
+   glance. The app shows the same tiles for the scale it detects. Your introduction and footnote
    are paraphrased rather than copied. My own handwritten notes are left out.
 3. Your name, the lesson, www.newjazz.dk and your Patreon and PayPal links appear at the
    top of that sheet, in the app's Harmony screen under "Credits" with a "Support on

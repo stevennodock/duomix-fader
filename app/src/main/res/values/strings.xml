@@ -77,6 +77,8 @@
     <string name="harmony_credits_video">Watch the lesson</string>
     <string name="harmony_credits_patreon">Support on Patreon</string>
     <string name="harmony_credits_site" translatable="false">newjazz.dk</string>
+    <!-- Titre de la carte multimédia : court, la zone de texte y est étroite. F = famille -->
+    <string name="notif_scale" translatable="false">%1$s %2$s · F%3$d</string>
     <string name="notif_action_harmony">Scale details</string>
     <!-- Toniques : système principal de la langue, puis l'autre système -->
     <string-array name="notes_primary">

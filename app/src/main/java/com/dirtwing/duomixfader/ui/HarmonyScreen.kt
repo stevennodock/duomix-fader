@@ -13,11 +13,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -91,7 +98,27 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier) {
                         " · ${detection.scale.systematicName} · ${detection.scale.chords}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                Spacer(Modifier.height(8.dp))
+                ScaleTiles(detection)
             }
+        }
+    }
+}
+
+/**
+ * La gamme en pavés de couleur : un par degré, de la tonique à son octave, bleu ou rouge selon
+ * la gamme par tons de la note (voir ScaleArt). La même empreinte que sur la notification et
+ * sur la fiche des 33 gammes.
+ */
+@Composable
+fun ScaleTiles(detection: Detection, tile: Dp = 22.dp) {
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+        for (blue in ScaleArt.tiles(detection)) {
+            Box(
+                Modifier
+                    .size(tile)
+                    .background(Color(if (blue) ScaleArt.PASTEL_BLUE else ScaleArt.PASTEL_RED), RoundedCornerShape(3.dp))
+            )
         }
     }
 }

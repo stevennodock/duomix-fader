@@ -53,6 +53,16 @@ class HarmonyTest {
     }
 
     @Test
+    fun theColourCodeOfAScaleFollowsTheTwoWholeToneSets() {
+        fun code(name: String, root: Int) =
+            com.dirtwing.duomixfader.ui.ScaleArt.colourCode(Detection(ScaleCatalog.scales.first { it.popularName == name }, root))
+        // Exemple de référence : la mineur = la si | do ré mi | fa sol la
+        assertEquals("RRBBBRRR", code("Natural minor", 9))
+        assertEquals("do majeur : do ré mi | fa sol la si | do", "BBBRRRRB", code("Major", 0))
+        assertEquals("gamme par tons : une seule couleur", "BBBBBBB", code("Whole tone", 0))
+    }
+
+    @Test
     fun intervalStepsAreWrittenAsInTheTable() {
         assertEquals("1-1-½-1-1-1-½", ScaleCatalog.scales.first { it.popularName == "Major" }.intervalSteps)
         assertEquals("1-½-1-1-½-1½-½", ScaleCatalog.scales.first { it.popularName == "Harmonic minor" }.intervalSteps)

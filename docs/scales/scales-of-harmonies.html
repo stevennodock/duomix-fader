@@ -11,7 +11,7 @@
   @page { size: A4 portrait; margin: 0; }
   :root {
     --paper: #FAF9F5; --ink: #141413; --soft: #6B6A65; --line: #E3E0D6; --accent: #D97757;
-    --blue: #2F6FDE; --red: #E0524A;
+    --blue: #8DB8F8; --red: #F58E84;
   }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; background: var(--paper); color: var(--ink); }
@@ -42,6 +42,8 @@
   td.sys { color: #3d3c38; }
   td.chord { font-family: Consolas, "Courier New", monospace; font-size: 8.2pt; }
   td.steps { padding: 0 2px; }
+  td.steps svg { vertical-align: middle; }
+  .steptext { display: inline-block; width: 27mm; font-size: 7.2pt; color: #8A877E; letter-spacing: .2px; vertical-align: middle; }
   svg text { font-family: "Segoe UI", sans-serif; }
   .foot { margin-top: 5px; font-size: 7.3pt; color: var(--soft); display: flex; gap: 8mm; }
   .foot div { flex: 1; }
@@ -79,7 +81,7 @@ const T = {
     why: 'Following them limits the total to 33 scales, all well suited to building clear, evident harmonies.',
     links: 'Lesson: <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Support Oliver Prehn: <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
     legendTitle: 'Reading the colours',
-    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard. A <b>whole step (1)</b> stays in the same colour; a <b>half step (½)</b> or a <b>step and a half (1½)</b> crosses to the other. Each column of the grid is one semitone.',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard. A <b>whole step (1)</b> stays in the same colour; a <b>half step (½)</b> or a <b>step and a half (1½)</b> crosses to the other. Each scale is a row of tiles, one per note, from the tonic to its octave: that two-colour sequence is the fingerprint of the mode. Colours are shown with the first scale of each family starting on C; down a family, each column is one and the same note. From a red tonic, swap the two colours.',
     head: ['Family', 'Popular name', 'Interval steps', '*Systematic name', 'Chords'],
     note: '*The systematic names do not follow the jazz-school habit of naming every scale after the Major scale. “Aeolian #7” is an Aeolian scale with a raised 7th step: Aeolian is the premise, #7 the alteration. The first 4 families thus run from Ionian to Locrian with a simple sequence of sharps or flats.',
     credit: 'Musical content © Oliver Prehn, reproduced for study with credit; all rights remain with its author. Layout and colour code: Steve Nodock, DuoMix Fader, 2026. Handwritten notes on the source sheet are not included.',
@@ -92,7 +94,7 @@ const T = {
     why: 'Les respecter limite le total à 33 gammes, toutes bien adaptées à la construction d’harmonies claires et évidentes.',
     links: 'Leçon : <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Soutenir Oliver Prehn : <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
     legendTitle: 'Lire les couleurs',
-    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Bleu</b> et <span class="chip" style="background:var(--red)"></span><b>rouge</b> sont les deux gammes par tons du clavier. Un <b>ton (1)</b> reste dans la couleur ; un <b>demi-ton (½)</b> ou un <b>ton et demi (1½)</b> passe dans l’autre. Chaque colonne de la grille vaut un demi-ton.',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Bleu</b> et <span class="chip" style="background:var(--red)"></span><b>rouge</b> sont les deux gammes par tons du clavier. Un <b>ton (1)</b> reste dans la couleur ; un <b>demi-ton (½)</b> ou un <b>ton et demi (1½)</b> passe dans l’autre. Chaque gamme est une rangée de pavés, un par note, de la tonique à son octave : cette suite de deux couleurs est l’empreinte du mode. Les couleurs sont données pour la première gamme de chaque famille partant de do ; dans une famille, chaque colonne est une seule et même note. Depuis une tonique rouge, échangez les deux couleurs.',
     head: ['Famille', 'Nom usuel', 'Intervalles', '*Nom systématique', 'Accords'],
     note: '*Les noms systématiques ne suivent pas l’usage de l’école de jazz, qui nomme chaque gamme d’après la gamme majeure. « Aeolian #7 » est une gamme éolienne dont le 7e degré est haussé : l’éolien est la prémisse, #7 l’altération. Les 4 premières familles vont ainsi de l’ionien au locrien avec une simple suite de dièses ou de bémols.',
     credit: 'Contenu musical © Oliver Prehn, reproduit pour l’étude avec crédit ; tous droits réservés à son auteur. Mise en page et code couleur : Steve Nodock, DuoMix Fader, 2026. Les annotations manuscrites de la feuille source ne sont pas reprises.',
@@ -105,7 +107,7 @@ const T = {
     why: 'Respetarlas limita el total a 33 escalas, todas muy adecuadas para construir armonías claras y evidentes.',
     links: 'Lección: <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Apoyar a Oliver Prehn: <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
     legendTitle: 'Leer los colores',
-    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Azul</b> y <span class="chip" style="background:var(--red)"></span><b>rojo</b> son las dos escalas de tonos enteros del teclado. Un <b>tono (1)</b> permanece en el color; un <b>semitono (½)</b> o un <b>tono y medio (1½)</b> pasa al otro. Cada columna de la cuadrícula es un semitono.',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Azul</b> y <span class="chip" style="background:var(--red)"></span><b>rojo</b> son las dos escalas de tonos enteros del teclado. Un <b>tono (1)</b> permanece en el color; un <b>semitono (½)</b> o un <b>tono y medio (1½)</b> pasa al otro. Cada escala es una fila de baldosas, una por nota, de la tónica a su octava: esa sucesión de dos colores es la huella del modo. Los colores se dan para la primera escala de cada familia partiendo de do; dentro de una familia, cada columna es una misma nota. Desde una tónica roja, intercambie los dos colores.',
     head: ['Familia', 'Nombre común', 'Intervalos', '*Nombre sistemático', 'Acordes'],
     note: '*Los nombres sistemáticos no siguen la costumbre de la escuela de jazz de nombrar cada escala a partir de la escala mayor. «Aeolian #7» es una escala eólica con el 7.º grado elevado: el eólico es la premisa, #7 la alteración. Las 4 primeras familias van así del jónico al locrio con una simple secuencia de sostenidos o bemoles.',
     credit: 'Contenido musical © Oliver Prehn, reproducido para estudio con crédito; todos los derechos pertenecen a su autor. Maquetación y código de color: Steve Nodock, DuoMix Fader, 2026. No se incluyen las anotaciones manuscritas de la hoja original.',
@@ -135,7 +137,7 @@ const SCALES = [
 ];
 const FAMILY_COLOR = ['', '#D97757', '#C9A227', '#5E9C7B', '#4F86B8', '#8A68AE', '#B9607A', '#77756C'];
 const STEP_LABEL = { 1: '½', 2: '1', 3: '1½' };
-const BLUE = '#2F6FDE', RED = '#E0524A';
+const BLUE = '#8DB8F8', RED = '#F58E84';   // les pastels des pavés de l'app, un peu soutenus pour le papier
 
 const lang = (new URLSearchParams(location.search).get('lang') || 'en');
 const t = T[lang] || T.en;
@@ -145,30 +147,25 @@ for (const id of ['title', 'by', 'intro', 'why', 'links', 'legendTitle', 'legend
 document.getElementById('rules').innerHTML = t.rules.map(r => `<li>${r}</li>`).join('');
 document.getElementById('head').innerHTML = t.head.map(h => `<th>${h}</th>`).join('');
 
-// Grille chromatique : une colonne par demi-ton. La couleur d'une colonne est celle de la
-// gamme par tons à laquelle elle appartient (paire = bleu, comme do ; impaire = rouge).
-// Dans une famille, la ligne n° i commence sur le degré i de la première ligne : l'escalier.
-const COL = 11.6, PAD = 9, W = PAD * 2 + COL * 23;
+// Une gamme = une rangée de pavés, un par note, de la tonique à son octave. Bleu et rouge sont
+// les deux gammes par tons : un ton garde la couleur, un demi-ton ou un ton et demi en change.
+// Couleurs données pour la première gamme de chaque famille partant de do (bleu) ; dans une
+// famille, la ligne n° k démarre k pavés plus loin — l'escalier : chaque COLONNE est alors une
+// même note, et garde sa couleur de haut en bas.
 let H = 22;   // hauteur de départ d'une ligne du tableau, en px : réduite plus bas jusqu'à ce que la page tienne
-function stepsSvg(steps, offset) {
-  let x = offset, out = '';
-  const xs = [x];
-  for (const s of steps) { x += +s; xs.push(x); }
-  for (let c = 0; c <= 23; c++) out += `<circle cx="${PAD + c * COL}" cy="${H * 0.7}" r="0.75" fill="#D8D4C8"/>`;
-  out += `<line x1="${PAD + xs[0] * COL}" y1="${H * 0.7}" x2="${PAD + xs[xs.length - 1] * COL}" y2="${H * 0.7}" stroke="#CFCBC0" stroke-width="1"/>`;
-  steps.split('').forEach((s, i) => {
-    const mid = PAD + (xs[i] + xs[i + 1]) / 2 * COL;
-    const crossing = s !== '2';
-    out += `<text x="${mid}" y="${H * 0.35}" font-size="${s === '3' ? 6.4 : 7}" text-anchor="middle" fill="${crossing ? '#141413' : '#9A978D'}" font-weight="${crossing ? 700 : 400}">${STEP_LABEL[s]}</text>`;
+function tilesSvg(steps, offsetTiles, offsetSemitones) {
+  const size = H - 7, gap = 1.6, pad = 2;
+  let semitone = offsetSemitones, out = '';
+  const notes = [semitone];
+  for (const s of steps) { semitone += +s; notes.push(semitone); }
+  notes.forEach((n, i) => {
+    const x = pad + (offsetTiles + i) * (size + gap);
+    out += `<rect x="${x}" y="${(H - size) / 2}" width="${size}" height="${size}" rx="1.6" fill="${n % 2 === 0 ? BLUE : RED}"/>`;
   });
-  xs.forEach((col, i) => {
-    const color = col % 2 === 0 ? BLUE : RED;
-    const edge = i === 0 || i === xs.length - 1;   // tonique et son octave
-    out += `<circle cx="${PAD + col * COL}" cy="${H * 0.7}" r="${edge ? 4.1 : 3.3}" fill="${color}"${edge ? ' stroke="#141413" stroke-width="1.1"' : ''}/>`;
-  });
-  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${out}</svg>`;
+  const width = pad * 2 + 16 * (size + gap);
+  return `<svg width="${width}" height="${H}" viewBox="0 0 ${width} ${H}">${out}</svg>`;
 }
-
+function stepsText(steps) { return steps.split('').map(s => STEP_LABEL[s]).join('-'); }
 function renderRows() {
   let html = '', i = 0;
   while (i < SCALES.length) {
@@ -176,11 +173,11 @@ function renderRows() {
   const members = SCALES.filter(s => s[0] === family);
   const parent = members[0][2];
   members.forEach((s, k) => {
-    const offset = parent.split('').slice(0, k).reduce((a, b) => a + +b, 0);
+    const offsetSemitones = parent.split('').slice(0, k).reduce((a, b) => a + +b, 0);
     html += `<tr class="${k === members.length - 1 ? 'last' : ''}">` +
       (k === 0 ? `<td class="fam" rowspan="${members.length}" style="background:${FAMILY_COLOR[family]}">${family}</td>` : '') +
       `<td class="pop${s[5] ? ' main' : ''}" style="border-left:3px solid ${FAMILY_COLOR[family]}">${s[1]}</td>` +
-      `<td class="steps">${stepsSvg(s[2], offset)}</td><td class="sys">${s[3]}</td><td class="chord">${s[4]}</td></tr>`;
+      `<td class="steps"><span class="steptext">${stepsText(s[2])}</span>${tilesSvg(s[2], k, offsetSemitones)}</td><td class="sys">${s[3]}</td><td class="chord">${s[4]}</td></tr>`;
   });
   i += members.length;
   }
@@ -209,7 +206,7 @@ document.body.dataset.fits = fits();
   whites.forEach((pc, k) => {
     out += `<rect x="${k * ww + 0.5}" y="0.5" width="${ww}" height="${h}" rx="3" fill="#fff" stroke="#BDB9AD"/>` +
       `<circle cx="${k * ww + ww / 2}" cy="39" r="6" fill="${pc % 2 === 0 ? BLUE : RED}"/>` +
-      `<text x="${k * ww + ww / 2}" y="41.5" font-size="7" font-weight="700" fill="#fff" text-anchor="middle">${names[k]}</text>`;
+      `<text x="${k * ww + ww / 2}" y="41.5" font-size="7" font-weight="700" fill="#1F1E1D" text-anchor="middle">${names[k]}</text>`;
   });
   blacks.forEach(([pc, k]) => {
     const x = (k + 1) * ww - 9;
