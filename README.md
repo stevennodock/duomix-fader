@@ -34,6 +34,10 @@ modulation n'est retenue que si elle dure.
   (modulations), hystérésis. La famille est plus fiable que le mode.
 - `harmony/ScaleCatalog.kt` : les 33 gammes, vérifiées par les tests (somme de 12 demi-tons,
   règles de Prehn, une famille = un motif circulaire).
+- `harmony/Progression.kt` : accords (insensibles au renversement), cycle par autocorrélation,
+  repli des répétitions, chiffrage romain. `harmony/HarmonyHistory.kt` : historique local,
+  une section par morceau (titre lu dans la session multimédia de l'app de musique).
+- Méthode, constantes et limites : [note de recherche](docs/research/harmony-analysis.md).
 - Tests : `gradlew :app:testDebugUnitTest` (signal synthétisé -> gamme détectée).
 
 Crédits et droits du matériel d'Oliver Prehn : voir [NOTICE](NOTICE).

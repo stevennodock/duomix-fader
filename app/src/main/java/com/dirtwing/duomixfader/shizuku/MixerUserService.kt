@@ -6,13 +6,17 @@ package com.dirtwing.duomixfader.shizuku
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioManager
+import android.media.MediaMetadata
+import android.media.session.MediaSessionManager
 import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
+import android.util.Log
 import androidx.annotation.Keep
 import com.dirtwing.duomixfader.AppCatalog
 import com.dirtwing.duomixfader.BuildConfig
 import com.dirtwing.duomixfader.IMixerService
+import com.dirtwing.duomixfader.MainActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -103,6 +107,63 @@ class MixerUserService() : IMixerService.Stub() {
 
     override fun readHarmony(): FloatArray? = capture?.analyzer?.drain()
 
+    /**
+     * Une app ordinaire reçoit d'Android le registre des services multimédia à son démarrage.
+     * Un processus lancé par ActivityThread.systemMain(), comme le nôtre, non : sans lui,
+     * MediaSessionManager échoue sur une référence nulle. On le fournit, une seule fois.
+     */
+    private val mediaFrameworkReady: Boolean by lazy {
+        val managerClass = Class.forName("android.media.MediaServiceManager")
+        // Deux registres : celui de la plate-forme (MediaSessionManager) et celui du module média
+        listOf("android.media.MediaFrameworkPlatformInitializer", "android.media.MediaFrameworkInitializer").map { name ->
+            runCatching {
+                Class.forName(name).getMethod("setMediaServiceManager", managerClass)
+                    .invoke(null, managerClass.getConstructor().newInstance())
+            }.onFailure { Log.w("DuoMixHarmony", "$name non initialisé : ${it.cause ?: it}") }.isSuccess
+        }.first()
+    }
+
+    /**
+     * Titre, artiste et album que l'app de musique publie elle-même dans sa session
+     * multimédia (ce qu'affiche l'écran verrouillé). Rien n'est deviné ni reconnu à l'écoute,
+     * et rien ne sort de l'appareil. Lecture permise au shell par MEDIA_CONTENT_CONTROL.
+     */
+    override fun nowPlaying(pkg: String): String? {
+        if (pkg !in ALLOWED_PACKAGES) return null
+        val ctx = context ?: return null
+        val token = Binder.clearCallingIdentity()
+        return try {
+            mediaFrameworkReady
+            val manager = ctx.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
+            val metadata = manager.getActiveSessions(null).firstOrNull { it.packageName == pkg }?.metadata
+                ?: return null
+            JSONObject().apply {
+                put("title", metadata.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "")
+                put("artist", metadata.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "")
+                put("album", metadata.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: "")
+            }.toString()
+        } catch (t: Throwable) {
+            Log.w("DuoMixHarmony", "session multimédia illisible pour $pkg", t)
+            null
+        } finally {
+            Binder.restoreCallingIdentity(token)
+        }
+    }
+
+    /**
+     * Le bouton ♪ vit dans le volet de notifications, qu'une app n'a plus le droit de
+     * refermer depuis Android 12 : sans cela le panneau s'ouvre… derrière le volet. Le shell
+     * le peut, et peut aussi lancer notre écran quand une autre app est au premier plan
+     * (lancement qu'Android refuserait à l'app). Deux commandes fixes, vers notre seul écran.
+     */
+    override fun showHarmonyPanel() {
+        run("cmd", "statusbar", "collapse")
+        run(
+            "am", "start", "-n", "${BuildConfig.APPLICATION_ID}/.MainActivity",
+            "--ez", MainActivity.EXTRA_OPEN_HARMONY, "true",
+        )
+    }
+
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {
         val app = AppCatalog.find(pkg) ?: return false
         // Une app qui se met en pause quand on lui refuse le focus ne doit jamais l'ignorer
@@ -132,12 +193,16 @@ class MixerUserService() : IMixerService.Stub() {
     }
 
     /**
-     * Seule commande que ce processus shell accepte de lancer : `appops` avec des
-     * arguments fixes, sans passer par `sh -c` (aucune interprétation de chaîne).
+     * `appops` avec des arguments fixes. Ce processus ne lance que trois commandes, toutes
+     * figées dans ce fichier (`appops`, `cmd statusbar collapse`, `am start` vers notre
+     * propre écran), jamais via `sh -c` : aucune chaîne venue de l'appelant n'est interprétée.
      */
-    private fun appops(vararg args: String): String? {
+    private fun appops(vararg args: String): String? = run("appops", *args)
+
+    /** Lance une commande aux arguments fixes, sans shell intermédiaire ; null si elle échoue. */
+    private fun run(vararg command: String): String? {
         return try {
-            val process = ProcessBuilder(listOf("appops") + args)
+            val process = ProcessBuilder(command.toList())
                 .redirectErrorStream(true)
                 .start()
             val out = process.inputStream.bufferedReader().readText()

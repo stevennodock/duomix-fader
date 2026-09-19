@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dirtwing.duomixfader.ui.HarmonyScreen
+import com.dirtwing.duomixfader.ui.HistoryScreen
 import com.dirtwing.duomixfader.ui.LicensesScreen
 import com.dirtwing.duomixfader.ui.MixerScreen
 
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MixerViewModel by viewModels()
 
-    private enum class Screen { MIXER, HARMONY, LICENSES }
+    private enum class Screen { MIXER, HARMONY, HISTORY, LICENSES }
 
     private var screen by mutableStateOf(Screen.MIXER)
 
@@ -50,7 +51,17 @@ class MainActivity : ComponentActivity() {
                         Screen.LICENSES -> LicensesScreen(onBack = { screen = Screen.MIXER })
                         Screen.HARMONY -> {
                             val harmony by viewModel.harmony.collectAsStateWithLifecycle()
-                            HarmonyScreen(harmony, onRefresh = viewModel::refreshHarmony, onBack = { screen = Screen.MIXER })
+                            HarmonyScreen(
+                                harmony,
+                                onRefresh = viewModel::refreshHarmony,
+                                onShowHistory = { screen = Screen.HISTORY },
+                                onBack = { screen = Screen.MIXER },
+                            )
+                        }
+                        Screen.HISTORY -> {
+                            val live by viewModel.liveRecord.collectAsStateWithLifecycle()
+                            val history by viewModel.history.collectAsStateWithLifecycle()
+                            HistoryScreen(live, history, onClear = viewModel::clearHistory, onBack = { screen = Screen.HARMONY })
                         }
                         Screen.MIXER -> MixerScreen(
                             viewModel,

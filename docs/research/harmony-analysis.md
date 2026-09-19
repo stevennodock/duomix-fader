@@ -188,6 +188,37 @@ l'adoption, elle est réinitialisée à partir de la rapide. Une gamme détrôn�
 25 s est tenue pour une erreur d'estimation : elle est remplacée dans la liste des
 séquences, pas ajoutée.
 
+## 8 bis. Frontières entre morceaux et historique
+
+L'historique garde une section par morceau : gamme, séquences, grille d'accords. Encore
+faut-il savoir où un morceau finit et comment il s'appelle.
+
+**Méthode retenue : lire ce que l'app de musique annonce elle-même.** Toute app de lecture
+publie titre, artiste et album dans sa session multimédia — c'est ce qui alimente l'écran
+verrouillé. Le processus shell la lit (permission `MEDIA_CONTENT_CONTROL`), pour la seule
+app du canal musique, toutes les deux secondes. Un changement de titre clôt la section en
+cours et remet le détecteur à zéro : frontière exacte, sans rien écouter ni deviner, sans
+réseau. Sans titre annoncé (certaines apps, certains contenus), on retombe sur le silence
+de 2,5 s, et la section s'intitule « morceau inconnu ».
+
+Avec un titre connu, un silence n'est plus une frontière mais une pause *dans* le morceau :
+sa section reste ouverte.
+
+**Pistes écartées, et pourquoi.**
+
+- *Reconnaissance par empreinte acoustique* (Chromaprint + base AcoustID, équivalent libre
+  de Shazam) : fonctionne sans métadonnées, mais oblige à envoyer une empreinte de ce que
+  l'on écoute à un serveur tiers, donc à demander la permission réseau que l'app n'a pas,
+  et à dépendre d'une base qui couvre mal les musiques de niche. À réserver, en option
+  explicite, aux sources muettes sur leur contenu.
+- *Modèle embarqué* (NPU, modèle spécialisé par LoRA) : identifier un morceau parmi des
+  dizaines de millions relève de la recherche dans une base d'empreintes, pas de la
+  classification — aucun modèle embarqué ne contient ce catalogue. Un modèle pourrait en
+  revanche lire l'écran de l'app émettrice, mais la session multimédia donne la même
+  information, exacte et gratuite.
+- Un modèle embarqué aurait plus de sens ailleurs : séparer basse, accords et voix avant
+  l'analyse (voir § 9).
+
 ## 9. Validation, limites, travaux à venir
 
 **Ce qui est vérifié.** 23 tests automatisés sur signal synthétisé (notes à 4 harmoniques,
@@ -213,7 +244,9 @@ synthétique et sur quelques écoutes.
 - L'a priori de famille retarde la reconnaissance des gammes rares.
 - Si le canal musique est baissé à zéro au fader, l'analyse n'entend plus rien.
 
-**Pistes.** Évaluer sur un corpus annoté (tonalité et accords) ; estimer le tempo pour
+**Pistes.** Séparation de sources par un modèle embarqué (basse / harmonie / voix), qui
+attaquerait à la racine les deux faiblesses actuelles — ligne de basse et accords noyés
+dans le mixage ; évaluer sur un corpus annoté (tonalité et accords) ; estimer le tempo pour
 exprimer le cycle en mesures et aligner son début sur un premier temps ; accords de
 septième, pour exploiter toute la colonne « Chords » ; profils de hiérarchie tonale
 propres à chacune des 33 gammes ; estimation de l'accordage ; étude de sensibilité de la

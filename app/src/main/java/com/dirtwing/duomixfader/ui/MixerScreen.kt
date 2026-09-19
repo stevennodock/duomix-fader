@@ -79,6 +79,7 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHar
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("♪ " + stringResource(R.string.harmony_title), style = MaterialTheme.typography.titleMedium)
+                Text(trackLabel(harmony.track), style = MaterialTheme.typography.labelLarge)
                 CurrentScale(harmony)
                 ProgressionLines(harmony, showChordNames = false)
                 TextButton(onClick = onShowHarmony) { Text(stringResource(R.string.harmony_open)) }

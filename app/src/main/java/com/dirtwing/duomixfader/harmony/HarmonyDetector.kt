@@ -23,6 +23,8 @@ data class HarmonyState(
     val segments: List<Segment> = emptyList(),
     /** Grille d'accords, commençant sur l'accord de tonique quand elle boucle. */
     val progression: Progression? = null,
+    /** Morceau annoncé par l'app de musique, s'il l'est. */
+    val track: TrackInfo? = null,
 )
 
 /**

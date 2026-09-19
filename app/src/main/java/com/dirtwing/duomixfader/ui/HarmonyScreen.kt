@@ -96,7 +96,7 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier) {
 
 /** « Dm », « B° », « F+ » : l'accord dans le système de notation de la langue. */
 @Composable
-private fun chordName(chord: Chord): String =
+fun chordName(chord: Chord): String =
     stringArrayResource(R.array.notes_primary)[chord.root] + when (chord.triad) {
         Triad.MAJOR -> ""
         Triad.MINOR -> "m"
@@ -135,7 +135,7 @@ fun ProgressionLines(state: HarmonyState, showChordNames: Boolean) {
  * interaction : c'est un aide-mémoire du dernier morceau écouté.
  */
 @Composable
-fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onBack: () -> Unit) {
+fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onShowHistory: () -> Unit, onBack: () -> Unit) {
     BackHandler(onBack = onBack)
     Column(
         modifier = Modifier
@@ -156,6 +156,7 @@ fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onBack: () -> Unit
 
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(trackLabel(state.track), style = MaterialTheme.typography.labelLarge)
                 CurrentScale(state)
                 if (state.current != null) {
                     Text(
@@ -194,12 +195,16 @@ fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onBack: () -> Unit
             }
         }
 
-        if (state.progression != null && state.current != null) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(stringResource(R.string.harmony_progression), style = MaterialTheme.typography.titleMedium)
-                    ProgressionLines(state, showChordNames = true)
-                }
+        // Le bloc Progression ouvre l'historique : une section par morceau écouté
+        Card(onClick = onShowHistory, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(stringResource(R.string.harmony_progression), style = MaterialTheme.typography.titleMedium)
+                ProgressionLines(state, showChordNames = true)
+                Text(
+                    stringResource(R.string.harmony_history_hint) + "  ›",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
 

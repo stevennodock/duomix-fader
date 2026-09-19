@@ -62,6 +62,11 @@ Responsable : Steve Nodock <stb@outlook.fr>
       cela contourne un choix des éditeurs (souvent lié aux droits des contenus) : risque
       de politique Play supplémentaire, à ajouter à la section 4 et à décrire sans détour
       dans la fiche et la politique de confidentialité.
+- [ ] **Titre du morceau et historique** : le service shell lit le titre et l'artiste que
+      l'app de musique publie dans sa session multimédia (`MEDIA_CONTENT_CONTROL`), et l'app
+      garde un historique local (fichier privé `harmony_history.json` : noms de morceaux,
+      gammes, accords — effaçable depuis l'écran Historique). Rien n'est transmis. À décrire
+      dans la politique de confidentialité : c'est un historique d'écoute.
 - [ ] *Data safety* : déclarer que l'audio est traité sur l'appareil, de façon éphémère,
       sans collecte ni partage.
 

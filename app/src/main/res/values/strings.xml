@@ -58,6 +58,13 @@
     <string name="harmony_progression">Chord progression</string>
     <string name="harmony_cycle">%1$d s loop</string>
     <string name="harmony_no_cycle">No loop found — last %1$d s</string>
+    <string name="harmony_history_title">Detection history</string>
+    <string name="harmony_history_hint">Tap to see the history, one section per piece</string>
+    <string name="harmony_history_empty">No piece analysed yet.</string>
+    <string name="harmony_history_clear">Clear</string>
+    <string name="harmony_unknown_track">Unknown piece</string>
+    <string name="harmony_now">now playing</string>
+    <string name="harmony_no_cycle_short">no loop found</string>
     <string name="harmony_how_title">How it works</string>
     <string name="harmony_how">1. Notes: the long-term average of the 12 pitch classes selects the family (which notes are used).\n2. Chords: short frames are matched against triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion.\n3. Loop: the music is compared with itself to find the period at which the chords repeat. Repetitions are stacked and averaged, which keeps the chords and fades the melody.\n4. Tonic: the note where the piece spends the most time on the chord this mode builds on its tonic, backed by the bass line.\nNumerals are read on the major scale of the tonic (♭VI, ♭VII…).</string>
     <string name="harmony_privacy">The sound of the music app is analysed on the device, in memory only. Nothing is recorded or sent anywhere.</string>

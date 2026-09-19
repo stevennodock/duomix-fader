@@ -34,4 +34,12 @@ interface IMixerService {
     // Cumuls depuis le dernier appel : [0..11] chroma, [12..23] basses, [24] trames
     // sonores, [25] trames de silence. Null si aucune capture n'est active.
     float[] readHarmony() = 8;
+
+    // Referme le volet de notifications et ouvre le panneau Harmonie de DuoMix Fader.
+    // Aucun paramètre : ni la commande ni l'écran visé ne dépendent de l'appelant.
+    void showHarmonyPanel() = 9;
+
+    // Morceau en cours d'un paquet de la liste blanche, tel que l'app le publie elle-même
+    // dans sa session multimédia : {"title","artist","album"} en JSON, ou null.
+    String nowPlaying(String pkg) = 10;
 }

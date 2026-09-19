@@ -12,6 +12,9 @@ import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
 import com.dirtwing.duomixfader.harmony.HarmonyDetector
+import com.dirtwing.duomixfader.harmony.HarmonyHistory
+import com.dirtwing.duomixfader.harmony.TrackInfo
+import com.dirtwing.duomixfader.harmony.TrackRecord
 import com.dirtwing.duomixfader.harmony.HarmonyState
 import com.dirtwing.duomixfader.harmony.NoteNames
 import com.dirtwing.duomixfader.harmony.romanNumeral
@@ -29,6 +32,8 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 import rikka.shizuku.Shizuku
 import kotlin.math.PI
 import kotlin.math.cos
@@ -154,6 +159,37 @@ class MixerEngine private constructor(private val appContext: Context) {
     val harmony: StateFlow<HarmonyState> = _harmony.asStateFlow()
     private var harmonyJob: Job? = null
 
+    private val historyStore = HarmonyHistory(File(appContext.filesDir, "harmony_history.json"))
+    /** Morceaux déjà écoutés, du plus récent au plus ancien ; le morceau en cours n'y est pas. */
+    private val _history = MutableStateFlow(historyStore.load())
+    val history: StateFlow<List<TrackRecord>> = _history.asStateFlow()
+    /** Section du morceau en cours, tenue à jour à chaque relevé. */
+    private val _liveRecord = MutableStateFlow<TrackRecord?>(null)
+    val liveRecord: StateFlow<TrackRecord?> = _liveRecord.asStateFlow()
+    private var currentTrack: TrackInfo? = null
+
+    private fun readNowPlaying(svc: IMixerService, pkg: String): TrackInfo? =
+        runCatching { svc.nowPlaying(pkg) }.getOrNull()?.let { json ->
+            runCatching {
+                val o = JSONObject(json)
+                TrackInfo(o.optString("title"), o.optString("artist"), o.optString("album"))
+            }.getOrNull()
+        }?.takeIf { it.isKnown }
+
+    /** Range la section du morceau en cours dans l'historique, si elle contient quelque chose. */
+    private fun archiveLiveRecord() {
+        val record = _liveRecord.value
+        _liveRecord.value = null
+        if (record == null || !record.isWorthKeeping) return
+        _history.update { (listOf(record) + it).take(HarmonyHistory.MAX_TRACKS) }
+        historyStore.save(_history.value)
+    }
+
+    fun clearHistory() {
+        _history.value = emptyList()
+        historyStore.save(emptyList())
+    }
+
     /** (Re)lance l'analyse sur l'app du canal musique : capture côté shell, décision ici. */
     private fun startHarmony() {
         harmonyJob?.cancel()
@@ -164,23 +200,61 @@ class MixerEngine private constructor(private val appContext: Context) {
             val listening = runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
             _harmony.value = synchronized(detector) { detector.snapshot(listening) }
             if (!listening) return@launch
+            var tick = 0
             while (isActive) {
                 delay(1_000)
                 val data = runCatching { svc.readHarmony() }.getOrNull() ?: break
+                // Le titre annoncé par l'app donne les vraies frontières entre morceaux
+                if (tick++ % 2 == 0) {
+                    val track = readNowPlaying(svc, pkg)
+                    if (track != currentTrack) {
+                        archiveLiveRecord()
+                        currentTrack = track
+                        synchronized(detector) { detector.reset() }
+                    }
+                }
+                val hadDetection = _harmony.value.current != null
                 _harmony.value = synchronized(detector) {
                     detector.update(data, SystemClock.elapsedRealtime())
-                    detector.snapshot(true)
+                    detector.snapshot(true).copy(track = currentTrack)
+                }
+                val now = _harmony.value
+                when {
+                    now.current != null -> _liveRecord.value = TrackRecord(
+                        track = currentTrack ?: TrackInfo("", ""),
+                        source = _state.value.music.label,
+                        startedAt = _liveRecord.value?.startedAt ?: System.currentTimeMillis(),
+                        detection = now.current,
+                        confidence = now.confidence,
+                        segments = now.segments,
+                        progression = now.progression,
+                    )
+                    // Le détecteur vient de repartir de zéro sur un long silence : sans titre
+                    // annoncé, c'est notre seule frontière entre deux morceaux. Avec un titre,
+                    // c'est une pause DANS le morceau : sa section reste ouverte.
+                    hadDetection && currentTrack == null -> archiveLiveRecord()
                 }
                 if (BuildConfig.DEBUG) {
                     val h = _harmony.value
-                    Log.d("DuoMixHarmony", "trames=${data[24].toInt()} silence=${data[25].toInt()} -> " +
+                    Log.d("DuoMixHarmony", "[${currentTrack?.let { "${it.artist} — ${it.title}" } ?: "morceau non annoncé"}] trames=${data[24].toInt()} silence=${data[25].toInt()} -> " +
                         (h.current?.let { "${NoteNames.letter(it.root)} ${it.scale.popularName} (famille ${it.scale.family})" } ?: "en écoute") +
                         " confiance=${"%.2f".format(h.confidence)} séquences=${h.segments.size}" +
                         (h.progression?.let { p -> " | " + p.chords.joinToString("-") { romanNumeral(it.chord, h.current?.root ?: 0) } + " cycle=${p.cycleMs}" } ?: ""))
                 }
             }
+            archiveLiveRecord()
             _harmony.value = HarmonyState()
         }
+    }
+
+    /**
+     * Ouvre le panneau Harmonie depuis la notification : le service shell referme le volet
+     * et lance l'écran. Renvoie faux s'il n'est pas joignable (à l'appelant de se débrouiller).
+     */
+    fun showHarmonyPanel(): Boolean {
+        val svc = service ?: return false
+        scope.launch { runCatching { svc.showHarmonyPanel() } }
+        return true
     }
 
     /** Bouton « rafraîchir » : oublie tout et ré-analyse le morceau en cours. */
@@ -212,6 +286,7 @@ class MixerEngine private constructor(private val appContext: Context) {
         users = 0
         pollJob?.cancel()
         harmonyJob?.cancel()
+        archiveLiveRecord()
         runCatching { service?.stopHarmony() }
         _harmony.value = HarmonyState()
         // Plus d'écran ni de notification pour régler le mixage : on ne laisse pas

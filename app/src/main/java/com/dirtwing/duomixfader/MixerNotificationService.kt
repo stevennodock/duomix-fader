@@ -134,11 +134,12 @@ class MixerNotificationService : Service() {
     private fun shortName(detection: Detection) = "${noteName(detection.root)} ${detection.scale.popularName}"
 
     /**
-     * Ouvre le panneau des gammes. Déclenché par un geste de l'utilisateur sur le lecteur de
-     * la notification ; si Android refuse ce lancement depuis l'arrière-plan, toucher le
-     * corps de la notification ouvre l'app, d'où le panneau est à un geste.
+     * Ouvre le panneau des gammes, par le service shell : lui seul peut refermer le volet de
+     * notifications, sans quoi le panneau s'ouvre derrière lui. Sans service shell, on tente
+     * un lancement direct (le volet restera ouvert, et Android peut le refuser).
      */
     private fun openHarmonyPanel() {
+        if (engine.showHarmonyPanel()) return
         runCatching {
             startActivity(
                 Intent(this, MainActivity::class.java)
