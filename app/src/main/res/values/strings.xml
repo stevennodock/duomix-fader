@@ -36,4 +36,64 @@
     <string name="action_licenses">Open source licenses</string>
     <string name="action_back">← Back</string>
     <string name="licenses_missing">%1$s not found in the APK</string>
+
+    <!-- Analyse harmonique (gammes d'Oliver Prehn ; les noms de gammes ne se traduisent pas) -->
+    <string name="harmony_title">Harmony</string>
+    <string name="harmony_family">Family %1$d</string>
+    <string name="harmony_listening">Listening…</string>
+    <string name="harmony_off">Analysis unavailable</string>
+    <string name="harmony_summary">%1$s %2$s · family %3$d</string>
+    <string name="harmony_transition" translatable="false">%1$s → %2$s</string>
+    <string name="harmony_open">Scale details</string>
+    <string name="harmony_refresh">Analyse again</string>
+    <string name="harmony_sequences">Scales detected in this piece</string>
+    <string name="harmony_empty">Nothing detected yet. The analysis needs a few seconds of music.</string>
+    <string name="harmony_hint">Average estimate for the piece, meant for playing along: quick variations are ignored. The family (which notes) is more reliable than the mode (which tonic).</string>
+    <string name="harmony_confidence">Confidence: %1$d%%</string>
+    <string name="harmony_col_family">Family</string>
+    <string name="harmony_col_popular">Popular name</string>
+    <string name="harmony_col_steps">Interval steps</string>
+    <string name="harmony_col_systematic">Systematic name</string>
+    <string name="harmony_col_chords">Chords</string>
+    <string name="harmony_progression">Chord progression</string>
+    <string name="harmony_cycle">%1$d s loop</string>
+    <string name="harmony_no_cycle">No loop found — last %1$d s</string>
+    <string name="harmony_how_title">How it works</string>
+    <string name="harmony_how">1. Notes: the long-term average of the 12 pitch classes selects the family (which notes are used).\n2. Chords: short frames are matched against triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion.\n3. Loop: the music is compared with itself to find the period at which the chords repeat. Repetitions are stacked and averaged, which keeps the chords and fades the melody.\n4. Tonic: the note where the piece spends the most time on the chord this mode builds on its tonic, backed by the bass line.\nNumerals are read on the major scale of the tonic (♭VI, ♭VII…).</string>
+    <string name="harmony_privacy">The sound of the music app is analysed on the device, in memory only. Nothing is recorded or sent anywhere.</string>
+    <string name="harmony_credits_title">Credits</string>
+    <string name="harmony_credits">The 7 families and 33 “Scales of Harmonies”, their systematic names and the summary table are the work of Oliver Prehn (NewJazz). If this tool helps you, consider supporting him.</string>
+    <string name="harmony_credits_video">Watch the lesson</string>
+    <string name="harmony_credits_patreon">Support on Patreon</string>
+    <string name="harmony_credits_site" translatable="false">newjazz.dk</string>
+    <string name="notif_action_harmony">Scale details</string>
+    <!-- Toniques : système principal de la langue, puis l'autre système -->
+    <string-array name="notes_primary">
+        <item>C</item>
+        <item>D♭</item>
+        <item>D</item>
+        <item>E♭</item>
+        <item>E</item>
+        <item>F</item>
+        <item>F♯</item>
+        <item>G</item>
+        <item>A♭</item>
+        <item>A</item>
+        <item>B♭</item>
+        <item>B</item>
+    </string-array>
+    <string-array name="notes_secondary">
+        <item>Do</item>
+        <item>Re♭</item>
+        <item>Re</item>
+        <item>Mi♭</item>
+        <item>Mi</item>
+        <item>Fa</item>
+        <item>Fa♯</item>
+        <item>Sol</item>
+        <item>La♭</item>
+        <item>La</item>
+        <item>Si♭</item>
+        <item>Si</item>
+    </string-array>
 </resources>

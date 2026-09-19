@@ -20,8 +20,8 @@ android {
         targetSdk = 36
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
-        versionCode = 5
-        versionName = "0.3.0"
+        versionCode = 6
+        versionName = "0.4.0"
     }
 
     androidResources {
@@ -98,4 +98,6 @@ dependencies {
 
     // Contournement de la liste noire des API cachées (utilisé dans le UserService)
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
+
+    testImplementation("junit:junit:4.13.2")
 }

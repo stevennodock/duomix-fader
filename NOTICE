@@ -7,6 +7,23 @@ DuoMix is an independent project. It is not affiliated with, endorsed by, or
 sponsored by Google, YouTube, YouTube Music or the Shizuku project.
 
 ------------------------------------------------------------------------
+Music theory material — credits
+------------------------------------------------------------------------
+
+The harmony feature classifies music into the 7 families and 33 "Scales of
+Harmonies" described by Oliver Prehn (NewJazz) in his lesson "ALL ABOUT MUSICAL
+SCALES - A COMPLETE GUIDE!!!" (https://youtu.be/Vq2xt2D3e3E) and its overview
+sheet "The Scales of Harmonies". The family numbering, the rules that yield the
+33 scales, the "systematic names" and the five-column layout shown in the app
+are his work. Support him: https://www.patreon.com/newjazz - https://www.newjazz.dk
+
+No licence is stated for that material (checked on newjazz.dk, 2026-09-19), so
+it is NOT covered by this project's Apache-2.0 licence and all rights remain
+with its author. Scale names and interval patterns are common music theory;
+the detection code is original work of this project. DuoMix Fader is not
+affiliated with or endorsed by Oliver Prehn.
+
+------------------------------------------------------------------------
 Third-party software linked into the application
 ------------------------------------------------------------------------
 

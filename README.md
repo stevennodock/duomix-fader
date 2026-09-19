@@ -18,6 +18,26 @@ grâce à [Shizuku](https://shizuku.rikka.app/).
    Le contournement des restrictions d'API cachées est assuré par
    [HiddenApiBypass](https://github.com/LSPosed/AndroidHiddenApiBypass).
 
+## Analyse harmonique
+
+DuoMix Fader estime en continu la **gamme du morceau** joué sur le canal musique : la
+famille (parmi les 7), la gamme (parmi les 33 « Scales of Harmonies » d'Oliver Prehn,
+[NewJazz](https://youtu.be/Vq2xt2D3e3E)) et la tonalité. C'est une valeur moyenne,
+stable, pensée pour l'accompagnement : les variations rapides sont ignorées, une
+modulation n'est retenue que si elle dure.
+
+- `shizuku/PlaybackCapture.kt` : capte le son de l'app de musique seule (par uid) depuis le
+  processus shell, en 16 kHz mono (plafonds d'Android pour cette capture). **L'audio ne
+  quitte jamais ce processus**, n'est ni enregistré ni transmis.
+- `harmony/ChromaAnalyzer.kt` : FFT -> énergie des 12 classes de hauteur, harmoniques retirés.
+- `harmony/HarmonyDetector.kt` : moyenne longue (estimation et mode), moyenne rapide
+  (modulations), hystérésis. La famille est plus fiable que le mode.
+- `harmony/ScaleCatalog.kt` : les 33 gammes, vérifiées par les tests (somme de 12 demi-tons,
+  règles de Prehn, une famille = un motif circulaire).
+- Tests : `gradlew :app:testDebugUnitTest` (signal synthétisé -> gamme détectée).
+
+Crédits et droits du matériel d'Oliver Prehn : voir [NOTICE](NOTICE).
+
 ## Structure
 
 ```

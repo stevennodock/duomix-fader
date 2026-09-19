@@ -35,4 +35,62 @@
     <string name="action_licenses">Licencias de código abierto</string>
     <string name="action_back">← Volver</string>
     <string name="licenses_missing">%1$s no encontrado en el APK</string>
+
+    <!-- Analyse harmonique (gammes d'Oliver Prehn ; les noms de gammes ne se traduisent pas) -->
+    <string name="harmony_title">Armonía</string>
+    <string name="harmony_family">Familia %1$d</string>
+    <string name="harmony_listening">Escuchando…</string>
+    <string name="harmony_off">Análisis no disponible</string>
+    <string name="harmony_summary">%1$s %2$s · familia %3$d</string>
+    <string name="harmony_open">Detalle de las escalas</string>
+    <string name="harmony_refresh">Analizar de nuevo</string>
+    <string name="harmony_sequences">Escalas detectadas en esta pieza</string>
+    <string name="harmony_empty">Aún no se ha detectado nada. El análisis necesita unos segundos de música.</string>
+    <string name="harmony_hint">Estimación media de la pieza, pensada para acompañar: se ignoran las variaciones rápidas. La familia (qué notas) es más fiable que el modo (qué tónica).</string>
+    <string name="harmony_confidence">Confianza: %1$d %%</string>
+    <string name="harmony_col_family">Familia</string>
+    <string name="harmony_col_popular">Nombre común</string>
+    <string name="harmony_col_steps">Intervalos</string>
+    <string name="harmony_col_systematic">Nombre sistemático</string>
+    <string name="harmony_col_chords">Acordes</string>
+    <string name="harmony_progression">Progresión de acordes</string>
+    <string name="harmony_cycle">bucle de %1$d s</string>
+    <string name="harmony_no_cycle">No se encontró bucle — últimos %1$d s</string>
+    <string name="harmony_how_title">Cómo funciona</string>
+    <string name="harmony_how">1. Notas: la media larga de las 12 clases de altura indica la familia (qué notas se usan).\n2. Acordes: tramas cortas se comparan con las tríadas. Una clase de altura ignora la octava: un acorde se reconoce sea cual sea su inversión.\n3. Bucle: la música se compara consigo misma para hallar el periodo en que los acordes se repiten. Las repeticiones se superponen y promedian: los acordes resaltan, la melodía se atenúa.\n4. Tónica: la nota donde la pieza pasa más tiempo sobre el acorde que este modo construye en su tónica, apoyada por la línea de bajo.\nEl cifrado se lee sobre la escala mayor de la tónica (♭VI, ♭VII…).</string>
+    <string name="harmony_privacy">El sonido de la app de música se analiza en el dispositivo, solo en memoria. No se graba ni se envía nada.</string>
+    <string name="harmony_credits_title">Créditos</string>
+    <string name="harmony_credits">Las 7 familias y las 33 «Scales of Harmonies», sus nombres sistemáticos y la tabla de síntesis son obra de Oliver Prehn (NewJazz). Si esta herramienta te resulta útil, considera apoyarle.</string>
+    <string name="harmony_credits_video">Ver la lección</string>
+    <string name="harmony_credits_patreon">Apoyarle en Patreon</string>
+    <string name="notif_action_harmony">Detalle de las escalas</string>
+    <!-- Toniques : système principal de la langue, puis l'autre système -->
+    <string-array name="notes_primary">
+        <item>Do</item>
+        <item>Re♭</item>
+        <item>Re</item>
+        <item>Mi♭</item>
+        <item>Mi</item>
+        <item>Fa</item>
+        <item>Fa♯</item>
+        <item>Sol</item>
+        <item>La♭</item>
+        <item>La</item>
+        <item>Si♭</item>
+        <item>Si</item>
+    </string-array>
+    <string-array name="notes_secondary">
+        <item>C</item>
+        <item>D♭</item>
+        <item>D</item>
+        <item>E♭</item>
+        <item>E</item>
+        <item>F</item>
+        <item>F♯</item>
+        <item>G</item>
+        <item>A♭</item>
+        <item>A</item>
+        <item>B♭</item>
+        <item>B</item>
+    </string-array>
 </resources>

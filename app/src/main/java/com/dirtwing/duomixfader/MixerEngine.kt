@@ -9,6 +9,12 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
+import android.os.SystemClock
+import android.util.Log
+import com.dirtwing.duomixfader.harmony.HarmonyDetector
+import com.dirtwing.duomixfader.harmony.HarmonyState
+import com.dirtwing.duomixfader.harmony.NoteNames
+import com.dirtwing.duomixfader.harmony.romanNumeral
 import com.dirtwing.duomixfader.shizuku.MixerUserService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import rikka.shizuku.Shizuku
@@ -112,6 +119,7 @@ class MixerEngine private constructor(private val appContext: Context) {
                 _state.update { it.copy(serviceBound = true, lastError = null) }
                 refreshFocusStates()
                 startPolling()
+                startHarmony()
             }
         }
 
@@ -119,6 +127,8 @@ class MixerEngine private constructor(private val appContext: Context) {
             service = null
             _state.update { it.copy(serviceBound = false) }
             pollJob?.cancel()
+            harmonyJob?.cancel()
+            _harmony.value = HarmonyState()
         }
     }
 
@@ -134,6 +144,53 @@ class MixerEngine private constructor(private val appContext: Context) {
                 if (result == PackageManager.PERMISSION_GRANTED) bindService()
             }
         }
+
+    // ------------------------------------------------------------------
+    // Analyse harmonique du canal musique
+    // ------------------------------------------------------------------
+
+    private val detector = HarmonyDetector()
+    private val _harmony = MutableStateFlow(HarmonyState())
+    val harmony: StateFlow<HarmonyState> = _harmony.asStateFlow()
+    private var harmonyJob: Job? = null
+
+    /** (Re)lance l'analyse sur l'app du canal musique : capture côté shell, décision ici. */
+    private fun startHarmony() {
+        harmonyJob?.cancel()
+        harmonyJob = scope.launch {
+            val svc = service ?: return@launch
+            val pkg = _state.value.music.pkg
+            synchronized(detector) { detector.reset() }
+            val listening = runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
+            _harmony.value = synchronized(detector) { detector.snapshot(listening) }
+            if (!listening) return@launch
+            while (isActive) {
+                delay(1_000)
+                val data = runCatching { svc.readHarmony() }.getOrNull() ?: break
+                _harmony.value = synchronized(detector) {
+                    detector.update(data, SystemClock.elapsedRealtime())
+                    detector.snapshot(true)
+                }
+                if (BuildConfig.DEBUG) {
+                    val h = _harmony.value
+                    Log.d("DuoMixHarmony", "trames=${data[24].toInt()} silence=${data[25].toInt()} -> " +
+                        (h.current?.let { "${NoteNames.letter(it.root)} ${it.scale.popularName} (famille ${it.scale.family})" } ?: "en écoute") +
+                        " confiance=${"%.2f".format(h.confidence)} séquences=${h.segments.size}" +
+                        (h.progression?.let { p -> " | " + p.chords.joinToString("-") { romanNumeral(it.chord, h.current?.root ?: 0) } + " cycle=${p.cycleMs}" } ?: ""))
+                }
+            }
+            _harmony.value = HarmonyState()
+        }
+    }
+
+    /** Bouton « rafraîchir » : oublie tout et ré-analyse le morceau en cours. */
+    fun refreshHarmony() {
+        _harmony.value = synchronized(detector) {
+            detector.reset()
+            detector.snapshot(_harmony.value.listening)
+        }
+        if (!_harmony.value.listening) startHarmony()
+    }
 
     // ------------------------------------------------------------------
     // Cycle de vie partagé
@@ -154,6 +211,9 @@ class MixerEngine private constructor(private val appContext: Context) {
         if (--users > 0) return
         users = 0
         pollJob?.cancel()
+        harmonyJob?.cancel()
+        runCatching { service?.stopHarmony() }
+        _harmony.value = HarmonyState()
         // Plus d'écran ni de notification pour régler le mixage : on ne laisse pas
         // les apps à un volume atténué que l'utilisateur ne pourrait plus corriger
         _state.value.let { restoreFullVolume(it.music); restoreFullVolume(it.video) }
@@ -268,6 +328,7 @@ class MixerEngine private constructor(private val appContext: Context) {
         }
         scope.launch {
             restoreFullVolume(previous)
+            if (slot == Slot.MUSIC) startHarmony()
             if (previous.focusIgnored) {
                 runCatching { service?.setFocusIgnored(previous.pkg, false) }
             }

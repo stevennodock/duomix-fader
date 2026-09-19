@@ -4,6 +4,7 @@
 package com.dirtwing.duomixfader
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,29 +21,56 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dirtwing.duomixfader.ui.HarmonyScreen
 import com.dirtwing.duomixfader.ui.LicensesScreen
 import com.dirtwing.duomixfader.ui.MixerScreen
 
 /** Activité unique : héberge l'écran mixeur Compose. */
 class MainActivity : ComponentActivity() {
 
+    companion object {
+        const val EXTRA_OPEN_HARMONY = "open_harmony"
+    }
+
     private val viewModel: MixerViewModel by viewModels()
+
+    private enum class Screen { MIXER, HARMONY, LICENSES }
+
+    private var screen by mutableStateOf(Screen.MIXER)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        openRequestedScreen(intent)
         setContent {
             val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
             MaterialTheme(colorScheme = colors) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    var showLicenses by rememberSaveable { mutableStateOf(false) }
-                    if (showLicenses) {
-                        LicensesScreen(onBack = { showLicenses = false })
-                    } else {
-                        MixerScreen(viewModel, onShowLicenses = { showLicenses = true })
+                    when (screen) {
+                        Screen.LICENSES -> LicensesScreen(onBack = { screen = Screen.MIXER })
+                        Screen.HARMONY -> {
+                            val harmony by viewModel.harmony.collectAsStateWithLifecycle()
+                            HarmonyScreen(harmony, onRefresh = viewModel::refreshHarmony, onBack = { screen = Screen.MIXER })
+                        }
+                        Screen.MIXER -> MixerScreen(
+                            viewModel,
+                            onShowLicenses = { screen = Screen.LICENSES },
+                            onShowHarmony = { screen = Screen.HARMONY },
+                        )
                     }
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openRequestedScreen(intent)
+    }
+
+    /** La notification (bouton note de musique) ouvre directement le panneau des gammes. */
+    private fun openRequestedScreen(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_OPEN_HARMONY, false) == true) screen = Screen.HARMONY
     }
 
     override fun onStart() {

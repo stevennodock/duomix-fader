@@ -41,8 +41,9 @@ import kotlin.math.roundToInt
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
 @Composable
-fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
+fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHarmony: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val harmony by viewModel.harmony.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -71,6 +72,16 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit) {
                         Text(stringResource(R.string.action_request_permission))
                     }
                 }
+            }
+        }
+
+        // --- Carte harmonie : gamme estimée du morceau joué sur le canal musique ---
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("♪ " + stringResource(R.string.harmony_title), style = MaterialTheme.typography.titleMedium)
+                CurrentScale(harmony)
+                ProgressionLines(harmony, showChordNames = false)
+                TextButton(onClick = onShowHarmony) { Text(stringResource(R.string.harmony_open)) }
             }
         }
 

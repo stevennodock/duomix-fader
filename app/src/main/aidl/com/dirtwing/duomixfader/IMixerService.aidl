@@ -25,4 +25,13 @@ interface IMixerService {
     // Lie la vie du service à celle de l'app : à la mort du jeton (processus client
     // tué), le service shell se termine de lui-même, même si Shizuku n'est plus là.
     void attachClient(IBinder token) = 5;
+
+    // Analyse harmonique : capte le son d'un paquet de la liste blanche et le réduit en
+    // chroma DANS le processus shell. Aucun échantillon audio ne franchit cette interface.
+    boolean startHarmony(String pkg) = 6;
+    void stopHarmony() = 7;
+
+    // Cumuls depuis le dernier appel : [0..11] chroma, [12..23] basses, [24] trames
+    // sonores, [25] trames de silence. Null si aucune capture n'est active.
+    float[] readHarmony() = 8;
 }

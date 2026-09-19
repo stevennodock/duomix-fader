@@ -45,6 +45,26 @@ Responsable : Steve Nodock <stb@outlook.fr>
       À re-tester à chaque nouvelle version majeure de Shizuku ou d'Android.
 - [ ] Ne pas utiliser le logo ni les captures de Shizuku dans la fiche Play.
 
+## 2 bis. Analyse harmonique : droits et confidentialité
+
+- [ ] **Autorisation d'Oliver Prehn (NewJazz)** : l'app reprend sa classification (7 familles,
+      33 gammes, noms systématiques) et les cinq colonnes de son tableau. Aucune licence
+      n'est publiée sur newjazz.dk (vérifié le 2026-09-19) : par défaut, tous droits réservés.
+      Les noms de gammes et les intervalles relèvent de la théorie musicale commune, mais
+      la présentation est la sienne. **Lui écrire avant toute publication** (contact indiqué
+      sur son site) pour obtenir son accord écrit sur l'usage, le crédit et le lien Patreon.
+      Sans réponse : retirer les noms systématiques et la mise en tableau, garder le crédit.
+- [x] Crédit et liens (Patreon, leçon, site) dans le panneau « Harmonie » et dans `NOTICE`.
+- [ ] **Capture du son d'une autre app** : le service shell capte le flux de l'app de
+      musique via les permissions de l'identité shell (`CAPTURE_MEDIA_OUTPUT`), y compris
+      pour des apps qui refusent la capture ordinaire. Le son n'est ni enregistré ni
+      transmis (réduit en 12 valeurs de chroma, en mémoire, dans le processus shell), mais
+      cela contourne un choix des éditeurs (souvent lié aux droits des contenus) : risque
+      de politique Play supplémentaire, à ajouter à la section 4 et à décrire sans détour
+      dans la fiche et la politique de confidentialité.
+- [ ] *Data safety* : déclarer que l'audio est traité sur l'appareil, de façon éphémère,
+      sans collecte ni partage.
+
 ## 3. Marques et fiche Play
 
 - [ ] « YouTube » et « YouTube Music » sont des marques de Google : usage descriptif

@@ -35,4 +35,62 @@
     <string name="action_licenses">Licences open source</string>
     <string name="action_back">← Retour</string>
     <string name="licenses_missing">%1$s introuvable dans l\'APK</string>
+
+    <!-- Analyse harmonique (gammes d'Oliver Prehn ; les noms de gammes ne se traduisent pas) -->
+    <string name="harmony_title">Harmonie</string>
+    <string name="harmony_family">Famille %1$d</string>
+    <string name="harmony_listening">Écoute en cours…</string>
+    <string name="harmony_off">Analyse indisponible</string>
+    <string name="harmony_summary">%1$s %2$s · famille %3$d</string>
+    <string name="harmony_open">Détail des gammes</string>
+    <string name="harmony_refresh">Relancer l\'analyse</string>
+    <string name="harmony_sequences">Gammes détectées dans ce morceau</string>
+    <string name="harmony_empty">Rien de détecté pour l\'instant. L\'analyse a besoin de quelques secondes de musique.</string>
+    <string name="harmony_hint">Estimation moyenne du morceau, pensée pour l\'accompagnement : les variations rapides sont ignorées. La famille (quelles notes) est plus fiable que le mode (quelle tonique).</string>
+    <string name="harmony_confidence">Confiance : %1$d %%</string>
+    <string name="harmony_col_family">Famille</string>
+    <string name="harmony_col_popular">Nom usuel</string>
+    <string name="harmony_col_steps">Intervalles</string>
+    <string name="harmony_col_systematic">Nom systématique</string>
+    <string name="harmony_col_chords">Accords</string>
+    <string name="harmony_progression">Progression d\'accords</string>
+    <string name="harmony_cycle">boucle de %1$d s</string>
+    <string name="harmony_no_cycle">Pas de boucle trouvée — %1$d dernières secondes</string>
+    <string name="harmony_how_title">Comment ça marche</string>
+    <string name="harmony_how">1. Notes : la moyenne longue des 12 classes de hauteur désigne la famille (quelles notes sont jouées).\n2. Accords : des trames courtes sont comparées aux triades. Une classe de hauteur ignore l\'octave : un accord est reconnu quel que soit son renversement.\n3. Boucle : la musique est comparée à elle-même pour trouver la période à laquelle les accords reviennent. Les répétitions sont superposées et moyennées : les accords ressortent, la mélodie s\'estompe.\n4. Tonique : la note où le morceau passe le plus de temps sur l\'accord que ce mode construit sur sa tonique, confortée par la ligne de basse.\nLe chiffrage se lit sur la gamme majeure de la tonique (♭VI, ♭VII…).</string>
+    <string name="harmony_privacy">Le son de l\'app de musique est analysé sur l\'appareil, en mémoire uniquement. Rien n\'est enregistré ni transmis.</string>
+    <string name="harmony_credits_title">Crédits</string>
+    <string name="harmony_credits">Les 7 familles et les 33 « Scales of Harmonies », leurs noms systématiques et le tableau de synthèse sont l\'œuvre d\'Oliver Prehn (NewJazz). Si cet outil vous est utile, pensez à le soutenir.</string>
+    <string name="harmony_credits_video">Voir la leçon</string>
+    <string name="harmony_credits_patreon">Le soutenir sur Patreon</string>
+    <string name="notif_action_harmony">Détail des gammes</string>
+    <!-- Toniques : système principal de la langue, puis l'autre système -->
+    <string-array name="notes_primary">
+        <item>Do</item>
+        <item>Ré♭</item>
+        <item>Ré</item>
+        <item>Mi♭</item>
+        <item>Mi</item>
+        <item>Fa</item>
+        <item>Fa♯</item>
+        <item>Sol</item>
+        <item>La♭</item>
+        <item>La</item>
+        <item>Si♭</item>
+        <item>Si</item>
+    </string-array>
+    <string-array name="notes_secondary">
+        <item>C</item>
+        <item>D♭</item>
+        <item>D</item>
+        <item>E♭</item>
+        <item>E</item>
+        <item>F</item>
+        <item>F♯</item>
+        <item>G</item>
+        <item>A♭</item>
+        <item>A</item>
+        <item>B♭</item>
+        <item>B</item>
+    </string-array>
 </resources>

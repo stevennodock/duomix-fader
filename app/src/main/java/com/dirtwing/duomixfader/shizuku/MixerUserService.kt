@@ -6,6 +6,7 @@ package com.dirtwing.duomixfader.shizuku
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioManager
+import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
 import androidx.annotation.Keep
@@ -67,6 +68,40 @@ class MixerUserService() : IMixerService.Stub() {
             exitProcess(0)
         }
     }
+
+    // ------------------------------------------------------------------
+    // Analyse harmonique : capture du son d'une app, réduite en chroma sur place
+    // ------------------------------------------------------------------
+
+    private var capture: PlaybackCapture? = null
+
+    @Synchronized
+    override fun startHarmony(pkg: String): Boolean {
+        if (pkg !in ALLOWED_PACKAGES) return false
+        val ctx = context ?: return false
+        stopHarmony()
+        val uid = runCatching { ctx.packageManager.getPackageUid(pkg, 0) }.getOrNull() ?: return false
+        // Pendant un appel binder, les contrôles de permission visent l'APPELANT (notre app,
+        // sans privilège). C'est ce processus shell qui détient MODIFY_AUDIO_ROUTING : on
+        // efface l'identité appelante pour agir en son nom propre.
+        val token = Binder.clearCallingIdentity()
+        try {
+            val started = PlaybackCapture(ctx, uid)
+            if (!started.start()) return false
+            capture = started
+            return true
+        } finally {
+            Binder.restoreCallingIdentity(token)
+        }
+    }
+
+    @Synchronized
+    override fun stopHarmony() {
+        capture?.stop()
+        capture = null
+    }
+
+    override fun readHarmony(): FloatArray? = capture?.analyzer?.drain()
 
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {
         val app = AppCatalog.find(pkg) ?: return false
