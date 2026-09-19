@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 — Copyright 2026 Steve Nodock <stb@outlook.fr>
+     Guide utilisateur (anglais). PDF produit par docs/user-guide/build.ps1 ; captures par capture.ps1. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DuoMix Fader — User Guide</title>
+<style>
+  @page { size: A4 portrait; margin: 16mm 15mm 15mm; }
+  :root { --paper: #FAF9F5; --ink: #141413; --soft: #6B6A65; --line: #E3E0D6; --accent: #D97757; --blue: #2F6FDE; --red: #E0524A; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { font: 10.2pt/1.5 "Segoe UI", system-ui, sans-serif; }
+  h1 { font: 600 30pt/1.05 Georgia, serif; margin: 0 0 4px; letter-spacing: -0.4px; }
+  h1 span, h2 span { color: var(--accent); }
+  h2 { font: 600 16pt/1.2 Georgia, serif; margin: 0 0 8px; padding-top: 2px; break-after: avoid; }
+  h3 { font: 600 11pt "Segoe UI", sans-serif; margin: 14px 0 4px; break-after: avoid; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 8px; padding-left: 18px; }
+  li { margin-bottom: 3px; }
+  a { color: var(--accent); text-decoration: none; }
+  .lead { font-size: 12pt; color: #3d3c38; max-width: 150mm; }
+  .meta { color: var(--soft); font-size: 9pt; margin-top: 14px; }
+  section { break-before: page; }
+  section.first { break-before: auto; }
+  .cover { display: flex; gap: 12mm; align-items: center; margin-top: 12mm; }
+  .cover img.icon { width: 46mm; border-radius: 22%; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  .shots { display: flex; gap: 8mm; align-items: flex-start; margin: 8px 0 10px; break-inside: avoid; }
+  figure { margin: 0; width: 58mm; flex: none; }
+  figure img { width: 100%; border-radius: 10px; border: 1px solid #2a2a2e; display: block; }
+  figcaption { font-size: 8.4pt; color: var(--soft); margin-top: 4px; line-height: 1.35; }
+  .side { flex: 1; }
+  .note { background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 6px; padding: 8px 11px; margin: 8px 0 10px; font-size: 9.6pt; break-inside: avoid; }
+  .note.warn { border-left-color: var(--red); }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; font-size: 9.4pt; background: #fff; border: 1px solid var(--line); break-inside: avoid; }
+  th { text-align: left; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .5px; font-size: 8pt; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
+  td { padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .chip { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 3px; }
+  .sheet { width: 108mm; display: block; margin: 4px auto 0; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  .shots.small figure { width: 47mm; }
+  code { font: 9.2pt Consolas, monospace; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+  .toc { columns: 2; column-gap: 12mm; margin-top: 8mm; font-size: 10.4pt; }
+  .toc div { margin-bottom: 4px; }
+  .toc b { color: var(--accent); margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<section class="first">
+  <div class="cover">
+    <img class="icon" src="../icon/duomix-fader-icon-512.png" alt="">
+    <div>
+      <h1>DuoMix <span>Fader</span></h1>
+      <p class="lead">Play two apps at once, mix them with a crossfader — and see, while the music plays, which scale it is in and which chords it loops through.</p>
+      <p class="meta">User guide · version 0.5 · September 2026<br>Steve Nodock &lt;stb@outlook.fr&gt; · free and open source (Apache 2.0)</p>
+    </div>
+  </div>
+  <div class="toc">
+    <div><b>1</b> What it does</div>
+    <div><b>2</b> Getting started</div>
+    <div><b>3</b> The mixer</div>
+    <div><b>4</b> The fader in your notifications</div>
+    <div><b>5</b> Harmony: scale, tonic, chords</div>
+    <div><b>6</b> History, one section per piece</div>
+    <div><b>7</b> The Scales of Harmonies sheet</div>
+    <div><b>8</b> How the analysis works, and its limits</div>
+    <div><b>9</b> Privacy</div>
+    <div><b>10</b> Credits</div>
+  </div>
+
+  <h2 style="margin-top:12mm"><span>1</span> · What it does</h2>
+  <p>Android normally lets one app play at a time: start a video and your music pauses. DuoMix Fader removes that limit for two apps you choose — a <b>music</b> app and a <b>video or voice</b> app — and gives you a two-channel mixer with a DJ-style, constant-power crossfader. It needs no root.</p>
+  <p>On top of the mixer, the <b>Harmony</b> feature listens to the music channel and estimates the scale of the piece among the 7 families and 33 <i>Scales of Harmonies</i> described by Oliver Prehn (NewJazz), its tonic, and its chord progression in Roman numerals. It is an accompaniment aid: a steady, averaged reading of the piece, not a note-by-note transcription.</p>
+  <div class="note">DuoMix Fader is an independent project. It is not affiliated with Google, YouTube, the Shizuku project or Oliver Prehn.</div>
+</section>
+
+<section>
+  <h2><span>2</span> · Getting started</h2>
+  <div class="shots">
+    <figure><img src="img/01-mixer-top.png" alt=""><figcaption>Three green lights: Shizuku is running, permission is granted, the mixer service is connected.</figcaption></figure>
+    <div class="side">
+      <p>DuoMix Fader relies on <a href="https://shizuku.rikka.app/">Shizuku</a>, a separate free app that lets it perform a few system-level audio operations without root.</p>
+      <ol>
+        <li>Install <b>Shizuku</b> and start it through <i>Developer options → Wireless debugging</i>, following Shizuku's own instructions. After a reboot it has to be started again, unless you enabled its start-on-boot option.</li>
+        <li>Open <b>DuoMix Fader</b> and tap <b>Request Shizuku permission</b>, then accept.</li>
+        <li>When the three lights are green, you are ready.</li>
+      </ol>
+      <div class="note">If the first light is red, Shizuku is not running: open Shizuku and start it. Nothing in DuoMix Fader works without it.</div>
+      <h3>Languages</h3>
+      <p>The app follows your phone's language — English, French or Spanish. You can also choose its language alone in <i>Settings → System → Languages → App languages</i>. Scale names are international musical terms and are never translated.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span>3</span> · The mixer</h2>
+  <div class="shots">
+    <figure><img src="img/02-mixer-bottom.png" alt=""><figcaption>Apps to mix, the audio-focus switches, the two channel sliders and the crossfader.</figcaption></figure>
+    <div class="side">
+      <h3 style="margin-top:0">Apps to mix</h3>
+      <p>Pick one app per channel. Only supported apps that are installed are listed: for music, YouTube Music, Spotify, Deezer, Apple Music, Amazon Music, SoundCloud, Tidal, Qobuz; for video and voice, YouTube, X, Telegram, Twitch, VLC, Netflix, Pocket Casts, Chrome, Firefox. The list is closed on purpose: the privileged service refuses any other app.</p>
+      <h3>Simultaneous playback</h3>
+      <p>Android pauses an app when another one takes the <i>audio focus</i>. Turn the switch on for an app and it stops being paused by the other. Enabling it for the <b>music app</b> is usually enough.</p>
+      <div class="note warn">Some apps pause <i>themselves</i> when they are refused audio focus (X does). Their switch is disabled and says so: enable the option on the other channel instead.</div>
+      <h3>Volumes and crossfader</h3>
+      <p>Each slider sets the volume of one app only. The crossfader moves from the music app (left) to the video app (right) following an equal-power curve: at the centre both sit at 71 %, so the overall loudness stays constant.</p>
+      <p>When you close both the screen and the notification, both apps get their full volume back, and switching a channel to another app restores the app you leave.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span>4</span> · The fader in your notifications</h2>
+  <p>You do not have to keep the app open. While DuoMix Fader runs, a media-player card called <b>DuoMix fader</b> appears next to your other players — in the notification shade and on the lock screen.</p>
+  <table>
+    <tr><th style="width:42mm">Control</th><th>What it does</th></tr>
+    <tr><td><b>Progress bar</b></td><td>It <i>is</i> the crossfader: drag it. Left is the music app, right is the video app. The bar spans a fictitious 100 seconds, so “0:50” reads as 50 %.</td></tr>
+    <tr><td><b>⏮ / ⏭</b></td><td>Move the fader 10 % towards music / towards video.</td></tr>
+    <tr><td><b>Play / pause</b></td><td>Re-centre the fader.</td></tr>
+    <tr><td><b>♪</b></td><td>Close the shade and open the Harmony panel.</td></tr>
+    <tr><td><b>✕</b></td><td>Hide the card. It comes back the next time you open the app.</td></tr>
+    <tr><td><b>Title line</b></td><td>The scale found so far, for instance “B♭ Major · family 1”. When the piece modulates it reads “old → new” for a few seconds. The line below gives each app's volume.</td></tr>
+  </table>
+  <div class="note">DuoMix Fader plays no sound itself: this player card is only a control surface. That is also why this guide shows no screenshot of it — the notification shade belongs to your other apps too.</div>
+</section>
+
+<section>
+  <h2><span>5</span> · Harmony: scale, tonic, chords</h2>
+  <div class="shots">
+    <figure><img src="img/03-harmony-top.png" alt=""><figcaption>The piece as announced by the music app, the scale found, the scales held during the piece, and the chord progression.</figcaption></figure>
+    <div class="side">
+      <p>Open it from the <b>♪ Harmony</b> card of the main screen (<i>Scale details</i>) or from the <b>♪</b> button of the notification. Analysis starts by itself as soon as the music app plays.</p>
+      <h3>What you read</h3>
+      <ul>
+        <li><b>The scale</b> — tonic and popular name, then its family, systematic name and chords, as in Oliver Prehn's table. The tonic is written in your language's system, with the other one next to it: “B♭ (Si♭)”.</li>
+        <li><b>Confidence</b> — how clearly this set of notes beats the next candidate. Below about 15 %, treat the family as a hint.</li>
+        <li><b>Scales detected in this piece</b> — one row per scale held, with the time it appeared and the five columns of the table. Scroll the table sideways.</li>
+        <li><b>Chord progression</b> — Roman numerals relative to the tonic, the chord names beneath, and the length of the loop.</li>
+      </ul>
+      <h3>Reading the numerals</h3>
+      <p>Degrees are read on the <b>major scale of the tonic</b>, with ♭ or ♯ for other pitches: in A minor, F major is written ♭VI. Upper case is major (+ for augmented), lower case is minor (° for diminished).</p>
+      <h3>Analyse again</h3>
+      <p>The ⟳ button forgets everything and analyses the current piece afresh — useful if you started listening in the middle of an unusual passage.</p>
+    </div>
+  </div>
+  <div class="note">The reading is deliberately <b>slow and steady</b>. The first estimate needs about 8 seconds of music; a change of scale is only accepted if it lasts 12 seconds, a change of mode 30 seconds. Expect the first minute of a piece to be the least reliable.</div>
+</section>
+
+<section>
+  <h2><span>6</span> · History, one section per piece</h2>
+  <div class="shots">
+    <figure><img src="img/06-history.png" alt=""><figcaption>Each piece keeps its scales, its chord loop and the time you listened to it.</figcaption></figure>
+    <div class="side">
+      <p>Tap the <b>Chord progression</b> card of the Harmony panel to open the history. The piece being played comes first, marked <i>now playing</i>; earlier pieces follow, most recent first, up to fifty.</p>
+      <p>Pieces are told apart by the title and artist that the music app announces itself — the same information your lock screen shows. Nothing is recognised by listening and nothing is looked up online. When an app announces no title, a silence of a few seconds marks the boundary and the section is called <i>Unknown piece</i>.</p>
+      <p><b>Clear</b> empties the list. The history is a private file of the app; it contains names of pieces, scales and chords, never any sound.</p>
+    </div>
+  </div>
+  <div class="shots small">
+    <figure><img src="img/04-harmony-middle.png" alt=""><figcaption>The panel also explains the method in a few lines, and states what happens to the sound.</figcaption></figure>
+    <figure><img src="img/05-harmony-bottom.png" alt=""><figcaption>Credits, with links to Oliver Prehn's lesson, website and Patreon page.</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><span>7</span> · The Scales of Harmonies sheet</h2>
+  <p>The link <b>📄 The 33 scales, colour-coded (PDF)</b>, in the Harmony card and in the panel, opens a one-page study sheet inside the app. Pinch to zoom, drag to move around. It exists in English, French and Spanish and follows the app's language.</p>
+  <img class="sheet" src="img/08-sheet-en.png" alt="">
+  <p style="margin-top:8px">The sheet reproduces the data of Oliver Prehn's overview — 33 scales in 7 families, with popular name, interval steps, systematic name and chords — and adds a colour code:</p>
+  <ul>
+    <li><span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard: C D E F♯ G♯ A♯ and C♯ D♯ F G A B.</li>
+    <li>A <b>whole step</b> stays in the same colour; a <b>half step</b> or a <b>step and a half</b> crosses to the other. The steps that cross are printed in bold.</li>
+    <li>Each column of the grid is one semitone, so step sizes are visible as distances, and the scales of a family line up as a <b>staircase</b>: each one is the family's pattern read from the next degree.</li>
+    <li>Each family has its own colour; the scales printed in bold in the original are bold here too.</li>
+  </ul>
+  <div class="note">The musical content of this sheet is Oliver Prehn's work and remains his. Only the layout and the colour code were added. See <i>Credits</i>.</div>
+</section>
+
+<section>
+  <h2><span>8</span> · How the analysis works, and its limits</h2>
+  <ol>
+    <li><b>Notes → family.</b> The energy of the 12 pitch classes is averaged over about thirty seconds. The set of notes that explains it best gives the family. When two candidates are close, the more common family wins.</li>
+    <li><b>Chords.</b> Short frames are matched against the 48 triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion or voicing.</li>
+    <li><b>Loop.</b> The music is compared with itself to find the period at which the chords come back. All repetitions are stacked and averaged: what returns every time — the chords — is reinforced; melody, voice and drums fade. If no loop is found, the last 20 seconds are read as they are, and the panel says so.</li>
+    <li><b>Tonic → mode.</b> The modes of a family share the same notes, so notes alone cannot tell D Dorian from C major. The tonic is the note where the piece spends the most time on the chord that this mode builds on its first degree — the “Chords” column of the table — backed by the bass line.</li>
+  </ol>
+  <h3>Limits you should know</h3>
+  <ul>
+    <li><b>The mode is less certain than the family</b>, and sometimes the ambiguity is musical: a loop such as I – V – vi – IV spends as much time on four chords, each of which is the tonic chord of a mode of the same family.</li>
+    <li>Rootless jazz voicings can hide a chord (a rootless Cmaj9 <i>is</i> an Em7); the bass line is then the only clue.</li>
+    <li>Chords shorter than about half a second, music tuned far from A = 440 Hz, and very percussive mixes are read poorly. Four-note chords are reduced to their triad.</li>
+    <li>If the music channel is faded to zero, there is nothing left to analyse.</li>
+    <li>The method has been tested on synthetic signals and on a handful of real pieces, not on an annotated corpus: its success rate on real music is unknown.</li>
+  </ul>
+  <p>The full method, its constants and what did not work are described in the research note shipped with the source code, <code>docs/research/harmony-analysis.md</code>.</p>
+</section>
+
+<section>
+  <h2><span>9</span> · Privacy</h2>
+  <ul>
+    <li>The app has <b>no network permission</b>. Nothing it hears, reads or stores can leave the phone.</li>
+    <li>To analyse a piece it listens to the <b>music app only</b>. The sound is reduced on the spot to twelve numbers per instant and discarded; it is never recorded.</li>
+    <li>It reads the title and artist that the music app publishes for the lock screen, to name the sections of the history.</li>
+    <li>The history is a private file; <b>Clear</b> deletes it. Uninstalling the app removes everything.</li>
+    <li>The privileged service it starts through Shizuku can only do a short, fixed list of things — change the audio-focus setting and the volume of the listed apps, listen to the music app, read its title, open DuoMix Fader's own screen. It runs no arbitrary command and stops by itself when the app stops.</li>
+  </ul>
+
+  <h2 style="margin-top:10mm"><span>10</span> · Credits</h2>
+  <p>The 7 families and 33 <i>Scales of Harmonies</i>, their systematic names and the overview table are the work of <b>Oliver Prehn</b> (NewJazz). If this tool helps you, please support him.</p>
+  <ul>
+    <li>Lesson: <a href="https://youtu.be/Vq2xt2D3e3E">ALL ABOUT MUSICAL SCALES – A COMPLETE GUIDE!!!</a> — youtu.be/Vq2xt2D3e3E</li>
+    <li>Website: <a href="https://www.newjazz.dk">www.newjazz.dk</a> · Support: <a href="https://www.patreon.com/newjazz">patreon.com/newjazz</a> · <a href="https://www.paypal.me/newjazz">paypal.me/newjazz</a></li>
+  </ul>
+  <p>His material is not covered by the app's open-source licence and all rights remain with him. The detection method, the app, the colour code and this guide are by Steve Nodock, with Claude (Anthropic) for algorithms and implementation; they are released under the Apache License 2.0. Shizuku is by RikkaApps.</p>
+</section>
+
+<script>
+// Contrôle de mise en page (build.ps1 le lit) : hauteur de chaque section, en mm, à la largeur
+// utile d'une page A4. Au-delà de 266 mm, la section déborde sur une page de plus.
+if (new URLSearchParams(location.search).has('measure')) {
+  document.body.style.width = '180mm';
+  window.addEventListener('load', () => document.querySelectorAll('section').forEach(s =>
+    s.dataset.mm = Math.round(s.getBoundingClientRect().height / 3.7795)));
+}
+</script>
+</body>
+</html>

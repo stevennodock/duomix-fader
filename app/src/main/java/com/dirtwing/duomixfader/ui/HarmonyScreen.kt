@@ -162,9 +162,11 @@ fun HarmonyScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onBack) { Text(stringResource(R.string.action_back)) }
+            // Titre sur une seule ligne : à côté de deux boutons, un grand titre se coupait en deux
             Text(
                 "♪ " + stringResource(R.string.harmony_title),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
                 modifier = Modifier.weight(1f),
             )
             TextButton(onClick = onRefresh) { Text("⟳ " + stringResource(R.string.harmony_refresh)) }

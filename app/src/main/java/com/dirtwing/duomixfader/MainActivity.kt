@@ -99,6 +99,7 @@ class MainActivity : ComponentActivity() {
 
     /** La notification (bouton note de musique) ouvre directement le panneau des gammes. */
     private fun openRequestedScreen(intent: Intent?) {
+        android.util.Log.d("DuoMixNav", "intent extras=${intent?.extras?.keySet()?.joinToString { k -> "$k=${intent.extras?.get(k)} (${intent.extras?.get(k)?.javaClass?.simpleName})" }} ecran=$screen")
         if (intent?.getBooleanExtra(EXTRA_OPEN_HARMONY, false) == true) screen = Screen.HARMONY
     }
 

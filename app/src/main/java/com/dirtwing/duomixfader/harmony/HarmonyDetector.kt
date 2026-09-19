@@ -67,7 +67,12 @@ class HarmonyDetector {
         private const val MIN_SEGMENT_MS = 25_000L
 
         /** Rasoir d'Occam : à score voisin, la famille la plus courante l'emporte. */
-        private val FAMILY_PRIOR = doubleArrayOf(0.0, 0.0, -0.02, -0.02, -0.03, -0.045, -0.045, -0.045)
+        // Relevé après essai sur musique réelle : en début de morceau, peu de notes ont été
+        // entendues et les gammes à 6 notes (familles 6 et 7) épousent trop bien ce chroma
+        // clairsemé — « famille 7 » annoncée avec 4 % de confiance. Sur un signal net, l'écart
+        // entre la bonne gamme et une voisine dépasse 0,1 : ces handicaps ne masquent donc
+        // pas une gamme rare réellement jouée, ils tranchent seulement les cas douteux.
+        private val FAMILY_PRIOR = doubleArrayOf(0.0, 0.0, -0.05, -0.05, -0.06, -0.08, -0.08, -0.08)
 
         private class Candidate(val mask: Int, val family: Int, val members: List<Detection>)
 
