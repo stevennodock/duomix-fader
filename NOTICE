@@ -17,6 +17,12 @@ sheet "The Scales of Harmonies". The family numbering, the rules that yield the
 33 scales, the "systematic names" and the five-column layout shown in the app
 are his work. Support him: https://www.patreon.com/newjazz - https://www.newjazz.dk
 
+The app also bundles a colour-coded study sheet (assets/docs/scales-of-harmonies-*.pdf,
+source docs/scales/) that reproduces the data of his overview table - families, names,
+interval steps, systematic names, chords - with his credit and support links. Its
+introduction and footnote are paraphrased, not copied; the layout and the blue/red
+whole-tone colour code are by Steve Nodock.
+
 No licence is stated for that material (checked on newjazz.dk, 2026-09-19), so
 it is NOT covered by this project's Apache-2.0 licence and all rights remain
 with its author. Scale names and interval patterns are common music theory;

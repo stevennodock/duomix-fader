@@ -41,7 +41,9 @@ import kotlin.math.roundToInt
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
 @Composable
-fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHarmony: () -> Unit) {
+fun MixerScreen(
+    viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHarmony: () -> Unit, onShowSheet: () -> Unit,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val harmony by viewModel.harmony.collectAsStateWithLifecycle()
 
@@ -83,6 +85,7 @@ fun MixerScreen(viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHar
                 CurrentScale(harmony)
                 ProgressionLines(harmony, showChordNames = false)
                 TextButton(onClick = onShowHarmony) { Text(stringResource(R.string.harmony_open)) }
+                SheetLink(onShowSheet)
             }
         }
 

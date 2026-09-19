@@ -37,6 +37,9 @@ modulation n'est retenue que si elle dure.
 - `harmony/Progression.kt` : accords (insensibles au renversement), cycle par autocorrélation,
   repli des répétitions, chiffrage romain. `harmony/HarmonyHistory.kt` : historique local,
   une section par morceau (titre lu dans la session multimédia de l'app de musique).
+- `docs/scales/` : fiche « The Scales of Harmonies » en couleurs (HTML -> PDF en/fr/es par
+  `build.ps1`), consultable dans l'app. Bleu et rouge = les deux gammes par tons : un ton
+  reste dans la couleur, un demi-ton ou un ton et demi en change.
 - Méthode, constantes et limites : [note de recherche](docs/research/harmony-analysis.md).
 - Tests : `gradlew :app:testDebugUnitTest` (signal synthétisé -> gamme détectée).
 

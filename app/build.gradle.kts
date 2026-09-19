@@ -21,7 +21,7 @@ android {
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
         versionCode = 8
-        versionName = "0.5.0"
+        versionName = "0.5.1"
     }
 
     androidResources {

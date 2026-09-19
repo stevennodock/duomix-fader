@@ -54,6 +54,11 @@ Responsable : Steve Nodock <stb@outlook.fr>
       la présentation est la sienne. **Lui écrire avant toute publication** (contact indiqué
       sur son site) pour obtenir son accord écrit sur l'usage, le crédit et le lien Patreon.
       Sans réponse : retirer les noms systématiques et la mise en tableau, garder le crédit.
+- [ ] **Fiche PDF embarquée** (`assets/docs/scales-of-harmonies-*.pdf`) : elle reprend les
+      données de son tableau (textes reformulés, crédit et liens de soutien en tête). C'est
+      la reproduction la plus directe de son travail dans l'app : **à ne pas publier sans
+      son accord écrit**. Pour un usage personnel sur son propre appareil, pas de difficulté.
+      Repli sans accord : retirer les PDF des assets et le lien (`SheetLink`).
 - [x] Crédit et liens (Patreon, leçon, site) dans le panneau « Harmonie » et dans `NOTICE`.
 - [ ] **Capture du son d'une autre app** : le service shell capte le flux de l'app de
       musique via les permissions de l'identité shell (`CAPTURE_MEDIA_OUTPUT`), y compris

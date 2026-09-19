@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 (mise en page et code couleur) — Copyright 2026 Steve Nodock <stb@outlook.fr>
+     Le contenu musical (7 familles, 33 gammes, noms systématiques, accords) est d'Oliver Prehn (NewJazz) ;
+     il n'est PAS couvert par cette licence. Voir NOTICE.
+     Source unique des trois PDF : ouvrir avec ?lang=en | fr | es, puis imprimer en PDF (docs/scales/build.ps1). -->
+<html>
+<head>
+<meta charset="utf-8">
+<title>The Scales of Harmonies — colour-coded study sheet</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  :root {
+    --paper: #FAF9F5; --ink: #141413; --soft: #6B6A65; --line: #E3E0D6; --accent: #D97757;
+    --blue: #2F6FDE; --red: #E0524A;
+  }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  html { height: 296mm; overflow: hidden; }
+  body { width: 210mm; height: 296mm; padding: 7mm 11mm 4mm; overflow: hidden; font: 8.6pt/1.35 "Segoe UI", system-ui, sans-serif; }
+  h1 { font: 600 19pt/1.1 Georgia, "Times New Roman", serif; margin: 0; letter-spacing: -0.2px; }
+  h1 span { color: var(--accent); }
+  .by { color: var(--soft); margin: 2px 0 7px; font-size: 9pt; }
+  .by b { color: var(--ink); }
+  .top { display: flex; gap: 9mm; align-items: flex-start; }
+  .intro { flex: 1; }
+  .intro p { margin: 0 0 4px; }
+  .rules { margin: 3px 0 5px; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1px 10px; }
+  .rules li::before { content: "•"; color: var(--accent); font-weight: 700; margin-right: 5px; }
+  .links a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .links { color: var(--soft); }
+  .legend { width: 66mm; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px 7px; }
+  .legend h2 { font: 600 9pt Georgia, serif; margin: 0 0 3px; }
+  .legend p { margin: 3px 0 0; font-size: 7.6pt; color: #3d3c38; }
+  .chip { display: inline-block; width: 7px; height: 7px; border-radius: 50%; vertical-align: 0; margin-right: 2px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 5px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+  th { font: 600 7.6pt "Segoe UI", sans-serif; text-align: left; color: var(--soft); text-transform: uppercase; letter-spacing: .6px; padding: 3px 7px; border-bottom: 1.5px solid var(--ink); }
+  td { padding: 0 7px; height: 4.92mm; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  tr.last td { border-bottom: 1.5px solid #c9c5b8; }
+  td.fam { width: 11mm; text-align: center; font: 700 13pt Georgia, serif; color: #fff; border-bottom: 1.5px solid #fff; }
+  td.pop { font-weight: 500; }
+  td.pop.main { font-weight: 700; }
+  td.sys { color: #3d3c38; }
+  td.chord { font-family: Consolas, "Courier New", monospace; font-size: 8.2pt; }
+  td.steps { padding: 0 2px; }
+  svg text { font-family: "Segoe UI", sans-serif; }
+  .foot { margin-top: 5px; font-size: 7.3pt; color: var(--soft); display: flex; gap: 8mm; }
+  .foot div { flex: 1; }
+</style>
+</head>
+<body>
+<h1 id="title"></h1>
+<div class="by" id="by"></div>
+<div class="top">
+  <div class="intro">
+    <p id="intro"></p>
+    <ul class="rules" id="rules"></ul>
+    <p id="why"></p>
+    <p class="links" id="links"></p>
+  </div>
+  <div class="legend">
+    <h2 id="legendTitle"></h2>
+    <svg id="keys" width="229" height="51" viewBox="0 0 229 51"></svg>
+    <p id="legendText"></p>
+  </div>
+</div>
+<table>
+  <thead><tr id="head"></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+<div class="foot"><div id="note"></div><div id="credit"></div></div>
+
+<script>
+const T = {
+  en: {
+    title: 'The <span>Scales</span> of Harmonies',
+    by: 'An overview of 33 scales in 7 families, by <b>Oliver Prehn</b> (NewJazz) — colour-coded study sheet',
+    intro: 'The 33 scales presented in the NewJazz lesson are organised in 7 families. Each family has one interval pattern; a scale is that pattern read from a given degree — which is why the rows of a family line up as a staircase. The 33 scales follow from a few simple rules:',
+    rules: ['Only half, whole and whole-and-a-half steps', 'Half steps may not be neighbours', 'Whole and whole-and-a-half steps may not be neighbours', 'Whole-and-a-half steps may not be neighbours'],
+    why: 'Following them limits the total to 33 scales, all well suited to building clear, evident harmonies.',
+    links: 'Lesson: <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Support Oliver Prehn: <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
+    legendTitle: 'Reading the colours',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard. A <b>whole step (1)</b> stays in the same colour; a <b>half step (½)</b> or a <b>step and a half (1½)</b> crosses to the other. Each column of the grid is one semitone.',
+    head: ['Family', 'Popular name', 'Interval steps', '*Systematic name', 'Chords'],
+    note: '*The systematic names do not follow the jazz-school habit of naming every scale after the Major scale. “Aeolian #7” is an Aeolian scale with a raised 7th step: Aeolian is the premise, #7 the alteration. The first 4 families thus run from Ionian to Locrian with a simple sequence of sharps or flats.',
+    credit: 'Musical content © Oliver Prehn, reproduced for study with credit; all rights remain with its author. Layout and colour code: Steve Nodock, DuoMix Fader, 2026. Handwritten notes on the source sheet are not included.',
+  },
+  fr: {
+    title: 'The <span>Scales</span> of Harmonies',
+    by: 'Vue d’ensemble de 33 gammes en 7 familles, par <b>Oliver Prehn</b> (NewJazz) — fiche d’étude en couleurs',
+    intro: 'Les 33 gammes présentées dans la leçon NewJazz sont réparties en 7 familles. Chaque famille a un seul motif d’intervalles ; une gamme est ce motif lu à partir d’un degré donné — d’où l’alignement en escalier des lignes d’une famille. Les 33 gammes découlent de quelques règles simples :',
+    rules: ['Seulement des pas de ½, 1 et 1½ ton', 'Deux demi-tons ne sont jamais voisins', 'Un ton et un ton et demi ne sont jamais voisins', 'Deux tons et demi ne sont jamais voisins'],
+    why: 'Les respecter limite le total à 33 gammes, toutes bien adaptées à la construction d’harmonies claires et évidentes.',
+    links: 'Leçon : <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Soutenir Oliver Prehn : <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
+    legendTitle: 'Lire les couleurs',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Bleu</b> et <span class="chip" style="background:var(--red)"></span><b>rouge</b> sont les deux gammes par tons du clavier. Un <b>ton (1)</b> reste dans la couleur ; un <b>demi-ton (½)</b> ou un <b>ton et demi (1½)</b> passe dans l’autre. Chaque colonne de la grille vaut un demi-ton.',
+    head: ['Famille', 'Nom usuel', 'Intervalles', '*Nom systématique', 'Accords'],
+    note: '*Les noms systématiques ne suivent pas l’usage de l’école de jazz, qui nomme chaque gamme d’après la gamme majeure. « Aeolian #7 » est une gamme éolienne dont le 7e degré est haussé : l’éolien est la prémisse, #7 l’altération. Les 4 premières familles vont ainsi de l’ionien au locrien avec une simple suite de dièses ou de bémols.',
+    credit: 'Contenu musical © Oliver Prehn, reproduit pour l’étude avec crédit ; tous droits réservés à son auteur. Mise en page et code couleur : Steve Nodock, DuoMix Fader, 2026. Les annotations manuscrites de la feuille source ne sont pas reprises.',
+  },
+  es: {
+    title: 'The <span>Scales</span> of Harmonies',
+    by: 'Visión de conjunto de 33 escalas en 7 familias, por <b>Oliver Prehn</b> (NewJazz) — ficha de estudio en color',
+    intro: 'Las 33 escalas presentadas en la lección de NewJazz se organizan en 7 familias. Cada familia tiene un único patrón de intervalos; una escala es ese patrón leído desde un grado dado — de ahí la alineación en escalera de las filas de una familia. Las 33 escalas resultan de unas reglas sencillas:',
+    rules: ['Solo pasos de ½, 1 y 1½ tono', 'Dos semitonos nunca son vecinos', 'Un tono y un tono y medio nunca son vecinos', 'Dos tonos y medio nunca son vecinos'],
+    why: 'Respetarlas limita el total a 33 escalas, todas muy adecuadas para construir armonías claras y evidentes.',
+    links: 'Lección: <a>youtu.be/Vq2xt2D3e3E</a> · <a>www.newjazz.dk</a> · Apoyar a Oliver Prehn: <a>patreon.com/newjazz</a> · <a>paypal.me/newjazz</a>',
+    legendTitle: 'Leer los colores',
+    legendText: '<span class="chip" style="background:var(--blue)"></span><b>Azul</b> y <span class="chip" style="background:var(--red)"></span><b>rojo</b> son las dos escalas de tonos enteros del teclado. Un <b>tono (1)</b> permanece en el color; un <b>semitono (½)</b> o un <b>tono y medio (1½)</b> pasa al otro. Cada columna de la cuadrícula es un semitono.',
+    head: ['Familia', 'Nombre común', 'Intervalos', '*Nombre sistemático', 'Acordes'],
+    note: '*Los nombres sistemáticos no siguen la costumbre de la escuela de jazz de nombrar cada escala a partir de la escala mayor. «Aeolian #7» es una escala eólica con el 7.º grado elevado: el eólico es la premisa, #7 la alteración. Las 4 primeras familias van así del jónico al locrio con una simple secuencia de sostenidos o bemoles.',
+    credit: 'Contenido musical © Oliver Prehn, reproducido para estudio con crédito; todos los derechos pertenecen a su autor. Maquetación y código de color: Steve Nodock, DuoMix Fader, 2026. No se incluyen las anotaciones manuscritas de la hoja original.',
+  },
+};
+
+// [famille, nom usuel, pas en demi-tons, nom systématique, accords, en gras dans l'original]
+const SCALES = [
+  [1,'Major','2212221','Ionian','Ma7',1],[1,'Dorian','2122212','Dorian','mi7'],[1,'Phrygian','1222122','Phrygian','mi7'],
+  [1,'Lydian','2221221','Lydian','Ma7'],[1,'Mixolydian','2212212','Mixolydian','7'],[1,'Natural minor','2122122','Aeolian','mi7'],
+  [1,'Locrian','1221222','Locrian','mi7b5'],
+  [2,'Altered / Super Locrian','1212222','Ionian #1','7alt / mi7b5'],[2,'Ascending mel. minor','2122221','Dorian #7','miMa7',1],
+  [2,'Dorian b2','1222212','Phrygian #6','mi7'],[2,'Lydian Augmented','2222121','Lydian #5','Ma7#5'],
+  [2,'Lydian dominant','2221212','Mixolydian #4','7'],[2,'Aeolian dominant','2212122','Aeolian #3','7'],
+  [2,'Half diminished','2121222','Locrian #2','mi7b5'],
+  [3,'Major #5 / Major Aug.','2213121','Ionian #5','Ma7#5'],[3,'Dorian #4','2131212','Dorian #4','mi7'],
+  [3,'Phrygian dominant','1312122','Phrygian #3','7'],[3,'Lydian #2','3121221','Lydian #2','Ma7'],
+  [3,'Altered dominant bb7','1212213','Mixolydian #1','dim7'],[3,'Harmonic minor','2122131','Aeolian #7','miMa7',1],
+  [3,'Locrian ♮6','1221312','Locrian #6','mi7b5'],
+  [4,'Harmonic Major','2212131','Ionian b6','Ma7',1],[4,'Dorian b5','2121312','Dorian b5','mi7b5'],
+  [4,'Phrygian b4','1213122','Phrygian b4','mi7 / 7'],[4,'Lydian b3','2131221','Lydian b3','miMa7'],
+  [4,'Mixolydian b2','1312212','Mixolydian b2','7'],[4,'Lydian augmented #2','3122121','Aeolian b1','Ma7#5 / dim7'],
+  [4,'Locrian bb7','1221213','Locrian b7','dim7'],
+  [5,'Diminished','21212121','Diminished','dim7'],[5,'Dominant diminished','12121212','Inverted diminished','7'],
+  [6,'Whole tone','222222','Whole tone','7 #5/b5'],
+  [7,'Augmented','313131','Augmented','Ma7'],[7,'Inverted Augmented','131313','Inverted Augmented','6#5'],
+];
+const FAMILY_COLOR = ['', '#D97757', '#C9A227', '#5E9C7B', '#4F86B8', '#8A68AE', '#B9607A', '#77756C'];
+const STEP_LABEL = { 1: '½', 2: '1', 3: '1½' };
+const BLUE = '#2F6FDE', RED = '#E0524A';
+
+const lang = (new URLSearchParams(location.search).get('lang') || 'en');
+const t = T[lang] || T.en;
+document.documentElement.lang = lang;
+for (const id of ['title', 'by', 'intro', 'why', 'links', 'legendTitle', 'legendText', 'note', 'credit'])
+  document.getElementById(id).innerHTML = t[id];
+document.getElementById('rules').innerHTML = t.rules.map(r => `<li>${r}</li>`).join('');
+document.getElementById('head').innerHTML = t.head.map(h => `<th>${h}</th>`).join('');
+
+// Grille chromatique : une colonne par demi-ton. La couleur d'une colonne est celle de la
+// gamme par tons à laquelle elle appartient (paire = bleu, comme do ; impaire = rouge).
+// Dans une famille, la ligne n° i commence sur le degré i de la première ligne : l'escalier.
+const COL = 11.6, PAD = 9, W = PAD * 2 + COL * 23, H = 19;
+function stepsSvg(steps, offset) {
+  let x = offset, out = '';
+  const xs = [x];
+  for (const s of steps) { x += +s; xs.push(x); }
+  for (let c = 0; c <= 23; c++) out += `<circle cx="${PAD + c * COL}" cy="13.2" r="0.75" fill="#D8D4C8"/>`;
+  out += `<line x1="${PAD + xs[0] * COL}" y1="13.2" x2="${PAD + xs[xs.length - 1] * COL}" y2="13.2" stroke="#CFCBC0" stroke-width="1"/>`;
+  steps.split('').forEach((s, i) => {
+    const mid = PAD + (xs[i] + xs[i + 1]) / 2 * COL;
+    const crossing = s !== '2';
+    out += `<text x="${mid}" y="6.6" font-size="${s === '3' ? 6.4 : 7}" text-anchor="middle" fill="${crossing ? '#141413' : '#9A978D'}" font-weight="${crossing ? 700 : 400}">${STEP_LABEL[s]}</text>`;
+  });
+  xs.forEach((col, i) => {
+    const color = col % 2 === 0 ? BLUE : RED;
+    const edge = i === 0 || i === xs.length - 1;   // tonique et son octave
+    out += `<circle cx="${PAD + col * COL}" cy="13.2" r="${edge ? 4.1 : 3.3}" fill="${color}"${edge ? ' stroke="#141413" stroke-width="1.1"' : ''}/>`;
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${out}</svg>`;
+}
+
+let html = '', i = 0;
+while (i < SCALES.length) {
+  const family = SCALES[i][0];
+  const members = SCALES.filter(s => s[0] === family);
+  const parent = members[0][2];
+  members.forEach((s, k) => {
+    const offset = parent.split('').slice(0, k).reduce((a, b) => a + +b, 0);
+    html += `<tr class="${k === members.length - 1 ? 'last' : ''}">` +
+      (k === 0 ? `<td class="fam" rowspan="${members.length}" style="background:${FAMILY_COLOR[family]}">${family}</td>` : '') +
+      `<td class="pop${s[5] ? ' main' : ''}" style="border-left:3px solid ${FAMILY_COLOR[family]}">${s[1]}</td>` +
+      `<td class="steps">${stepsSvg(s[2], offset)}</td><td class="sys">${s[3]}</td><td class="chord">${s[4]}</td></tr>`;
+  });
+  i += members.length;
+}
+document.getElementById('rows').innerHTML = html;
+
+// Légende : une octave de clavier avec les pastilles, comme sur le clavier de référence
+(function keyboard() {
+  const svg = document.getElementById('keys');
+  const whites = [0, 2, 4, 5, 7, 9, 11, 12], names = ['C','D','E','F','G','A','B','C'];
+  const blacks = [[1, 0], [3, 1], [6, 3], [8, 4], [10, 5]], ww = 28.5, h = 50;
+  let out = '';
+  whites.forEach((pc, k) => {
+    out += `<rect x="${k * ww + 0.5}" y="0.5" width="${ww}" height="${h}" rx="3" fill="#fff" stroke="#BDB9AD"/>` +
+      `<circle cx="${k * ww + ww / 2}" cy="39" r="6" fill="${pc % 2 === 0 ? BLUE : RED}"/>` +
+      `<text x="${k * ww + ww / 2}" y="41.5" font-size="7" font-weight="700" fill="#fff" text-anchor="middle">${names[k]}</text>`;
+  });
+  blacks.forEach(([pc, k]) => {
+    const x = (k + 1) * ww - 9;
+    out += `<rect x="${x}" y="0.5" width="18" height="29" rx="2.5" fill="#1F1E1D"/>` +
+      `<circle cx="${x + 9}" cy="20" r="5.2" fill="${pc % 2 === 0 ? BLUE : RED}"/>`;
+  });
+  svg.innerHTML = out;
+})();
+</script>
+</body>
+</html>

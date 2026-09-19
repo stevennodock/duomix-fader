@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dirtwing.duomixfader.R
@@ -94,6 +96,18 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier) {
     }
 }
 
+/** Hyperlien vers la fiche PDF des 33 gammes, embarquée dans l'app. */
+@Composable
+fun SheetLink(onClick: () -> Unit) {
+    Text(
+        "📄 " + stringResource(R.string.scale_sheet_link),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.primary,
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier.clickable(onClick = onClick).padding(vertical = 6.dp),
+    )
+}
+
 /** « Dm », « B° », « F+ » : l'accord dans le système de notation de la langue. */
 @Composable
 fun chordName(chord: Chord): String =
@@ -135,7 +149,9 @@ fun ProgressionLines(state: HarmonyState, showChordNames: Boolean) {
  * interaction : c'est un aide-mémoire du dernier morceau écouté.
  */
 @Composable
-fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onShowHistory: () -> Unit, onBack: () -> Unit) {
+fun HarmonyScreen(
+    state: HarmonyState, onRefresh: () -> Unit, onShowHistory: () -> Unit, onShowSheet: () -> Unit, onBack: () -> Unit,
+) {
     BackHandler(onBack = onBack)
     Column(
         modifier = Modifier
@@ -165,6 +181,7 @@ fun HarmonyScreen(state: HarmonyState, onRefresh: () -> Unit, onShowHistory: () 
                     )
                 }
                 Text(stringResource(R.string.harmony_hint), style = MaterialTheme.typography.bodySmall)
+                SheetLink(onShowSheet)
             }
         }
 

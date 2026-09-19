@@ -63,6 +63,9 @@
     <string name="harmony_unknown_track">Morceau inconnu</string>
     <string name="harmony_now">en cours</string>
     <string name="harmony_no_cycle_short">pas de boucle trouvée</string>
+    <!-- Fiche PDF dans la langue de l'interface (assets/docs/, docs/scales/build.ps1) -->
+    <string name="scale_sheet_asset">docs/scales-of-harmonies-fr.pdf</string>
+    <string name="scale_sheet_link">Les 33 gammes, en couleurs (PDF)</string>
     <string name="harmony_how_title">Comment ça marche</string>
     <string name="harmony_how">1. Notes : la moyenne longue des 12 classes de hauteur désigne la famille (quelles notes sont jouées).\n2. Accords : des trames courtes sont comparées aux triades. Une classe de hauteur ignore l\'octave : un accord est reconnu quel que soit son renversement.\n3. Boucle : la musique est comparée à elle-même pour trouver la période à laquelle les accords reviennent. Les répétitions sont superposées et moyennées : les accords ressortent, la mélodie s\'estompe.\n4. Tonique : la note où le morceau passe le plus de temps sur l\'accord que ce mode construit sur sa tonique, confortée par la ligne de basse.\nLe chiffrage se lit sur la gamme majeure de la tonique (♭VI, ♭VII…).</string>
     <string name="harmony_privacy">Le son de l\'app de musique est analysé sur l\'appareil, en mémoire uniquement. Rien n\'est enregistré ni transmis.</string>

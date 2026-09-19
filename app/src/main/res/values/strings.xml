@@ -65,6 +65,10 @@
     <string name="harmony_unknown_track">Unknown piece</string>
     <string name="harmony_now">now playing</string>
     <string name="harmony_no_cycle_short">no loop found</string>
+    <!-- Fiche PDF dans la langue de l'interface (assets/docs/, docs/scales/build.ps1) -->
+    <string name="scale_sheet_asset">docs/scales-of-harmonies-en.pdf</string>
+    <string name="scale_sheet_title" translatable="false">The Scales of Harmonies</string>
+    <string name="scale_sheet_link">The 33 scales, colour-coded (PDF)</string>
     <string name="harmony_how_title">How it works</string>
     <string name="harmony_how">1. Notes: the long-term average of the 12 pitch classes selects the family (which notes are used).\n2. Chords: short frames are matched against triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion.\n3. Loop: the music is compared with itself to find the period at which the chords repeat. Repetitions are stacked and averaged, which keeps the chords and fades the melody.\n4. Tonic: the note where the piece spends the most time on the chord this mode builds on its tonic, backed by the bass line.\nNumerals are read on the major scale of the tonic (♭VI, ♭VII…).</string>
     <string name="harmony_privacy">The sound of the music app is analysed on the device, in memory only. Nothing is recorded or sent anywhere.</string>
