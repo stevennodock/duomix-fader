@@ -70,9 +70,12 @@ object ScaleArt {
      * Mesuré sur la carte d'un Pixel (982 x 564 px) : le système recadre l'image au format de
      * la carte, l'assombrit (~35 % de luminosité) et la recouvre de son texte (milieu), des
      * commandes (bas), de l'icône de l'app (haut gauche) et de la sortie audio (haut droit).
+     * Sous les pavés, avant les commandes, une bande d'environ 80 px reste libre : la grille
+     * d'accords en chiffres romains y tient sur une ligne, en plus gros pour compenser
+     * l'assombrissement.
      * Un texte trop long est coupé avec « … » : rien ne défile ni ne clignote sur cette carte.
      */
-    fun artwork(streams: String, artist: String?, title: String?): Bitmap {
+    fun artwork(streams: String, artist: String?, title: String?, progression: String?): Bitmap {
         val width = 1200
         val height = 690                       // format de la carte : aucun recadrage
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -95,6 +98,8 @@ object ScaleArt {
         // Bande libre sous la rangée du haut, sur toute la largeur : deux lignes
         artist?.takeIf { it.isNotBlank() }?.let { line(it, 62f, 205f, 46f, width - 124f, bold = true) }
         title?.takeIf { it.isNotBlank() }?.let { line(it, 62f, 262f, 46f, width - 124f, bold = false) }
+        // Bande libre entre les pavés et les commandes (y 375 à 455 sur la carte de 564 px)
+        progression?.takeIf { it.isNotBlank() }?.let { line(it, 62f, 528f, 58f, width - 124f, bold = true) }
         return bitmap
     }
 }

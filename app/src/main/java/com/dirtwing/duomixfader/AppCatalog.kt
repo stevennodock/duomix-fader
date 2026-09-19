@@ -35,6 +35,14 @@ data class AppTarget(
  */
 object AppCatalog {
 
+    // On écoute aussi de la musique depuis une vidéo ou un fil : ces trois apps figurent dans
+    // les deux listes (l'analyse harmonique écoute le canal Musique). Une même app ne peut
+    // occuper qu'un canal à la fois : l'autre canal la cède — voir MixerEngine.selectApp.
+    private val youtube = AppTarget("com.google.android.youtube", "YouTube")
+    // Media3 : se met en pause si le focus lui est refusé (constaté le 2026-09-19)
+    private val x = AppTarget("com.twitter.android", "X", toleratesFocusDenial = false)
+    private val telegram = AppTarget("org.telegram.messenger", "Telegram")
+
     val music = listOf(
         AppTarget("com.google.android.apps.youtube.music", "YouTube Music", shortLabel = "YT Music"),
         AppTarget("com.spotify.music", "Spotify"),
@@ -44,13 +52,15 @@ object AppCatalog {
         AppTarget("com.soundcloud.android", "SoundCloud"),
         AppTarget("com.aspiro.tidal", "Tidal"),
         AppTarget("com.qobuz.music", "Qobuz"),
+        youtube,
+        x,
+        telegram,
     )
 
     val video = listOf(
-        AppTarget("com.google.android.youtube", "YouTube"),
-        // Media3 : se met en pause si le focus lui est refusé (constaté le 2026-09-19)
-        AppTarget("com.twitter.android", "X", toleratesFocusDenial = false),
-        AppTarget("org.telegram.messenger", "Telegram"),
+        youtube,
+        x,
+        telegram,
         AppTarget("tv.twitch.android.app", "Twitch"),
         AppTarget("org.videolan.vlc", "VLC"),
         AppTarget("com.netflix.mediaclient", "Netflix"),
@@ -62,6 +72,5 @@ object AppCatalog {
     fun apps(slot: Slot): List<AppTarget> = if (slot == Slot.MUSIC) music else video
 
     fun find(pkg: String): AppTarget? = (music + video).firstOrNull { it.pkg == pkg }
-
     val allowedPackages: Set<String> = (music + video).map { it.pkg }.toSet()
 }

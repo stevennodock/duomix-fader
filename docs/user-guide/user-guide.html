@@ -98,7 +98,7 @@
     <figure><img src="img/02-mixer-bottom.png" alt=""><figcaption>Apps to mix, the audio-focus switches, the two channel sliders and the crossfader.</figcaption></figure>
     <div class="side">
       <h3 style="margin-top:0">Apps to mix</h3>
-      <p>Pick one app per channel. Only supported apps that are installed are listed: for music, YouTube Music, Spotify, Deezer, Apple Music, Amazon Music, SoundCloud, Tidal, Qobuz; for video and voice, YouTube, X, Telegram, Twitch, VLC, Netflix, Pocket Casts, Chrome, Firefox. The list is closed on purpose: the privileged service refuses any other app.</p>
+      <p>Pick one app per channel. Only supported apps that are installed are listed: for music, YouTube Music, Spotify, Deezer, Apple Music, Amazon Music, SoundCloud, Tidal, Qobuz — and YouTube, X and Telegram, since music is also played from videos and feeds (Harmony listens to the music channel); for video and voice, YouTube, X, Telegram, Twitch, VLC, Netflix, Pocket Casts, Chrome, Firefox. An app can hold only one channel: pick it on a channel while the other one has it, and the two channels swap. The list is closed on purpose: the privileged service refuses any other app.</p>
       <h3>Simultaneous playback</h3>
       <p>Android pauses an app when another one takes the <i>audio focus</i>. Turn the switch on for an app and it stops being paused by the other. Enabling it for the <b>music app</b> is usually enough.</p>
       <div class="note warn">Some apps pause <i>themselves</i> when they are refused audio focus (X does). Their switch is disabled and says so: enable the option on the other channel instead.</div>
@@ -113,11 +113,12 @@
   <h2><span>4</span> · The fader in your notifications</h2>
   <p>You do not have to keep the app open. While DuoMix Fader runs, a media-player card called <b>DuoMix fader</b> appears next to your other players — in the notification shade and on the lock screen.</p>
   <img src="img/09-notification-card.png" alt="" style="width:118mm; display:block; margin:6px auto 4px; border-radius:14px">
-  <p style="text-align:center; font-size:8.4pt; color:var(--soft); margin-bottom:10px">The card, cropped from the notification shade. Here: B Phrygian, family 1 — B in red, C D E F♯ in blue, G A B in red. The name of the audio output is masked.</p>
+  <p style="text-align:center; font-size:8.4pt; color:var(--soft); margin-bottom:10px">The card, cropped from the notification shade. Here: G natural minor, family 1 — G A in red, B♭ C D in blue, E♭ F G in red — a few seconds into a piece, when the progression is still a single chord. The name of the audio output is masked.</p>
   <table>
     <tr><th style="width:42mm">On the card</th><th>What it shows or does</th></tr>
     <tr><td><b>Title</b></td><td>The essential: the mode. Tonic, popular name and family — “E Mixolydian · F1”.</td></tr>
     <tr><td><b>Colour tiles</b></td><td>The key, in letter notation — “A”, “D♭” — then <b>one tile per note of the scale, from the tonic to its octave</b>. Blue and red are the two whole-tone sets of the keyboard, so a change of colour means a half step or a step and a half. A minor reads R R B B B R R R. This sequence is the fingerprint of the mode.</td></tr>
+    <tr><td><b>Chord progression</b></td><td>Under the tiles, in Roman numerals relative to the tonic: “i – ♭VI – iv – ♭VI    8 s” when a loop was found, with its length; “… i – iv – ♭VII” — the last chords heard — when none was. It only changes once a new progression has held for four seconds.</td></tr>
     <tr><td><b>Small text, top</b></td><td>To the right of the app icon, the two apps and their volumes: “YT Music 71 · YouTube 71”. Beneath, on two lines, the artist and the title of the piece; a long title is cut short. This text is drawn in the card's background artwork, which Android darkens.</td></tr>
     <tr><td><b>Progress bar</b></td><td>It <i>is</i> the crossfader: drag it. Left is the music app, right is the video app. To re-centre, drag it to the middle.</td></tr>
     <tr><td><b>⏮ / ⏭</b></td><td>Move the fader 10 % towards music / towards video.</td></tr>

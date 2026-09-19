@@ -392,25 +392,48 @@ class MixerEngine private constructor(private val appContext: Context) {
         _state.update { it.copy(installedMusic = music, installedVideo = video) }
     }
 
-    /** Affecte une app du catalogue à un canal ; l'app quittée retrouve un audio focus normal. */
+    /**
+     * Affecte une app du catalogue à un canal ; l'app quittée retrouve un audio focus normal.
+     *
+     * Une même app ne peut pas occuper les deux canaux (ses flux ne se partagent pas) : si
+     * l'autre canal la tient, il la cède dans la même opération et prend l'app qu'on quitte
+     * ici si elle lui est permise — un échange —, sinon la première autre app installée.
+     */
     fun selectApp(slot: Slot, pkg: String) {
         val app = AppCatalog.apps(slot).firstOrNull { it.pkg == pkg } ?: return
-        val previous = _state.value.channel(slot)
+        val before = _state.value
+        val previous = before.channel(slot)
         if (previous.pkg == app.pkg) return
-        prefs.edit().putString(prefKey(slot), app.pkg).apply()
-        _state.update {
-            it.withChannel(slot, channelFor(app, volume = it.channel(slot).volume))
+        val otherSlot = if (slot == Slot.MUSIC) Slot.VIDEO else Slot.MUSIC
+        val otherPrevious = before.channel(otherSlot)
+        val replacement = if (otherPrevious.pkg != app.pkg) null else {
+            val candidates = if (otherSlot == Slot.MUSIC) before.installedMusic else before.installedVideo
+            candidates.firstOrNull { it.pkg == previous.pkg }
+                ?: candidates.firstOrNull { it.pkg != app.pkg }
+                ?: return
+        }
+        val editor = prefs.edit().putString(prefKey(slot), app.pkg)
+        replacement?.let { editor.putString(prefKey(otherSlot), it.pkg) }
+        editor.apply()
+        _state.update { state ->
+            val moved = state.withChannel(slot, channelFor(app, volume = state.channel(slot).volume))
+            if (replacement == null) moved
+            else moved.withChannel(otherSlot, channelFor(replacement, volume = state.channel(otherSlot).volume))
         }
         scope.launch {
-            restoreFullVolume(previous)
-            if (slot == Slot.MUSIC) startHarmony()
-            if (previous.focusIgnored) {
-                runCatching { service?.setFocusIgnored(previous.pkg, false) }
+            // Une app qui ne fait que changer de canal reste pilotée : on ne touche ni à son
+            // volume ni à son focus, le mixeur les reprend au prochain tour
+            val released = listOf(previous, otherPrevious.takeIf { replacement != null })
+                .filterNotNull()
+                .filter { it.pkg != app.pkg && it.pkg != replacement?.pkg }
+            for (channel in released) {
+                restoreFullVolume(channel)
+                if (channel.focusIgnored) runCatching { service?.setFocusIgnored(channel.pkg, false) }
             }
+            if (slot == Slot.MUSIC || replacement != null) startHarmony()
             refreshFocusStates()
         }
     }
-
     /** Rend leur plein volume aux lecteurs d'un canal que DuoMix cesse de piloter. */
     private fun restoreFullVolume(channel: Channel) {
         val svc = service ?: return

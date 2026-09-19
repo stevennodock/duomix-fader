@@ -18,6 +18,7 @@ import android.media.session.PlaybackState
 import android.os.Bundle
 import android.os.IBinder
 import com.dirtwing.duomixfader.harmony.Detection
+import com.dirtwing.duomixfader.harmony.romanNumeral
 import com.dirtwing.duomixfader.ui.ScaleArt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,7 @@ class MixerNotificationService : Service() {
         /** Durée fictive : 100 s, pour que « 0:50 » se lise comme 50 %. */
         private const val FADER_DURATION_MS = 100_000L
         private const val STEP = 0.1f
+        private const val PROGRESSION_HOLD_MS = 4_000L
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, MixerNotificationService::class.java))
@@ -108,6 +110,28 @@ class MixerNotificationService : Service() {
                 publish(engine.state.value)
             }
         }
+        watchProgression()
+    }
+
+    /**
+     * La grille d'accords bouge plus souvent que la gamme, surtout sans cycle établi : on ne
+     * l'affiche qu'une fois tenue PROGRESSION_HOLD_MS, pour que la carte ne s'agite pas.
+     */
+    private fun watchProgression() = scope.launch {
+        engine.harmony.map { state ->
+            val tonic = state.current?.root
+            val found = state.progression?.takeIf { it.chords.isNotEmpty() }
+            if (tonic == null || found == null) null
+            else {
+                val numerals = found.chords.joinToString(" – ") { romanNumeral(it.chord, tonic) }
+                // Une boucle se termine par sa durée ; sans boucle, « … » : ce sont les derniers accords entendus
+                found.cycleMs?.let { "$numerals    ${(it + 500) / 1000} s" } ?: "… $numerals"
+            }
+        }.distinctUntilChanged().collectLatest { text ->
+            if (text != null) delay(PROGRESSION_HOLD_MS)
+            progression = text
+            publish(engine.state.value)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
@@ -141,6 +165,9 @@ class MixerNotificationService : Service() {
     private var artist: String? = null
     private var trackTitle: String? = null
 
+    /** Grille d'accords en chiffres romains, dessinée sous les pavés (voir ScaleArt.artwork). */
+    private var progression: String? = null
+
     /** Illustration, redessinée seulement quand son contenu change. */
     private var artwork: Bitmap? = null
     private var artworkKey: String? = null
@@ -170,10 +197,10 @@ class MixerNotificationService : Service() {
         val balance = "${short(state.music)} ${(state.music.volume * 100).roundToInt()} · " +
             "${short(state.video)} ${(state.video.volume * 100).roundToInt()}"
         val title = scaleName ?: getString(R.string.notif_title)
-        val key = "$balance|$artist|$trackTitle"
+        val key = "$balance|$artist|$trackTitle|$progression"
         if (key != artworkKey) {
             artworkKey = key
-            artwork = ScaleArt.artwork(balance, artist, trackTitle)
+            artwork = ScaleArt.artwork(balance, artist, trackTitle, progression)
         }
         session.setMetadata(
             MediaMetadata.Builder()
