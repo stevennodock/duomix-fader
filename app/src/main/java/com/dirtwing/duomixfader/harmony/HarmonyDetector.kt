@@ -27,6 +27,8 @@ data class HarmonyState(
     val track: TrackInfo? = null,
     /** Faux : cet appareil ne permet pas de capter le son d'une app, l'analyse y est éteinte. */
     val supported: Boolean = true,
+    /** L'analyse écoute le micro du téléphone, faute de pouvoir capter le son de l'app. */
+    val viaMicrophone: Boolean = false,
 )
 
 /**

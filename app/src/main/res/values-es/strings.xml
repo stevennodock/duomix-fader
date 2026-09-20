@@ -106,7 +106,17 @@
         <item>B♭</item>
         <item>B</item>
     </string-array>
-    <string name="harmony_unsupported">Este teléfono no permite que DuoMix Fader capture el sonido de otra app: el análisis armónico está desactivado aquí. Requiere una versión más reciente de Android.</string>
+    <string name="harmony_unsupported">Este teléfono no permite que DuoMix Fader capture el sonido de otra app: el análisis armónico está desactivado aquí. La captura directa requiere una versión más reciente de Android; elija Micrófono abajo para analizar lo que oye el teléfono.</string>
+    <string name="harmony_source">Fuente</string>
+    <string name="harmony_source_app">Sonido de la app</string>
+    <string name="harmony_source_mic">Micrófono</string>
+    <string name="harmony_mic_note">Escucha por el micrófono del teléfono: su propio altavoz, un equipo de música, un instrumento. No oye nada de una escucha con auriculares. No se graba nada.</string>
+    <string name="scope_high">Agudos</string>
+    <string name="scope_mid">Medios</string>
+    <string name="scope_low">Graves</string>
+    <string name="harmony_mic_gain">Ganancia</string>
+    <string name="harmony_mic_bass">Graves</string>
+    <string name="harmony_mic_treble">Agudos</string>
     <string name="mixer_unsupported">Esta versión de Android no da acceso a los reproductores de otras apps: el volumen por app y el crossfader están desactivados. La reproducción simultánea de dos apps sigue funcionando.</string>
     <string name="hint_adb_restricted">Los teléfonos OnePlus, OPPO y realme restringen adb y, por tanto, Shizuku. En Opciones para desarrolladores, active «Desactivar la supervisión de permisos», reinicie Shizuku y vuelva a pedir el permiso.</string>
     <string name="widget_title">DuoMix · Historial de detecciones</string>

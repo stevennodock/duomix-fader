@@ -313,4 +313,36 @@ class HarmonyTest {
         assertNull(state.current)
         assertTrue(state.segments.isEmpty())
     }
+
+    // ------------------------------------------------------------------
+    // Écoute par le micro : réglage de tonalité
+    // ------------------------------------------------------------------
+
+    /** Gain, en décibels, qu'un [filter] applique à une sinusoïde de [hz] (régime établi). */
+    private fun gainDb(filter: ToneFilter, hz: Double): Double {
+        val samples = FloatArray(sampleRate) { (0.5 * sin(2 * PI * hz * it / sampleRate)).toFloat() }
+        val before = samples.drop(sampleRate / 2).sumOf { (it * it).toDouble() }
+        filter.process(samples, samples.size)
+        val after = samples.drop(sampleRate / 2).sumOf { (it * it).toDouble() }
+        return 10 * kotlin.math.log10(after / before)
+    }
+
+    @Test
+    fun aFlatToneFilterLeavesTheSignalUntouched() {
+        val filter = ToneFilter(sampleRate).apply { set(0f, 0f) }
+        assertEquals(0.0, gainDb(filter, 110.0), 0.01)
+        assertEquals(0.0, gainDb(filter, 1_760.0), 0.01)
+    }
+
+    @Test
+    fun theBassShelfLiftsTheLowNotesAndSparesTheHighOnes() {
+        assertEquals(12.0, gainDb(ToneFilter(sampleRate).apply { set(12f, 0f) }, 55.0), 1.0)
+        assertEquals(0.0, gainDb(ToneFilter(sampleRate).apply { set(12f, 0f) }, 1_760.0), 1.0)
+    }
+
+    @Test
+    fun theTrebleShelfCutsTheHighNotesAndSparesTheLowOnes() {
+        assertEquals(-12.0, gainDb(ToneFilter(sampleRate).apply { set(0f, -12f) }, 4_000.0), 1.0)
+        assertEquals(0.0, gainDb(ToneFilter(sampleRate).apply { set(0f, -12f) }, 110.0), 1.0)
+    }
 }

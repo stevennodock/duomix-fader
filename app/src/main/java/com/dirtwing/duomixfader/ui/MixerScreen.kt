@@ -35,10 +35,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dirtwing.duomixfader.AppTarget
 import com.dirtwing.duomixfader.Channel
+import com.dirtwing.duomixfader.MixerUiState
 import com.dirtwing.duomixfader.MixerViewModel
 import com.dirtwing.duomixfader.R
 import com.dirtwing.duomixfader.Slot
 import kotlin.math.roundToInt
+
+/** Le choix de la source de l'analyse harmonique, tel que cet appareil le permet. */
+fun sourceChoice(state: MixerUiState, viewModel: MixerViewModel) = SourceChoice(
+    directAvailable = state.canCapture,
+    useDirect = viewModel::disableMicrophoneHarmony,
+    useMicrophone = viewModel::enableMicrophoneHarmony,
+    bassDb = state.micBassDb,
+    trebleDb = state.micTrebleDb,
+    setTone = viewModel::setMicrophoneTone,
+    gainDb = state.micGainDb,
+    setGain = viewModel::setMicrophoneGain,
+    scope = viewModel.micScope,
+)
 
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
 @Composable
@@ -85,7 +99,7 @@ fun MixerScreen(
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("♪ " + stringResource(R.string.harmony_title), style = MaterialTheme.typography.titleMedium)
                 Text(trackLabel(harmony.track), style = MaterialTheme.typography.labelLarge)
-                CurrentScale(harmony)
+                CurrentScale(harmony, source = sourceChoice(state, viewModel))
                 ProgressionLines(harmony, showChordNames = false)
                 TextButton(onClick = onShowHarmony) { Text(stringResource(R.string.harmony_open)) }
                 SheetLink(onShowSheet)

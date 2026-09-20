@@ -6,6 +6,7 @@ package com.dirtwing.duomixfader
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.dirtwing.duomixfader.harmony.HarmonyState
+import com.dirtwing.duomixfader.harmony.ScopeFrame
 import com.dirtwing.duomixfader.harmony.TrackRecord
 import kotlinx.coroutines.flow.StateFlow
 
@@ -18,6 +19,7 @@ class MixerViewModel(application: Application) : AndroidViewModel(application) {
     val harmony: StateFlow<HarmonyState> = engine.harmony
     val history: StateFlow<List<TrackRecord>> = engine.history
     val liveRecord: StateFlow<TrackRecord?> = engine.liveRecord
+    val micScope: StateFlow<ScopeFrame?> = engine.micScope
 
     override fun onCleared() = engine.release()
 
@@ -29,6 +31,10 @@ class MixerViewModel(application: Application) : AndroidViewModel(application) {
 
     fun requestPermission() = engine.requestPermission()
     fun selectApp(slot: Slot, pkg: String) = engine.selectApp(slot, pkg)
+    fun enableMicrophoneHarmony() = engine.enableMicrophoneHarmony()
+    fun disableMicrophoneHarmony() = engine.disableMicrophoneHarmony()
+    fun setMicrophoneGain(gainDb: Float) = engine.setMicrophoneGain(gainDb)
+    fun setMicrophoneTone(bassDb: Float, trebleDb: Float) = engine.setMicrophoneTone(bassDb, trebleDb)
     fun setFocusIgnored(pkg: String, ignored: Boolean) = engine.setFocusIgnored(pkg, ignored)
     fun setChannelVolume(slot: Slot, volume: Float) = engine.setChannelVolume(slot, volume)
     fun setCrossfader(x: Float) = engine.setCrossfader(x)

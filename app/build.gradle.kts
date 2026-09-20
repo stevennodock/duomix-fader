@@ -20,8 +20,8 @@ android {
         targetSdk = 36
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
-        versionCode = 10
-        versionName = "0.6.1"
+        versionCode = 11
+        versionName = "0.7.0"
     }
 
     androidResources {

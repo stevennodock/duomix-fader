@@ -29,6 +29,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Analyse harmonique par le micro : jamais d'office, seulement si l'utilisateur choisit
+         cette source dans le bloc Harmonie. Le son est réduit en chroma sur place, rien n'est
+         enregistré. Le type « microphone » du service garde l'écoute active, app en arrière-plan. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
@@ -48,7 +54,7 @@
         <service
             android:name=".MixerNotificationService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="mediaPlayback|microphone" />
 
         <!-- Widget « Historique des détections » (écran d'accueil) -->
         <receiver

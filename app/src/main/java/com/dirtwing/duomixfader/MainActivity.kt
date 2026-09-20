@@ -29,6 +29,7 @@ import com.dirtwing.duomixfader.ui.HistoryScreen
 import com.dirtwing.duomixfader.ui.LicensesScreen
 import com.dirtwing.duomixfader.ui.MixerScreen
 import com.dirtwing.duomixfader.ui.ScaleSheetScreen
+import com.dirtwing.duomixfader.ui.sourceChoice
 
 /** Activité unique : héberge l'écran mixeur Compose. */
 class MainActivity : ComponentActivity() {
@@ -66,8 +67,10 @@ class MainActivity : ComponentActivity() {
                             Screen.LICENSES -> LicensesScreen(onBack = { screen = Screen.MIXER })
                             Screen.HARMONY -> {
                                 val harmony by viewModel.harmony.collectAsStateWithLifecycle()
+                                val mixer by viewModel.state.collectAsStateWithLifecycle()
                                 HarmonyScreen(
                                     harmony,
+                                    source = sourceChoice(mixer, viewModel),
                                     onRefresh = viewModel::refreshHarmony,
                                     onShowHistory = { screen = Screen.HISTORY },
                                 onShowSheet = { openSheet(Screen.HARMONY) },

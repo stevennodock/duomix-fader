@@ -6,6 +6,7 @@ package com.dirtwing.duomixfader
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
@@ -17,6 +18,7 @@ import com.dirtwing.duomixfader.harmony.TrackInfo
 import com.dirtwing.duomixfader.harmony.TrackRecord
 import com.dirtwing.duomixfader.harmony.HarmonyState
 import com.dirtwing.duomixfader.harmony.NoteNames
+import com.dirtwing.duomixfader.harmony.ScopeFrame
 import com.dirtwing.duomixfader.harmony.romanNumeral
 import com.dirtwing.duomixfader.shizuku.MixerUserService
 import kotlinx.coroutines.CoroutineScope
@@ -64,6 +66,11 @@ data class MixerUiState(
     val lastError: String? = null,
     /** Ce que le shell peut faire sur cet appareil (voir ShellCapabilities) ; tout, tant qu'on ne sait pas. */
     val capabilities: Int = ShellCapabilities.ALL,
+    /** Réglage de tonalité de l'écoute par le micro, en décibels (voir ToneFilter). */
+    val micBassDb: Float = 0f,
+    val micTrebleDb: Float = 0f,
+    /** Amplification de l'écoute par le micro, en décibels. */
+    val micGainDb: Float = 0f,
 ) {
     val canSetFocus: Boolean get() = capabilities and ShellCapabilities.FOCUS != 0
     val canControlPlayers: Boolean get() = capabilities and ShellCapabilities.PLAYERS != 0
@@ -105,6 +112,11 @@ class MixerEngine private constructor(private val appContext: Context) {
         private const val PLAYER_STATE_STARTED = 2
         /** Préférence : paquets dont le son est coupé par le mode coupure. */
         private const val PREF_CUT = "cut_packages"
+        /** Préférence : l'utilisateur a choisi l'analyse harmonique par le micro. */
+        private const val PREF_MIC = "harmony_microphone"
+        private const val PREF_MIC_BASS = "harmony_microphone_bass_db"
+        private const val PREF_MIC_TREBLE = "harmony_microphone_treble_db"
+        private const val PREF_MIC_GAIN = "harmony_microphone_gain_db"
 
         @Volatile
         private var instance: MixerEngine? = null
@@ -119,7 +131,11 @@ class MixerEngine private constructor(private val appContext: Context) {
     private val prefs = appContext.getSharedPreferences("mixer", Context.MODE_PRIVATE)
 
     private val _state = MutableStateFlow(
-        MixerUiState(music = savedChannel(Slot.MUSIC), video = savedChannel(Slot.VIDEO))
+        MixerUiState(
+            music = savedChannel(Slot.MUSIC), video = savedChannel(Slot.VIDEO),
+            micBassDb = prefs.getFloat(PREF_MIC_BASS, 0f), micTrebleDb = prefs.getFloat(PREF_MIC_TREBLE, 0f),
+            micGainDb = prefs.getFloat(PREF_MIC_GAIN, 0f),
+        )
     )
     val state: StateFlow<MixerUiState> = _state.asStateFlow()
 
@@ -217,25 +233,87 @@ class MixerEngine private constructor(private val appContext: Context) {
         historyStore.save(emptyList())
     }
 
+    /**
+     * Écoute par le micro : jamais d'office. Il faut que l'utilisateur l'ait choisie ET que la
+     * permission RECORD_AUDIO soit accordée. Ne sert que là où la capture directe est impossible.
+     */
+    private val microphoneAllowed: Boolean
+        get() = prefs.getBoolean(PREF_MIC, false) &&
+            appContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+    /** L'utilisateur vient d'accorder le micro depuis le bloc Harmonie. */
+    fun enableMicrophoneHarmony() {
+        prefs.edit().putBoolean(PREF_MIC, true).apply()
+        startHarmony()
+    }
+
+    /** Oscilloscope de l'écoute par le micro : une image toutes les 32 ms, null quand le micro dort. */
+    private val _scope = MutableStateFlow<ScopeFrame?>(null)
+    val micScope: StateFlow<ScopeFrame?> = _scope.asStateFlow()
+
+    /** Capture micro en cours, pour lui passer les réglages de tonalité à la volée. */
+    @Volatile private var activeMic: MicCapture? = null
+
+    /** Curseurs graves / aigus de l'écoute par le micro ; retenus d'une session à l'autre. */
+    fun setMicrophoneTone(bassDb: Float, trebleDb: Float) {
+        _state.update { it.copy(micBassDb = bassDb, micTrebleDb = trebleDb) }
+        prefs.edit().putFloat(PREF_MIC_BASS, bassDb).putFloat(PREF_MIC_TREBLE, trebleDb).apply()
+        activeMic?.tone?.set(bassDb, trebleDb)
+    }
+
+    /** Potentiomètre de gain de l'écoute par le micro ; retenu d'une session à l'autre. */
+    fun setMicrophoneGain(gainDb: Float) {
+        _state.update { it.copy(micGainDb = gainDb) }
+        prefs.edit().putFloat(PREF_MIC_GAIN, gainDb).apply()
+        activeMic?.gainDb = gainDb
+    }
+
+    fun disableMicrophoneHarmony() {
+        prefs.edit().putBoolean(PREF_MIC, false).apply()
+        startHarmony()
+    }
+
     /** (Re)lance l'analyse sur l'app du canal musique : capture côté shell, décision ici. */
     private fun startHarmony() {
         harmonyJob?.cancel()
         harmonyJob = scope.launch {
             val svc = service ?: return@launch
-            // Cet appareil ne laisse pas le shell capter le son : fonction éteinte, et dite comme telle
-            if (!_state.value.canCapture) {
-                _harmony.value = HarmonyState(supported = false)
-                return@launch
+            // Cet appareil ne laisse pas le shell capter le son : on écoute par le micro si
+            // l'utilisateur l'a choisi, sinon la fonction est éteinte, et dite comme telle
+            // Le micro est aussi un choix là où la capture directe marche : un instrument, une
+            // chaîne hi-fi dans la pièce. Sans ce choix, rien ne change : capture directe.
+            val mic = when {
+                microphoneAllowed -> MicCapture(appContext) { frame -> _scope.value = frame }.also { it.tone.set(_state.value.micBassDb, _state.value.micTrebleDb); it.gainDb = _state.value.micGainDb; activeMic = it }
+                _state.value.canCapture -> null
+                else -> {
+                    _harmony.value = HarmonyState(supported = false)
+                    return@launch
+                }
             }
+            // Une seule source à la fois : la capture directe s'arrête quand le micro prend le relais
+            if (mic != null) runCatching { svc.stopHarmony() }
             val pkg = _state.value.music.pkg
             synchronized(detector) { detector.reset() }
-            val listening = runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
-            _harmony.value = synchronized(detector) { detector.snapshot(listening) }
+            val listening = if (mic != null) mic.start() else runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
+            _harmony.value = synchronized(detector) { detector.snapshot(listening) }.copy(viaMicrophone = mic != null)
             if (!listening) return@launch
+            try {
+                harmonyLoop(svc, pkg, mic)
+            } finally {
+                mic?.stop()
+                if (activeMic === mic) activeMic = null
+                if (mic != null) _scope.value = null
+            }
+        }
+    }
+
+    /** Relevé de l'analyse, une fois par seconde, quelle que soit la source du son. */
+    private suspend fun harmonyLoop(svc: IMixerService, pkg: String, mic: MicCapture?) {
+        kotlinx.coroutines.coroutineScope {
             var tick = 0
             while (isActive) {
                 delay(1_000)
-                val data = runCatching { svc.readHarmony() }.getOrNull() ?: break
+                val data = (if (mic != null) mic.analyzer.drain() else runCatching { svc.readHarmony() }.getOrNull()) ?: break
                 // Le titre annoncé par l'app donne les vraies frontières entre morceaux
                 if (tick++ % 2 == 0) {
                     val track = readNowPlaying(svc, pkg)
@@ -248,7 +326,7 @@ class MixerEngine private constructor(private val appContext: Context) {
                 val hadDetection = _harmony.value.current != null
                 _harmony.value = synchronized(detector) {
                     detector.update(data, SystemClock.elapsedRealtime())
-                    detector.snapshot(true).copy(track = currentTrack)
+                    detector.snapshot(true).copy(track = currentTrack, viaMicrophone = mic != null)
                 }
                 val now = _harmony.value
                 when {

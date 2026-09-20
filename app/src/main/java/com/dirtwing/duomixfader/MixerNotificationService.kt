@@ -103,7 +103,8 @@ class MixerNotificationService : Service() {
         scope.launch {
             // Rien ne tourne ni ne clignote sur la carte : elle n'est republiée que lorsque
             // quelque chose change vraiment (gamme retenue, morceau, balance).
-            engine.harmony.map { it.current to it.track }.distinctUntilChanged().collect { (detection, track) ->
+            engine.harmony.map { Triple(it.current, it.track, it.viaMicrophone) }.distinctUntilChanged().collect { (detection, track, microphone) ->
+                viaMicrophone = microphone
                 scaleName = detection?.let {
                     getString(R.string.notif_scale, noteName(it.root), it.scale.popularName, it.scale.family)
                 }
@@ -182,6 +183,9 @@ class MixerNotificationService : Service() {
      */
     private var pastilles: CharSequence? = null
 
+    /** L'analyse écoute le micro : le service doit alors porter le type « microphone ». */
+    private var viaMicrophone = false
+
     private var artist: String? = null
     private var trackTitle: String? = null
 
@@ -241,7 +245,7 @@ class MixerNotificationService : Service() {
                 )
                 .apply {
                     // Pas de bouton ♪ là où l'appareil ne permet pas l'analyse harmonique
-                    if (state.canCapture) addCustomAction(
+                    if (state.canCapture || viaMicrophone) addCustomAction(
                         PlaybackState.CustomAction.Builder(
                             ACTION_HARMONY,
                             getString(R.string.notif_action_harmony),
@@ -264,11 +268,17 @@ class MixerNotificationService : Service() {
                 )
                 .build()
         )
-        startForeground(
-            NOTIFICATION_ID,
-            buildNotification(title),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-        )
+        val notification = buildNotification(title)
+        // Le type « microphone » seulement pendant l'écoute par le micro : sans lui, Android
+        // coupe le micro dès que l'app quitte l'écran. Android ne l'accorde qu'à une app visible
+        // à cet instant ; s'il le refuse, le fader garde son type habituel plutôt que de tomber.
+        val withMicrophone = viaMicrophone && runCatching {
+            startForeground(
+                NOTIFICATION_ID, notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE,
+            )
+        }.isSuccess
+        if (!withMicrophone) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     }
 
     private fun buildNotification(title: String): Notification {

@@ -3,9 +3,12 @@
 
 package com.dirtwing.duomixfader.ui
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -32,8 +35,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,8 +56,11 @@ import com.dirtwing.duomixfader.harmony.Chord
 import com.dirtwing.duomixfader.harmony.Detection
 import com.dirtwing.duomixfader.harmony.HarmonyState
 import com.dirtwing.duomixfader.harmony.ProgressionTracker
+import com.dirtwing.duomixfader.harmony.ScopeFrame
+import com.dirtwing.duomixfader.harmony.ToneFilter
 import com.dirtwing.duomixfader.harmony.Triad
 import com.dirtwing.duomixfader.harmony.romanNumeral
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.roundToInt
 
 private const val PREHN_VIDEO = "https://youtu.be/Vq2xt2D3e3E"
@@ -69,43 +77,126 @@ fun tonicLabel(root: Int): String =
 /**
  * Gamme courante. Quand elle change, l'ancienne sort par le haut et la nouvelle entre par
  * le bas : le « défilement par rotation » qui signale une modulation.
+ *
+ * Avec [source], le choix de ce que l'analyse écoute s'affiche dessous (voir [SourceChoice]).
  */
 @Composable
-fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier) {
-    AnimatedContent(
-        targetState = state.current,
-        transitionSpec = {
-            (slideInVertically(tween(ROTATION_MS)) { it } + fadeIn(tween(ROTATION_MS))) togetherWith
-                (slideOutVertically(tween(ROTATION_MS)) { -it } + fadeOut(tween(ROTATION_MS)))
-        },
-        label = "gamme",
-        modifier = modifier,
-    ) { detection ->
-        Column {
-            if (!state.supported) {
-                // L'appareil ne laisse pas capter le son d'une app : on le dit, sans faire attendre
-                Text(stringResource(R.string.harmony_off), style = MaterialTheme.typography.titleLarge)
-                Text(stringResource(R.string.harmony_unsupported), style = MaterialTheme.typography.bodyMedium)
-            } else if (detection == null) {
-                Text(
-                    stringResource(if (state.listening) R.string.harmony_listening else R.string.harmony_off),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            } else {
-                Text(
-                    "${stringArrayResource(R.array.notes_primary)[detection.root]} ${detection.scale.popularName}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    stringResource(R.string.harmony_family, detection.scale.family) +
-                        " · ${detection.scale.systematicName} · ${detection.scale.chords}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Spacer(Modifier.height(8.dp))
-                ScaleTiles(detection)
+fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier, source: SourceChoice? = null) {
+    Column(modifier) {
+        AnimatedContent(
+            targetState = state.current,
+            transitionSpec = {
+                (slideInVertically(tween(ROTATION_MS)) { it } + fadeIn(tween(ROTATION_MS))) togetherWith
+                    (slideOutVertically(tween(ROTATION_MS)) { -it } + fadeOut(tween(ROTATION_MS)))
+            },
+            label = "gamme",
+        ) { detection ->
+            Column {
+                if (!state.supported) {
+                    // L'appareil ne laisse pas capter le son d'une app : on le dit, sans faire attendre
+                    Text(stringResource(R.string.harmony_off), style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.harmony_unsupported), style = MaterialTheme.typography.bodyMedium)
+                } else if (detection == null) {
+                    Text(
+                        stringResource(if (state.listening) R.string.harmony_listening else R.string.harmony_off),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                } else {
+                    Text(
+                        "${stringArrayResource(R.array.notes_primary)[detection.root]} ${detection.scale.popularName}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        stringResource(R.string.harmony_family, detection.scale.family) +
+                            " · ${detection.scale.systematicName} · ${detection.scale.chords}",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    ScaleTiles(detection)
+                }
             }
         }
+        source?.let { SourceRow(state, it) }
+    }
+}
+
+/**
+ * Ce que l'analyse écoute : le son de l'app de musique, capté directement (là où l'appareil le
+ * permet), ou le micro du téléphone — sa propre enceinte, une chaîne hi-fi, un instrument.
+ */
+class SourceChoice(
+    /** Faux sur les appareils où le shell ne peut pas capter le son d'une app. */
+    val directAvailable: Boolean,
+    val useDirect: () -> Unit,
+    /** Appelé une fois la permission du micro accordée. */
+    val useMicrophone: () -> Unit,
+    /** Graves et aigus de l'écoute par le micro, en décibels (voir ToneFilter). */
+    val bassDb: Float,
+    val trebleDb: Float,
+    val setTone: (bassDb: Float, trebleDb: Float) -> Unit,
+    /** Amplification de l'écoute par le micro, en décibels. */
+    val gainDb: Float,
+    val setGain: (Float) -> Unit,
+    /** Oscilloscope de l'écoute par le micro (voir MicrophoneScope). */
+    val scope: StateFlow<ScopeFrame?>,
+)
+
+@Composable
+private fun SourceRow(state: HarmonyState, choice: SourceChoice) {
+    // Le micro n'est jamais pris d'office : ce bouton demande la permission, puis bascule
+    val askMicrophone = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) choice.useMicrophone()
+    }
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.harmony_source), style = MaterialTheme.typography.labelMedium)
+            FilterChip(
+                selected = state.supported && !state.viaMicrophone,
+                enabled = choice.directAvailable,
+                onClick = choice.useDirect,
+                label = { Text(stringResource(R.string.harmony_source_app)) },
+            )
+            FilterChip(
+                selected = state.viaMicrophone,
+                // Une bascule : là où « Son de l'app » est indisponible, c'est le seul moyen d'arrêter le micro
+                onClick = { if (state.viaMicrophone) choice.useDirect() else askMicrophone.launch(Manifest.permission.RECORD_AUDIO) },
+                label = { Text("🎙 " + stringResource(R.string.harmony_source_mic)) },
+            )
+        }
+        if (state.viaMicrophone) {
+            Text(stringResource(R.string.harmony_mic_note), style = MaterialTheme.typography.bodySmall)
+            MicrophoneScope(choice.scope, Modifier.padding(vertical = 6.dp))
+            ToneSlider(stringResource(R.string.harmony_mic_gain), choice.gainDb, 0f..MAX_GAIN_DB, choice.setGain)
+            ToneSlider(stringResource(R.string.harmony_mic_bass), choice.bassDb) { choice.setTone(it, choice.trebleDb) }
+            ToneSlider(stringResource(R.string.harmony_mic_treble), choice.trebleDb) { choice.setTone(choice.bassDb, it) }
+        }
+    }
+}
+
+/** Course du potentiomètre de gain du micro : de 0 à +40 dB. */
+private const val MAX_GAIN_DB = 40f
+
+/** Un curseur en décibels, par pas de 1 dB ; le libellé et la valeur en colonnes fixes. */
+@Composable
+private fun ToneSlider(
+    label: String, valueDb: Float,
+    range: ClosedFloatingPointRange<Float> = -ToneFilter.RANGE_DB..ToneFilter.RANGE_DB,
+    onChange: (Float) -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(64.dp))
+        Slider(
+            value = valueDb,
+            onValueChange = { onChange(it.roundToInt().toFloat()) },
+            valueRange = range,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            "%+d dB".format(valueDb.roundToInt()),
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.width(52.dp),
+        )
     }
 }
 
@@ -181,7 +272,7 @@ fun ProgressionLines(state: HarmonyState, showChordNames: Boolean) {
  */
 @Composable
 fun HarmonyScreen(
-    state: HarmonyState, onRefresh: () -> Unit, onShowHistory: () -> Unit, onShowSheet: () -> Unit, onBack: () -> Unit,
+    state: HarmonyState, source: SourceChoice, onRefresh: () -> Unit, onShowHistory: () -> Unit, onShowSheet: () -> Unit, onBack: () -> Unit,
 ) {
     BackHandler(onBack = onBack)
     Column(
@@ -206,7 +297,7 @@ fun HarmonyScreen(
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(trackLabel(state.track), style = MaterialTheme.typography.labelLarge)
-                CurrentScale(state)
+                CurrentScale(state, source = source)
                 if (state.current != null) {
                     Text(
                         stringResource(R.string.harmony_confidence, (state.confidence * 100).roundToInt()),
