@@ -52,4 +52,9 @@ interface IMixerService {
     // rétablit le son d'un paquet de la liste blanche (appops PLAY_AUDIO). Le service rétablit
     // de lui-même tout ce qu'il a coupé quand il s'arrête.
     boolean setMuted(String pkg, boolean muted) = 12;
+
+    // Capture de lecture (MediaProjection), pour les appareils où le shell ne peut pas capter
+    // lui-même : autorise ou retire, pour NOTRE seul paquet, l'op PROJECT_MEDIA — Android ne
+    // redemande alors plus son accord à chaque session. Aucun paramètre de paquet.
+    boolean setProjectionAllowed(boolean allowed) = 13;
 }

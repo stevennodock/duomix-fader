@@ -96,6 +96,9 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier, source: Sou
                     // L'appareil ne laisse pas capter le son d'une app : on le dit, sans faire attendre
                     Text(stringResource(R.string.harmony_off), style = MaterialTheme.typography.titleLarge)
                     Text(stringResource(R.string.harmony_unsupported), style = MaterialTheme.typography.bodyMedium)
+                } else if (state.inactive) {
+                    Text(stringResource(R.string.harmony_inactive), style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.harmony_inactive_hint), style = MaterialTheme.typography.bodyMedium)
                 } else if (detection == null) {
                     Text(
                         stringResource(if (state.listening) R.string.harmony_listening else R.string.harmony_off),
@@ -126,9 +129,13 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier, source: Sou
  * permet), ou le micro du téléphone — sa propre enceinte, une chaîne hi-fi, un instrument.
  */
 class SourceChoice(
-    /** Faux sur les appareils où le shell ne peut pas capter le son d'une app. */
-    val directAvailable: Boolean,
+    /**
+     * Vrai : « Son de l'app » passe par la capture de lecture d'Android (appareils où le shell
+     * ne peut pas capter lui-même), qui exige la permission d'enregistrement.
+     */
+    val directNeedsPermission: Boolean,
     val useDirect: () -> Unit,
+    val stopMicrophone: () -> Unit,
     /** Appelé une fois la permission du micro accordée. */
     val useMicrophone: () -> Unit,
     /** Graves et aigus de l'écoute par le micro, en décibels (voir ToneFilter). */
@@ -148,19 +155,23 @@ private fun SourceRow(state: HarmonyState, choice: SourceChoice) {
     val askMicrophone = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) choice.useMicrophone()
     }
+    val askForDirect = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) choice.useDirect()
+    }
     Column {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.harmony_source), style = MaterialTheme.typography.labelMedium)
             FilterChip(
-                selected = state.supported && !state.viaMicrophone,
-                enabled = choice.directAvailable,
-                onClick = choice.useDirect,
+                selected = state.supported && !state.viaMicrophone && !state.inactive,
+                onClick = {
+                    if (choice.directNeedsPermission) askForDirect.launch(Manifest.permission.RECORD_AUDIO) else choice.useDirect()
+                },
                 label = { Text(stringResource(R.string.harmony_source_app)) },
             )
             FilterChip(
                 selected = state.viaMicrophone,
-                // Une bascule : là où « Son de l'app » est indisponible, c'est le seul moyen d'arrêter le micro
-                onClick = { if (state.viaMicrophone) choice.useDirect() else askMicrophone.launch(Manifest.permission.RECORD_AUDIO) },
+                // Une bascule : un second appui arrête le micro
+                onClick = { if (state.viaMicrophone) choice.stopMicrophone() else askMicrophone.launch(Manifest.permission.RECORD_AUDIO) },
                 label = { Text("🎙 " + stringResource(R.string.harmony_source_mic)) },
             )
         }

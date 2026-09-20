@@ -41,6 +41,7 @@ class MixerUserService() : IMixerService.Stub() {
     private companion object {
         const val FOCUS_OP = "TAKE_AUDIO_FOCUS"
         const val MUTE_OP = "PLAY_AUDIO"
+        const val PROJECTION_OP = "PROJECT_MEDIA"
         /** Liste blanche appliquée côté shell : l'appelant ne peut viser aucun autre paquet. */
         val ALLOWED_PACKAGES = AppCatalog.allowedPackages
     }
@@ -205,6 +206,14 @@ class MixerUserService() : IMixerService.Stub() {
         if (muted) mutedPackages.add(pkg) else mutedPackages.remove(pkg)
         return out.isEmpty()
     }
+
+    /**
+     * Capture de lecture : `appops set <notre paquet> PROJECT_MEDIA allow` vaut accord permanent
+     * (c'est ce que coche « Ne plus demander » sur les anciennes versions d'Android) ; `ignore`
+     * est le mode normal de cette op, vérifié sur Android 12. Ne vise que notre propre paquet.
+     */
+    override fun setProjectionAllowed(allowed: Boolean): Boolean =
+        appops("set", BuildConfig.APPLICATION_ID, PROJECTION_OP, if (allowed) "allow" else "ignore")?.isEmpty() == true
 
     private fun unmuteAll() {
         for (pkg in mutedPackages.toList()) {

@@ -29,6 +29,8 @@ data class HarmonyState(
     val supported: Boolean = true,
     /** L'analyse écoute le micro du téléphone, faute de pouvoir capter le son de l'app. */
     val viaMicrophone: Boolean = false,
+    /** L'app de musique est désactivée dans « Lecture simultanée » et le micro est éteint : rien n'est écouté. */
+    val inactive: Boolean = false,
 )
 
 /**

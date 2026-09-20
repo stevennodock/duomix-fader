@@ -112,7 +112,9 @@
         <item>Si♭</item>
         <item>Si</item>
     </string-array>
-    <string name="harmony_unsupported">This phone does not let DuoMix Fader capture the sound of another app, so the harmonic analysis is switched off here. Direct capture needs a more recent version of Android; choose Microphone below to analyse what the phone hears.</string>
+    <string name="harmony_unsupported">This phone does not let DuoMix Fader capture the sound of another app, as more recent versions of Android do. Choose a source below: “App sound” uses Android’s own playback capture (it asks for the recording permission, only to read the music app’s sound), “Microphone” analyses what the phone hears.</string>
+    <string name="harmony_inactive">Not listening</string>
+    <string name="harmony_inactive_hint">The music app is switched off under “Simultaneous playback”, and the microphone is off. Turn one of them on to analyse.</string>
     <string name="harmony_source">Source</string>
     <string name="harmony_source_app">App sound</string>
     <string name="harmony_source_mic">Microphone</string>

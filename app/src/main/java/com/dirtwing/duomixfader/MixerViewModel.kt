@@ -33,6 +33,9 @@ class MixerViewModel(application: Application) : AndroidViewModel(application) {
     fun selectApp(slot: Slot, pkg: String) = engine.selectApp(slot, pkg)
     fun enableMicrophoneHarmony() = engine.enableMicrophoneHarmony()
     fun disableMicrophoneHarmony() = engine.disableMicrophoneHarmony()
+    fun enableProjectionHarmony() = engine.enableProjectionHarmony()
+    val projectionWanted: StateFlow<Boolean> = engine.projectionWanted
+    fun onProjectionResult(resultCode: Int, data: android.content.Intent?) = engine.onProjectionResult(resultCode, data)
     fun setMicrophoneGain(gainDb: Float) = engine.setMicrophoneGain(gainDb)
     fun setMicrophoneTone(bassDb: Float, trebleDb: Float) = engine.setMicrophoneTone(bassDb, trebleDb)
     fun setFocusIgnored(pkg: String, ignored: Boolean) = engine.setFocusIgnored(pkg, ignored)

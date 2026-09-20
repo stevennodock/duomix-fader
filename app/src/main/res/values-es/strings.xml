@@ -106,7 +106,9 @@
         <item>B♭</item>
         <item>B</item>
     </string-array>
-    <string name="harmony_unsupported">Este teléfono no permite que DuoMix Fader capture el sonido de otra app: el análisis armónico está desactivado aquí. La captura directa requiere una versión más reciente de Android; elija Micrófono abajo para analizar lo que oye el teléfono.</string>
+    <string name="harmony_unsupported">Este teléfono no permite que DuoMix Fader capture el sonido de otra app, como hacen las versiones más recientes de Android. Elija una fuente abajo: «Sonido de la app» usa la captura de reproducción de Android (pide el permiso de grabación, solo para leer el sonido de la app de música), «Micrófono» analiza lo que oye el teléfono.</string>
+    <string name="harmony_inactive">Escucha detenida</string>
+    <string name="harmony_inactive_hint">La app de música está desactivada en «Reproducción simultánea», y el micrófono está apagado. Active uno de los dos para analizar.</string>
     <string name="harmony_source">Fuente</string>
     <string name="harmony_source_app">Sonido de la app</string>
     <string name="harmony_source_mic">Micrófono</string>

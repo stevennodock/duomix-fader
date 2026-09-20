@@ -43,8 +43,10 @@ import kotlin.math.roundToInt
 
 /** Le choix de la source de l'analyse harmonique, tel que cet appareil le permet. */
 fun sourceChoice(state: MixerUiState, viewModel: MixerViewModel) = SourceChoice(
-    directAvailable = state.canCapture,
-    useDirect = viewModel::disableMicrophoneHarmony,
+    directNeedsPermission = !state.canCapture,
+    // Capture par le shell là où elle existe ; ailleurs, la capture de lecture d'Android
+    useDirect = if (state.canCapture) viewModel::disableMicrophoneHarmony else viewModel::enableProjectionHarmony,
+    stopMicrophone = viewModel::disableMicrophoneHarmony,
     useMicrophone = viewModel::enableMicrophoneHarmony,
     bassDb = state.micBassDb,
     trebleDb = state.micTrebleDb,

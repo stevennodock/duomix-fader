@@ -116,6 +116,16 @@ class MixerNotificationService : Service() {
         }
         watchProgression()
         watchHistory()
+        scope.launch {
+            // Accord de capture de lecture obtenu par l'écran : on prend le type « mediaProjection »,
+            // et alors seulement le moteur peut demander son jeton à Android
+            engine.projectionGrant.collect { grant ->
+                if (grant != null) {
+                    publish(engine.state.value)
+                    engine.onProjectionServiceReady()
+                }
+            }
+        }
     }
 
     /**
@@ -272,13 +282,14 @@ class MixerNotificationService : Service() {
         // Le type « microphone » seulement pendant l'écoute par le micro : sans lui, Android
         // coupe le micro dès que l'app quitte l'écran. Android ne l'accorde qu'à une app visible
         // à cet instant ; s'il le refuse, le fader garde son type habituel plutôt que de tomber.
-        val withMicrophone = viaMicrophone && runCatching {
-            startForeground(
-                NOTIFICATION_ID, notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE,
-            )
-        }.isSuccess
-        if (!withMicrophone) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        // De même, le type « mediaProjection » tant qu'une capture de lecture est en vie ou attendue :
+        // Android ne délivre le jeton de capture qu'à une app dont un service porte ce type.
+        val extra = (if (viaMicrophone) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else 0) or
+            (if (engine.projectionActive) ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION else 0)
+        val withExtra = extra != 0 && runCatching {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK or extra)
+        }.onFailure { android.util.Log.w("DuoMixHarmony", "type de service refusé : $it") }.isSuccess
+        if (!withExtra) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     }
 
     private fun buildNotification(title: String): Notification {

@@ -3,13 +3,19 @@
 
 package com.dirtwing.duomixfader
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.ServiceConnection
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import com.dirtwing.duomixfader.harmony.HarmonyDetector
@@ -114,6 +120,8 @@ class MixerEngine private constructor(private val appContext: Context) {
         private const val PREF_CUT = "cut_packages"
         /** Préférence : l'utilisateur a choisi l'analyse harmonique par le micro. */
         private const val PREF_MIC = "harmony_microphone"
+        /** Préférence : « Son de l'app » par la capture de lecture d'Android (appareils sans capture par le shell). */
+        private const val PREF_PROJECTION = "harmony_projection"
         private const val PREF_MIC_BASS = "harmony_microphone_bass_db"
         private const val PREF_MIC_TREBLE = "harmony_microphone_treble_db"
         private const val PREF_MIC_GAIN = "harmony_microphone_gain_db"
@@ -241,6 +249,66 @@ class MixerEngine private constructor(private val appContext: Context) {
         get() = prefs.getBoolean(PREF_MIC, false) &&
             appContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
+    // --- Capture de lecture (MediaProjection) : la voie « son de l'app » sans capture par le shell ---
+
+    /** L'utilisateur a choisi « Son de l'app » sur un appareil sans capture par le shell. */
+    private val projectionAllowed: Boolean
+        get() = prefs.getBoolean(PREF_PROJECTION, false) &&
+            appContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+    /** Jeton de capture de la session ; Android n'en délivre qu'à un écran, et il ne survit pas au processus. */
+    @Volatile private var projection: MediaProjection? = null
+
+    /** Vrai : il faut qu'un écran demande l'accord de capture (voir MainActivity). */
+    private val _projectionWanted = MutableStateFlow(false)
+    val projectionWanted: StateFlow<Boolean> = _projectionWanted.asStateFlow()
+
+    /** Accord obtenu, en attente que le service de premier plan prenne le type « mediaProjection ». */
+    private val _projectionGrant = MutableStateFlow<Pair<Int, Intent>?>(null)
+    val projectionGrant: StateFlow<Pair<Int, Intent>?> = _projectionGrant.asStateFlow()
+
+    /**
+     * « Son de l'app » choisi sur un appareil sans capture par le shell. Le shell autorise l'op
+     * PROJECT_MEDIA pour notre paquet : Android ne redemandera plus son accord à chaque session.
+     */
+    fun enableProjectionHarmony() {
+        prefs.edit().putBoolean(PREF_PROJECTION, true).putBoolean(PREF_MIC, false).apply()
+        scope.launch {
+            runCatching { service?.setProjectionAllowed(true) }
+            startHarmony()
+        }
+    }
+
+    /** L'écran a obtenu (ou non) l'accord de capture. */
+    fun onProjectionResult(resultCode: Int, data: Intent?) {
+        _projectionWanted.value = false
+        if (resultCode == Activity.RESULT_OK && data != null) _projectionGrant.value = resultCode to data
+        else prefs.edit().putBoolean(PREF_PROJECTION, false).apply()   // refusé : on ne redemande pas en boucle
+    }
+
+    /** Le service porte maintenant le type « mediaProjection » : Android accepte de délivrer le jeton. */
+    fun onProjectionServiceReady() {
+        val (resultCode, data) = _projectionGrant.value ?: return
+        _projectionGrant.value = null
+        val manager = appContext.getSystemService(MediaProjectionManager::class.java)
+        projection = runCatching { manager.getMediaProjection(resultCode, data) }
+            .onFailure { Log.e("DuoMixHarmony", "jeton de capture refusé", it) }
+            .getOrNull()
+            ?.also { token ->
+                token.registerCallback(object : MediaProjection.Callback() {
+                    // L'utilisateur a arrêté la capture depuis la barre d'état
+                    override fun onStop() {
+                        projection = null
+                        startHarmony()
+                    }
+                }, Handler(Looper.getMainLooper()))
+            }
+        startHarmony()
+    }
+
+    /** Le service ne doit porter le type « mediaProjection » que tant qu'un jeton est en vie ou attendu. */
+    val projectionActive: Boolean get() = projection != null || _projectionGrant.value != null
+
     /** L'utilisateur vient d'accorder le micro depuis le bloc Harmonie. */
     fun enableMicrophoneHarmony() {
         prefs.edit().putBoolean(PREF_MIC, true).apply()
@@ -278,42 +346,69 @@ class MixerEngine private constructor(private val appContext: Context) {
         harmonyJob?.cancel()
         harmonyJob = scope.launch {
             val svc = service ?: return@launch
-            // Cet appareil ne laisse pas le shell capter le son : on écoute par le micro si
-            // l'utilisateur l'a choisi, sinon la fonction est éteinte, et dite comme telle
-            // Le micro est aussi un choix là où la capture directe marche : un instrument, une
-            // chaîne hi-fi dans la pièce. Sans ce choix, rien ne change : capture directe.
-            val mic = when {
-                microphoneAllowed -> MicCapture(appContext) { frame -> _scope.value = frame }.also { it.tone.set(_state.value.micBassDb, _state.value.micTrebleDb); it.gainDb = _state.value.micGainDb; activeMic = it }
-                _state.value.canCapture -> null
-                else -> {
+            val pkg = _state.value.music.pkg
+            // Trois sources, par ordre de priorité :
+            //  1. le micro, quand l'utilisateur l'a choisi (utile partout : instrument, chaîne hi-fi) ;
+            //  2. la capture par le shell, là où l'appareil la permet (Android 13 et suivants) ;
+            //  3. la capture de lecture d'Android (MediaProjection), ailleurs — elle demande un
+            //     accord que seul un écran peut obtenir : [projectionWanted] le lui réclame.
+            // Sans aucune des trois, la fonction est éteinte, et dite comme telle.
+            val mic = if (microphoneAllowed) {
+                MicCapture(appContext) { frame -> _scope.value = frame }.also {
+                    it.tone.set(_state.value.micBassDb, _state.value.micTrebleDb)
+                    it.gainDb = _state.value.micGainDb
+                    activeMic = it
+                }
+            } else null
+            // Micro éteint ET app de musique désactivée dans « Lecture simultanée » : on n'écoute
+            // rien. (Une app qui ne tolère pas le refus de focus n'a pas d'interrupteur à activer :
+            // elle reste analysée.)
+            val music = _state.value.music
+            if (mic == null && music.toleratesFocusDenial && !music.focusIgnored) {
+                runCatching { svc.stopHarmony() }
+                _harmony.value = HarmonyState(inactive = true)
+                return@launch
+            }
+            val playback = if (mic == null && !_state.value.canCapture) {
+                val granted = projection
+                val uid = runCatching { appContext.packageManager.getPackageUid(pkg, 0) }.getOrNull()
+                if (granted == null || uid == null) {
                     _harmony.value = HarmonyState(supported = false)
+                    _projectionWanted.value = projectionAllowed
                     return@launch
                 }
-            }
-            // Une seule source à la fois : la capture directe s'arrête quand le micro prend le relais
-            if (mic != null) runCatching { svc.stopHarmony() }
-            val pkg = _state.value.music.pkg
+                ProjectionCapture(granted, uid)
+            } else null
+            // Une seule source à la fois : la capture du shell s'arrête quand une autre prend le relais
+            if (mic != null || playback != null) runCatching { svc.stopHarmony() }
             synchronized(detector) { detector.reset() }
-            val listening = if (mic != null) mic.start() else runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
+            val listening = when {
+                mic != null -> mic.start()
+                playback != null -> playback.start()
+                else -> runCatching { svc.startHarmony(pkg) }.getOrDefault(false)
+            }
             _harmony.value = synchronized(detector) { detector.snapshot(listening) }.copy(viaMicrophone = mic != null)
             if (!listening) return@launch
             try {
-                harmonyLoop(svc, pkg, mic)
+                harmonyLoop(svc, pkg, viaMicrophone = mic != null) {
+                    mic?.analyzer?.drain() ?: playback?.analyzer?.drain() ?: runCatching { svc.readHarmony() }.getOrNull()
+                }
             } finally {
                 mic?.stop()
+                playback?.stop()
                 if (activeMic === mic) activeMic = null
                 if (mic != null) _scope.value = null
             }
         }
     }
 
-    /** Relevé de l'analyse, une fois par seconde, quelle que soit la source du son. */
-    private suspend fun harmonyLoop(svc: IMixerService, pkg: String, mic: MicCapture?) {
+    /** Relevé de l'analyse, une fois par seconde, quelle que soit la source du son ([read]). */
+    private suspend fun harmonyLoop(svc: IMixerService, pkg: String, viaMicrophone: Boolean, read: () -> FloatArray?) {
         kotlinx.coroutines.coroutineScope {
             var tick = 0
             while (isActive) {
                 delay(1_000)
-                val data = (if (mic != null) mic.analyzer.drain() else runCatching { svc.readHarmony() }.getOrNull()) ?: break
+                val data = read() ?: break
                 // Le titre annoncé par l'app donne les vraies frontières entre morceaux
                 if (tick++ % 2 == 0) {
                     val track = readNowPlaying(svc, pkg)
@@ -326,7 +421,7 @@ class MixerEngine private constructor(private val appContext: Context) {
                 val hadDetection = _harmony.value.current != null
                 _harmony.value = synchronized(detector) {
                     detector.update(data, SystemClock.elapsedRealtime())
-                    detector.snapshot(true).copy(track = currentTrack, viaMicrophone = mic != null)
+                    detector.snapshot(true).copy(track = currentTrack, viaMicrophone = viaMicrophone)
                 }
                 val now = _harmony.value
                 when {
@@ -466,6 +561,7 @@ class MixerEngine private constructor(private val appContext: Context) {
             }
             val musicIgnored = ignoredOrReset(current.music)
             val videoIgnored = ignoredOrReset(current.video)
+            val musicChanged = musicIgnored != current.music.focusIgnored
             _state.update {
                 // L'app d'un canal a pu changer pendant l'appel : on ne marque que la bonne
                 it.copy(
@@ -473,6 +569,8 @@ class MixerEngine private constructor(private val appContext: Context) {
                     video = if (it.video.pkg == current.video.pkg) it.video.copy(focusIgnored = videoIgnored) else it.video,
                 )
             }
+            // L'interrupteur de l'app de musique décide si son son est écouté (voir startHarmony)
+            if (musicChanged) startHarmony()
         }
     }
 

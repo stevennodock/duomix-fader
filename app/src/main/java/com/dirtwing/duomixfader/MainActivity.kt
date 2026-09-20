@@ -6,10 +6,16 @@ package com.dirtwing.duomixfader
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -53,9 +59,26 @@ class MainActivity : ComponentActivity() {
 
     private var screen by mutableStateOf(Screen.MIXER)
 
+    /**
+     * Accord de capture de lecture (appareils sans capture par le shell) : Android ne le donne
+     * qu'à un écran. Une fois l'op PROJECT_MEDIA autorisée par le shell, il répond sans rien
+     * afficher ; sinon il montre sa fenêtre d'accord habituelle.
+     */
+    private val askProjection = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        viewModel.onProjectionResult(result.resultCode, result.data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         openRequestedScreen(intent)
+        lifecycleScope.launch {
+            // Seulement écran visible : le moteur réclame l'accord quand « Son de l'app » est choisi
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.projectionWanted.collect { wanted ->
+                    if (wanted) askProjection.launch(getSystemService(MediaProjectionManager::class.java).createScreenCaptureIntent())
+                }
+            }
+        }
         setContent {
             val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
             MaterialTheme(colorScheme = colors) {
