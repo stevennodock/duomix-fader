@@ -47,4 +47,9 @@ interface IMixerService {
     // bit 0 régler l'audio focus, bit 1 piloter le volume des lecteurs, bit 2 capter le son.
     // Selon la version d'Android et le constructeur, le shell n'a pas les mêmes permissions.
     int capabilities() = 11;
+
+    // Mode coupure, pour les appareils où le volume par lecteur est inaccessible : coupe ou
+    // rétablit le son d'un paquet de la liste blanche (appops PLAY_AUDIO). Le service rétablit
+    // de lui-même tout ce qu'il a coupé quand il s'arrête.
+    boolean setMuted(String pkg, boolean muted) = 12;
 }

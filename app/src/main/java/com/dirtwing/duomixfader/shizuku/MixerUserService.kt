@@ -40,6 +40,7 @@ class MixerUserService() : IMixerService.Stub() {
 
     private companion object {
         const val FOCUS_OP = "TAKE_AUDIO_FOCUS"
+        const val MUTE_OP = "PLAY_AUDIO"
         /** Liste blanche appliquée côté shell : l'appelant ne peut viser aucun autre paquet. */
         val ALLOWED_PACKAGES = AppCatalog.allowedPackages
     }
@@ -61,6 +62,7 @@ class MixerUserService() : IMixerService.Stub() {
     }
 
     override fun destroy() {
+        unmuteAll()
         exitProcess(0)
     }
 
@@ -68,7 +70,7 @@ class MixerUserService() : IMixerService.Stub() {
         // Shizuku arrête normalement ce processus (daemon = false), mais s'il est lui-même
         // tué, plus personne ne le fait : on ne laisse jamais un processus shell orphelin.
         try {
-            token.linkToDeath({ exitProcess(0) }, 0)
+            token.linkToDeath({ unmuteAll(); exitProcess(0) }, 0)
         } catch (e: RemoteException) {
             // Le client est déjà mort
             exitProcess(0)
@@ -186,6 +188,29 @@ class MixerUserService() : IMixerService.Stub() {
         if (!appopsMonitored) capabilities = capabilities or ShellCapabilities.FOCUS
         if (routing) capabilities = capabilities or ShellCapabilities.PLAYERS or ShellCapabilities.CAPTURE
         return capabilities
+    }
+
+    /** Paquets dont ce service a coupé le son : à rétablir quoi qu'il arrive (voir [unmuteAll]). */
+    private val mutedPackages = ConcurrentHashMap.newKeySet<String>()
+
+    /**
+     * Mode coupure : `appops set <pkg> PLAY_AUDIO ignore` rend une app muette, `allow` lui rend
+     * le son (mode normal de cette op, vérifié sur Android 12). Effet immédiat, constaté sur
+     * OnePlus 7 Pro. Un réglage appops survit à tout, redémarrage compris : on ne laisse
+     * jamais une app muette derrière soi.
+     */
+    override fun setMuted(pkg: String, muted: Boolean): Boolean {
+        if (pkg !in ALLOWED_PACKAGES) return false
+        val out = appops("set", pkg, MUTE_OP, if (muted) "ignore" else "allow") ?: return false
+        if (muted) mutedPackages.add(pkg) else mutedPackages.remove(pkg)
+        return out.isEmpty()
+    }
+
+    private fun unmuteAll() {
+        for (pkg in mutedPackages.toList()) {
+            appops("set", pkg, MUTE_OP, "allow")
+            mutedPackages.remove(pkg)
+        }
     }
 
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {

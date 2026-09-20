@@ -69,6 +69,21 @@ data class MixerUiState(
     val canControlPlayers: Boolean get() = capabilities and ShellCapabilities.PLAYERS != 0
     val canCapture: Boolean get() = capabilities and ShellCapabilities.CAPTURE != 0
 
+    /**
+     * Mode coupure : sans accès au volume des lecteurs, mais avec le réglage des appops, on
+     * peut encore couper ou rétablir le son d'une app. Le fader devient une bascule — musique
+     * seule, les deux, vidéo seule. Jamais actif là où le volume par lecteur est disponible.
+     */
+    val cutMode: Boolean get() = !canControlPlayers && canSetFocus
+
+    /** En mode coupure, un canal se tait sous ce niveau. */
+    fun isCut(channel: Channel): Boolean = cutMode && channel.volume < CUT_THRESHOLD
+
+    companion object {
+        /** cos / sin du crossfader passent sous 0,4 au-delà des trois quarts de la course. */
+        const val CUT_THRESHOLD = 0.4f
+    }
+
     fun channel(slot: Slot): Channel = if (slot == Slot.MUSIC) music else video
 
     fun withChannel(slot: Slot, channel: Channel): MixerUiState =
@@ -88,6 +103,8 @@ class MixerEngine private constructor(private val appContext: Context) {
         const val SHIZUKU_PERMISSION_CODE = 4242
         /** PLAYER_STATE_STARTED dans AudioPlaybackConfiguration. */
         private const val PLAYER_STATE_STARTED = 2
+        /** Préférence : paquets dont le son est coupé par le mode coupure. */
+        private const val PREF_CUT = "cut_packages"
 
         @Volatile
         private var instance: MixerEngine? = null
@@ -131,6 +148,8 @@ class MixerEngine private constructor(private val appContext: Context) {
                 val capabilities = runCatching { service?.capabilities() }.getOrNull() ?: ShellCapabilities.ALL
                 _state.update { it.copy(serviceBound = true, lastError = null, capabilities = capabilities) }
                 refreshFocusStates()
+                // Mode coupure : rien ne doit rester muet d'une session précédente (liste vide ailleurs)
+                scope.launch { uncutLeftovers() }
                 startPolling()
                 startHarmony()
             }
@@ -450,6 +469,7 @@ class MixerEngine private constructor(private val appContext: Context) {
     /** Rend leur plein volume aux lecteurs d'un canal que DuoMix cesse de piloter. */
     private fun restoreFullVolume(channel: Channel) {
         val svc = service ?: return
+        applyCut(channel.pkg, muted = false)   // sans effet hors mode coupure : rien n'y est jamais coupé
         for (piid in channel.piids) {
             runCatching { svc.setVolume(piid, 1f) }
             synchronized(applied) { applied.remove(piid) }
@@ -509,8 +529,39 @@ class MixerEngine private constructor(private val appContext: Context) {
         synchronized(applied) { applied.keys.retainAll((updated.music.piids + updated.video.piids).toSet()) }
     }
 
+    /** Mode coupure : paquets dont on a coupé le son, mémorisés pour ne pousser que les changements. */
+    private val cut = mutableSetOf<String>()
+
+    /**
+     * Coupe ou rétablit le son d'une app (mode coupure). Les paquets coupés sont aussi notés
+     * dans les préférences : un réglage appops survit à tout, et si l'app mourait sans que le
+     * service shell ait pu rétablir le son, la prochaine connexion le ferait (voir [uncutLeftovers]).
+     */
+    private fun applyCut(pkg: String, muted: Boolean) {
+        val svc = service ?: return
+        if (synchronized(cut) { (pkg in cut) == muted }) return
+        if (!runCatching { svc.setMuted(pkg, muted) }.getOrDefault(false)) return
+        synchronized(cut) {
+            if (muted) cut.add(pkg) else cut.remove(pkg)
+            prefs.edit().putStringSet(PREF_CUT, cut.toSet()).apply()
+        }
+    }
+
+    /** À la connexion : rend le son à toute app restée coupée lors d'une session précédente. */
+    private fun uncutLeftovers() {
+        val svc = service ?: return
+        for (pkg in prefs.getStringSet(PREF_CUT, emptySet()).orEmpty()) runCatching { svc.setMuted(pkg, false) }
+        synchronized(cut) { cut.clear() }
+        prefs.edit().remove(PREF_CUT).apply()
+    }
+
     private fun applyChannel(channel: Channel) {
         val svc = service ?: return
+        val state = _state.value
+        if (state.cutMode) {
+            applyCut(channel.pkg, state.isCut(channel))
+            return
+        }
         for (piid in channel.piids) {
             val current = synchronized(applied) { applied[piid] }
             if (current != channel.volume) {

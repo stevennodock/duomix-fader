@@ -23,6 +23,9 @@
     <string name="mixer_hint">Le volume est appliqué aux flux actifs ; lance la lecture dans les deux apps pour voir les canaux passer en « lecture ».</string>
     <string name="state_playing">▶ lecture</string>
     <string name="state_silent">· silencieux</string>
+    <string name="state_cut">· coupé</string>
+    <string name="state_open">· actif</string>
+    <string name="mixer_cut_mode">Mode bascule : cette version d’Android ne donne pas accès au volume par app, le fader coupe ou rétablit donc le son au lieu de le doser — musique seule à gauche, les deux au centre, vidéo seule à droite. Un canal est coupé sous 40 %.</string>
 
     <string name="error_prefix">Erreur : %1$s</string>
     <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS refusé pour %1$s</string>

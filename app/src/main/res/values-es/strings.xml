@@ -23,6 +23,9 @@
     <string name="mixer_hint">El volumen se aplica a los flujos activos; inicia la reproducción en ambas apps para ver los canales pasar a «reproduciendo».</string>
     <string name="state_playing">▶ reproduciendo</string>
     <string name="state_silent">· en silencio</string>
+    <string name="state_cut">· silenciado</string>
+    <string name="state_open">· activo</string>
+    <string name="mixer_cut_mode">Modo conmutador: esta versión de Android no da acceso al volumen por app, así que el fader corta o restablece el sonido en lugar de dosificarlo: música sola a la izquierda, ambas en el centro, vídeo solo a la derecha. Un canal se silencia por debajo del 40 %.</string>
 
     <string name="error_prefix">Error: %1$s</string>
     <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS denegado para %1$s</string>

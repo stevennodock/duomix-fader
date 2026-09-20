@@ -24,6 +24,9 @@
     <string name="mixer_hint">Volume is applied to active streams; start playback in both apps to see the channels switch to “playing”.</string>
     <string name="state_playing">▶ playing</string>
     <string name="state_silent">· silent</string>
+    <string name="state_cut">· muted</string>
+    <string name="state_open">· on</string>
+    <string name="mixer_cut_mode">Switch mode: this version of Android gives no access to per-app volume, so the fader switches sound on and off instead of fading it — music alone on the left, both in the middle, video alone on the right. A channel is muted below 40 %.</string>
 
     <string name="error_prefix">Error: %1$s</string>
     <string name="error_appops_denied">appops TAKE_AUDIO_FOCUS denied for %1$s</string>

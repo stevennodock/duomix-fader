@@ -128,12 +128,14 @@ fun MixerScreen(
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.mixer_title), style = MaterialTheme.typography.titleMedium)
                 // Sans accès aux lecteurs des autres apps, curseurs et crossfader n'auraient aucun effet
-                val mixable = state.serviceBound && state.canControlPlayers
-                if (!state.canControlPlayers) Limitation(stringResource(R.string.mixer_unsupported))
-                ChannelSlider(state.music, enabled = mixable) {
+                // Le mode coupure garde le fader utile : il bascule le son des apps au lieu de le doser
+                val mixable = state.serviceBound && (state.canControlPlayers || state.cutMode)
+                if (state.cutMode) Limitation(stringResource(R.string.mixer_cut_mode))
+                else if (!state.canControlPlayers) Limitation(stringResource(R.string.mixer_unsupported))
+                ChannelSlider(state.music, enabled = mixable, cut = state.isCut(state.music).takeIf { state.cutMode }) {
                     viewModel.setChannelVolume(Slot.MUSIC, it)
                 }
-                ChannelSlider(state.video, enabled = mixable) {
+                ChannelSlider(state.video, enabled = mixable, cut = state.isCut(state.video).takeIf { state.cutMode }) {
                     viewModel.setChannelVolume(Slot.VIDEO, it)
                 }
                 Text(stringResource(R.string.crossfader_title), style = MaterialTheme.typography.titleSmall)
@@ -149,7 +151,8 @@ fun MixerScreen(
                     )
                     Text(state.video.label, style = MaterialTheme.typography.labelMedium)
                 }
-                Text(
+                // L'état « lecture » des canaux n'est connu que là où les lecteurs sont accessibles
+                if (state.canControlPlayers) Text(
                     stringResource(R.string.mixer_hint),
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -251,12 +254,19 @@ private fun FocusSwitch(channel: Channel, enabled: Boolean, onToggle: (Boolean) 
 }
 
 @Composable
-private fun ChannelSlider(channel: Channel, enabled: Boolean, onChange: (Float) -> Unit) {
+private fun ChannelSlider(channel: Channel, enabled: Boolean, cut: Boolean? = null, onChange: (Float) -> Unit) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(channel.label, modifier = Modifier.weight(1f))
             Text(
-                stringResource(if (channel.playing) R.string.state_playing else R.string.state_silent),
+                // Mode coupure ([cut] non nul) : on ne sait pas si l'app joue, on dit si on la laisse passer
+                stringResource(
+                    when (cut) {
+                        true -> R.string.state_cut
+                        false -> R.string.state_open
+                        null -> if (channel.playing) R.string.state_playing else R.string.state_silent
+                    }
+                ),
                 style = MaterialTheme.typography.labelMedium,
             )
         }
