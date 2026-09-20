@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: Apache-2.0 — Copyright 2026 Steve Nodock <stb@outlook.fr> -->
+<!-- Position courante de la bascule : fond plus dense, liseré à la couleur des pavés bleus. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#59808080" />
+    <stroke android:width="1.5dp" android:color="#FF9CC3FF" />
+    <corners android:radius="18dp" />
+</shape>

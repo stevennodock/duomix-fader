@@ -74,6 +74,47 @@ Responsable : Steve Nodock <stb@outlook.fr>
       dans la politique de confidentialité : c'est un historique d'écoute.
 - [ ] *Data safety* : déclarer que l'audio est traité sur l'appareil, de façon éphémère,
       sans collecte ni partage.
+- [ ] **Micro — permission `RECORD_AUDIO`** (depuis 0.7.0) : permission sensible pour Google
+      Play. Elle n'est demandée qu'au moment où l'utilisateur choisit la source « Micro » (ou
+      « Son de l'app » sur Android 12, voir ci-dessous), jamais au lancement. Le son est réduit
+      en chroma et en image d'oscilloscope, en mémoire, puis oublié ; rien n'est enregistré ni
+      transmis (l'app n'a pas la permission `INTERNET`). À faire : la déclarer dans la fiche
+      (*Data safety* : audio traité sur l'appareil, non collecté), la justifier dans la politique
+      de confidentialité, et prévoir la vidéo de démonstration que Google peut exiger pour une
+      permission sensible. Types de service de premier plan ajoutés : `microphone` (porté
+      seulement pendant l'écoute) — à justifier dans la déclaration *Foreground service*.
+- [ ] **Capture de lecture — `MediaProjection`** (depuis 0.8.0, appareils où le shell ne peut
+      pas capter, c'est-à-dire Android 12) : capture officielle d'Android, limitée à l'uid de
+      l'app de musique ; l'écran n'est jamais capté. Contrairement à la capture par le shell,
+      elle respecte le choix des éditeurs : elle n'aboutit que si l'app de musique l'autorise
+      (vérifié le 2026-09-20 sur OnePlus 7 Pro : YouTube Music, YouTube, Telegram, X, VLC,
+      Chrome). Le shell pose `appops PROJECT_MEDIA allow` pour NOTRE seul paquet, ce qui évite
+      la fenêtre d'accord à chaque session : à dire sans détour dans la fiche et la politique
+      de confidentialité. Type de service `mediaProjection` et permission
+      `FOREGROUND_SERVICE_MEDIA_PROJECTION` à justifier de même.
+
+## 2 ter. Compatibilité : ce que l'app fait selon l'appareil (depuis 0.6.0)
+
+L'app lit ce que l'identité shell a le droit de faire (`IMixerService.capabilities`), désactive
+ce qui est impossible et l'affiche (en, fr, es). À reprendre dans la fiche Play, pour ne pas
+promettre à tous ce que seuls certains appareils permettent :
+
+| | Android récent (testé : Pixel 11 Pro XL, Android 17) | Android 12 (testé : OnePlus 7 Pro, émulateur) |
+|---|---|---|
+| Lecture simultanée | oui | oui |
+| Volume par app, fondu continu | oui | non — **mode bascule** (`appops PLAY_AUDIO`) |
+| Analyse du son de l'app | capture par le shell | capture de lecture d'Android |
+| Analyse par le micro | oui | oui |
+| Notification | carte de lecteur multimédia (fader, boutons, pavés, progression) | notification ordinaire dessinée par l'app : tonalité et 8 pavés en rangée, progression, bascule à trois boutons (la carte de lecteur d'Android 12 ne montre que 2 pavés et réduit l'illustration à une vignette) |
+
+- [ ] **OnePlus, OPPO, realme** : adb (donc Shizuku) y est bridé tant que l'option développeur
+      « Désactiver la surveillance des autorisations » n'est pas activée. C'est un prérequis à
+      annoncer dans la fiche ; l'app affiche l'indice sur ces marques. L'option lève une
+      protection du constructeur : le dire, et laisser l'utilisateur décider.
+- [ ] **Mode bascule** : un réglage appops survit à un redémarrage. Garde-fous en place (le
+      service shell rétablit le son à son arrêt et à la mort du client ; l'app note les paquets
+      coupés et les rétablit à la connexion suivante). À re-tester avant chaque release.
+- [ ] Versions Android 13 à 16 et autres marques : **non testées**.
 
 ## 3. Marques et fiche Play
 

@@ -33,6 +33,7 @@
     <string name="notif_channel_name">DuoMix fader</string>
     <string name="notif_title">DuoMix fader</string>
     <string name="notif_balance">%1$s %2$d %% · %3$s %4$d %%</string>
+    <string name="notif_switch_both">Ambas</string>
     <string name="notif_action_stop">Ocultar el crossfader</string>
 
     <string name="action_licenses">Licencias de código abierto</string>
@@ -71,7 +72,7 @@
     <string name="scale_sheet_link">Las 33 escalas, en color (PDF)</string>
     <string name="harmony_how_title">Cómo funciona</string>
     <string name="harmony_how">1. Notas: la media larga de las 12 clases de altura indica la familia (qué notas se usan).\n2. Acordes: tramas cortas se comparan con las tríadas. Una clase de altura ignora la octava: un acorde se reconoce sea cual sea su inversión.\n3. Bucle: la música se compara consigo misma para hallar el periodo en que los acordes se repiten. Las repeticiones se superponen y promedian: los acordes resaltan, la melodía se atenúa.\n4. Tónica: la nota donde la pieza pasa más tiempo sobre el acorde que este modo construye en su tónica, apoyada por la línea de bajo.\nEl cifrado se lee sobre la escala mayor de la tónica (♭VI, ♭VII…).</string>
-    <string name="harmony_privacy">El sonido de la app de música se analiza en el dispositivo, solo en memoria. No se graba ni se envía nada.</string>
+    <string name="harmony_privacy">El sonido —el de la app de música, o el del micrófono cuando usted lo elige— se analiza en el dispositivo, solo en memoria. No se graba ni se envía nada, y el micrófono nunca se enciende por sí solo.</string>
     <string name="harmony_credits_title">Créditos</string>
     <string name="harmony_credits">Las 7 familias y las 33 «Scales of Harmonies», sus nombres sistemáticos y la tabla de síntesis son obra de Oliver Prehn (NewJazz). Si esta herramienta te resulta útil, considera apoyarle.</string>
     <string name="harmony_credits_video">Ver la lección</string>

@@ -17,6 +17,8 @@ import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
+import android.widget.RemoteViews
 import com.dirtwing.duomixfader.harmony.Detection
 import com.dirtwing.duomixfader.harmony.romanNumeral
 import com.dirtwing.duomixfader.ui.ScaleArt
@@ -48,6 +50,9 @@ class MixerNotificationService : Service() {
         private const val NOTIFICATION_ID = 1
         private const val ACTION_STOP = "com.dirtwing.duomixfader.action.STOP"
         private const val ACTION_HARMONY = "com.dirtwing.duomixfader.action.HARMONY"
+        /** Notification d'Android 12 : place le fader à EXTRA_POSITION (0 musique, 0,5 les deux, 1 vidéo). */
+        private const val ACTION_SET_FADER = "com.dirtwing.duomixfader.action.SET_FADER"
+        private const val EXTRA_POSITION = "position"
         /** Durée fictive : 100 s, pour que « 0:50 » se lise comme 50 %. */
         private const val FADER_DURATION_MS = 100_000L
         private const val STEP = 0.1f
@@ -62,6 +67,9 @@ class MixerNotificationService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var engine: MixerEngine
     private lateinit var session: MediaSession
+
+    /** Avant Android 13 : notification dessinée par nous au lieu de la carte de lecteur. */
+    private val compact = ScaleArt.isCompactCard(android.os.Build.VERSION.SDK_INT)
 
     private val callback = object : MediaSession.Callback() {
         override fun onSeekTo(pos: Long) = engine.setCrossfader(pos.toFloat() / FADER_DURATION_MS)
@@ -84,7 +92,8 @@ class MixerNotificationService : Service() {
         engine = MixerEngine.get(this).also { it.acquire() }
         session = MediaSession(this, "DuoMixCrossfader").apply {
             setCallback(callback)
-            isActive = true
+            // Avant Android 13, pas de carte de lecteur : la session reste éteinte (voir publish)
+            isActive = !compact
         }
         getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel(
@@ -108,6 +117,7 @@ class MixerNotificationService : Service() {
                 scaleName = detection?.let {
                     getString(R.string.notif_scale, noteName(it.root), it.scale.popularName, it.scale.family)
                 }
+                this@MixerNotificationService.detection = detection
                 pastilles = detection?.let { ScaleArt.pastilles(it) }
                 artist = track?.artist
                 trackTitle = track?.title
@@ -163,7 +173,15 @@ class MixerNotificationService : Service() {
             }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    /** Les boutons de la notification d'Android 12 reviennent ici (voir compactNotification). */
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_SET_FADER -> engine.setCrossfader(intent.getFloatExtra(EXTRA_POSITION, 0.5f))
+            ACTION_HARMONY -> openHarmonyPanel()
+            ACTION_STOP -> stopSelf()
+        }
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         scope.cancel()
@@ -192,6 +210,9 @@ class MixerNotificationService : Service() {
      * champ vide.
      */
     private var pastilles: CharSequence? = null
+
+    /** Gamme retenue, pour la vignette de la carte compacte (voir publish). */
+    private var detection: Detection? = null
 
     /** L'analyse écoute le micro : le service doit alors porter le type « microphone ». */
     private var viaMicrophone = false
@@ -231,6 +252,13 @@ class MixerNotificationService : Service() {
         val balance = "${short(state.music)} ${(state.music.volume * 100).roundToInt()} · " +
             "${short(state.video)} ${(state.video.volume * 100).roundToInt()}"
         val title = scaleName ?: getString(R.string.notif_title)
+        // Avant Android 13, la carte de lecteur ne sait pas montrer une gamme (voir
+        // ScaleArt.isCompactCard) : on publie à sa place une notification dessinée par nous,
+        // sans session multimédia. Tout ce qui suit ne concerne qu'Android 13 et suivants.
+        if (compact) {
+            startForegroundTyped(compactNotification(state, title, short(state.music), short(state.video)))
+            return
+        }
         val key = "$balance|$artist|$trackTitle|$progression"
         if (key != artworkKey) {
             artworkKey = key
@@ -278,12 +306,17 @@ class MixerNotificationService : Service() {
                 )
                 .build()
         )
-        val notification = buildNotification(title)
-        // Le type « microphone » seulement pendant l'écoute par le micro : sans lui, Android
-        // coupe le micro dès que l'app quitte l'écran. Android ne l'accorde qu'à une app visible
-        // à cet instant ; s'il le refuse, le fader garde son type habituel plutôt que de tomber.
-        // De même, le type « mediaProjection » tant qu'une capture de lecture est en vie ou attendue :
-        // Android ne délivre le jeton de capture qu'à une app dont un service porte ce type.
+        startForegroundTyped(buildNotification(title))
+    }
+
+    /**
+     * Le type « microphone » seulement pendant l'écoute par le micro : sans lui, Android coupe le
+     * micro dès que l'app quitte l'écran. Android ne l'accorde qu'à une app visible à cet
+     * instant ; s'il le refuse, le fader garde son type habituel plutôt que de tomber. De même,
+     * le type « mediaProjection » tant qu'une capture de lecture est en vie ou attendue : Android
+     * ne délivre le jeton de capture qu'à une app dont un service porte ce type.
+     */
+    private fun startForegroundTyped(notification: Notification) {
         val extra = (if (viaMicrophone) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else 0) or
             (if (engine.projectionActive) ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION else 0)
         val withExtra = extra != 0 && runCatching {
@@ -304,6 +337,84 @@ class MixerNotificationService : Service() {
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setStyle(Notification.MediaStyle().setMediaSession(session.sessionToken))
+            .build()
+    }
+
+    // ------------------------------------------------------------------
+    // Avant Android 13 : notification dessinée par nous
+    // ------------------------------------------------------------------
+
+    /** Un bouton de la notification : il revient à ce service, avec son action (voir onStartCommand). */
+    private fun button(requestCode: Int, action: String, position: Float? = null): PendingIntent =
+        PendingIntent.getService(
+            this, requestCode,
+            Intent(this, MixerNotificationService::class.java).setAction(action)
+                .apply { position?.let { putExtra(EXTRA_POSITION, it) } },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+
+    /**
+     * La carte de lecteur d'Android 12 ne laisse passer que deux pavés sur sa ligne de texte et
+     * réduit l'illustration à une vignette : une gamme, qui est une SUITE, ne s'y lit pas. On
+     * publie donc une notification ordinaire dont on dessine le contenu : la tonalité et les
+     * huit pavés en rangée, sur toute la largeur — repliée, c'est tout ce qu'elle montre —, puis
+     * la progression, le morceau, et le fader sous forme de bascule à trois positions, ce qu'il
+     * est sur ces versions (voir MixerUiState.cutMode). Textes aux styles du système : ils
+     * suivent les thèmes clair et sombre.
+     */
+    private fun compactNotification(state: MixerUiState, title: String, music: String, video: String): Notification {
+        val found = detection
+        val tiles = found?.let { ScaleArt.tileRow(it) }
+        val tonic = found?.let { com.dirtwing.duomixfader.harmony.NoteNames.letter(it.root) }
+        val balance = "$music ${(state.music.volume * 100).roundToInt()} · $video ${(state.video.volume * 100).roundToInt()}"
+
+        val small = RemoteViews(packageName, R.layout.notif_compact_small).apply {
+            setTextViewText(R.id.small_tonic, tonic ?: balance)
+            setViewVisibility(R.id.small_tiles, if (tiles != null) View.VISIBLE else View.GONE)
+            tiles?.let { setImageViewBitmap(R.id.small_tiles, it) }
+        }
+        val track = listOfNotNull(artist?.takeIf { it.isNotBlank() }, trackTitle?.takeIf { it.isNotBlank() }).joinToString(" — ")
+        val big = RemoteViews(packageName, R.layout.notif_compact_big).apply {
+            setTextViewText(R.id.big_title, title)
+            setViewVisibility(R.id.big_scale_row, if (tiles != null) View.VISIBLE else View.GONE)
+            setTextViewText(R.id.big_tonic, tonic.orEmpty())
+            tiles?.let { setImageViewBitmap(R.id.big_tiles, it) }
+            setTextViewText(R.id.big_progression, progression ?: balance)
+            setViewVisibility(R.id.big_track, if (track.isNotEmpty()) View.VISIBLE else View.GONE)
+            setTextViewText(R.id.big_track, track)
+
+            // La bascule : musique seule, les deux, vidéo seule ; la position courante est marquée
+            val position = when {
+                state.crossfader < 0.25f -> 0
+                state.crossfader > 0.75f -> 2
+                else -> 1
+            }
+            val switches = listOf(
+                Triple(R.id.btn_music, music, 0f), Triple(R.id.btn_both, getString(R.string.notif_switch_both), 0.5f),
+                Triple(R.id.btn_video, video, 1f),
+            )
+            switches.forEachIndexed { index, (id, label, target) ->
+                setTextViewText(id, label)
+                setInt(id, "setBackgroundResource", if (index == position) R.drawable.notif_switch_on else R.drawable.notif_switch)
+                setOnClickPendingIntent(id, button(10 + index, ACTION_SET_FADER, target))
+            }
+            // Pas de bouton ♪ là où rien ne peut être analysé
+            setViewVisibility(R.id.btn_harmony, if (state.canCapture || viaMicrophone || found != null) View.VISIBLE else View.GONE)
+            setOnClickPendingIntent(R.id.btn_harmony, button(20, ACTION_HARMONY))
+            setOnClickPendingIntent(R.id.btn_stop, button(21, ACTION_STOP))
+        }
+        val openApp = PendingIntent.getActivity(
+            this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
+        )
+        return Notification.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_mixer)
+            .setContentIntent(openApp)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
+            .setStyle(Notification.DecoratedCustomViewStyle())
+            .setCustomContentView(small)
+            .setCustomBigContentView(big)
             .build()
     }
 }

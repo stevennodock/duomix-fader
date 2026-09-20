@@ -34,6 +34,7 @@
     <string name="notif_channel_name">DuoMix fader</string>
     <string name="notif_title">DuoMix fader</string>
     <string name="notif_balance">%1$s %2$d%% · %3$s %4$d%%</string>
+    <string name="notif_switch_both">Both</string>
     <string name="notif_action_stop">Hide the crossfader</string>
 
     <string name="action_licenses">Open source licenses</string>
@@ -74,7 +75,7 @@
     <string name="scale_sheet_link">The 33 scales, colour-coded (PDF)</string>
     <string name="harmony_how_title">How it works</string>
     <string name="harmony_how">1. Notes: the long-term average of the 12 pitch classes selects the family (which notes are used).\n2. Chords: short frames are matched against triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion.\n3. Loop: the music is compared with itself to find the period at which the chords repeat. Repetitions are stacked and averaged, which keeps the chords and fades the melody.\n4. Tonic: the note where the piece spends the most time on the chord this mode builds on its tonic, backed by the bass line.\nNumerals are read on the major scale of the tonic (♭VI, ♭VII…).</string>
-    <string name="harmony_privacy">The sound of the music app is analysed on the device, in memory only. Nothing is recorded or sent anywhere.</string>
+    <string name="harmony_privacy">The sound — of the music app, or of the microphone when you choose it — is analysed on the device, in memory only. Nothing is recorded or sent anywhere, and the microphone is never switched on by itself.</string>
     <string name="harmony_credits_title">Credits</string>
     <string name="harmony_credits">The 7 families and 33 “Scales of Harmonies”, their systematic names and the summary table are the work of Oliver Prehn (NewJazz). If this tool helps you, consider supporting him.</string>
     <string name="harmony_credits_video">Watch the lesson</string>

@@ -52,7 +52,7 @@
     <div>
       <h1>DuoMix <span>Fader</span></h1>
       <p class="lead">Play two apps at once, mix them with a crossfader — and see, while the music plays, which scale it is in and which chords it loops through.</p>
-      <p class="meta">User guide · version 0.5 · September 2026<br>Steve Nodock &lt;stb@outlook.fr&gt; · free and open source (Apache 2.0)</p>
+      <p class="meta">User guide · version 0.8 · September 2026<br>Steve Nodock &lt;stb@outlook.fr&gt; · free and open source (Apache 2.0)</p>
     </div>
   </div>
   <div class="toc">
@@ -61,11 +61,13 @@
     <div><b>3</b> The mixer</div>
     <div><b>4</b> The fader in your notifications</div>
     <div><b>5</b> Harmony: scale, tonic, chords</div>
-    <div><b>6</b> History, one section per piece</div>
-    <div><b>7</b> The Scales of Harmonies sheet</div>
-    <div><b>8</b> How the analysis works, and its limits</div>
-    <div><b>9</b> Privacy</div>
-    <div><b>10</b> Credits</div>
+    <div><b>6</b> What Harmony listens to: app sound or microphone</div>
+    <div><b>7</b> History, one section per piece</div>
+    <div><b>8</b> The Scales of Harmonies sheet</div>
+    <div><b>9</b> How the analysis works, and its limits</div>
+    <div><b>10</b> Phones and Android versions</div>
+    <div><b>11</b> Privacy</div>
+    <div><b>12</b> Credits</div>
   </div>
 
   <h2 style="margin-top:12mm"><span>1</span> · What it does</h2>
@@ -85,7 +87,7 @@
         <li>Open <b>DuoMix Fader</b> and tap <b>Request Shizuku permission</b>, then accept.</li>
         <li>When the three lights are green, you are ready.</li>
       </ol>
-      <div class="note">If the first light is red, Shizuku is not running: open Shizuku and start it. Nothing in DuoMix Fader works without it.</div>
+      <div class="note">If the first light is red, Shizuku is not running: open Shizuku and start it. Nothing in DuoMix Fader works without it. On a <b>OnePlus, OPPO or realme</b> phone, or on <b>Android 12</b>, read section 10 first.</div>
       <h3>Languages</h3>
       <p>The app follows your phone's language — English, French or Spanish. You can also choose its language alone in <i>Settings → System → Languages → App languages</i>. Scale names are international musical terms and are never translated.</p>
     </div>
@@ -112,7 +114,7 @@
 <section>
   <h2><span>4</span> · The fader in your notifications</h2>
   <p>You do not have to keep the app open. While DuoMix Fader runs, a media-player card called <b>DuoMix fader</b> appears next to your other players — in the notification shade and on the lock screen.</p>
-  <img src="img/09-notification-card.png" alt="" style="width:118mm; display:block; margin:6px auto 4px; border-radius:14px">
+  <img src="img/09-notification-card.png" alt="" style="width:96mm; display:block; margin:6px auto 4px; border-radius:14px">
   <p style="text-align:center; font-size:8.4pt; color:var(--soft); margin-bottom:10px">The card, cropped from the notification shade. Here: G natural minor, family 1 — G A in red, B♭ C D in blue, E♭ F G in red — a few seconds into a piece, when the progression is still a single chord. The name of the audio output is masked.</p>
   <table>
     <tr><th style="width:42mm">On the card</th><th>What it shows or does</th></tr>
@@ -126,6 +128,8 @@
     <tr><td><b>✕</b></td><td>Hide the card. It comes back the next time you open the app.</td></tr>
   </table>
   <div class="note">DuoMix Fader plays no sound itself: this player card is only a control surface, which is why it has no play button. Its layout, its two text lines and their size belong to Android. Nothing scrolls or blinks on the card: it only changes when the scale, the piece or the balance does.</div>
+  <h3>The history widget</h3>
+  <p>Long-press an empty spot of your home screen, choose <i>Widgets</i>, then <b>DuoMix · Detection history</b>. It shows the pieces you listened to — the one playing first — each with its key, its scale and colour tiles, the scales held in turn with their degree, and the chord progression. Scroll the list; tap it to open the history in the app. It is updated only when its content changes, never on a timer, and it is not offered on the lock screen: the player card is there for that.</p>
 </section>
 
 <section>
@@ -151,7 +155,24 @@
 </section>
 
 <section>
-  <h2><span>6</span> · History, one section per piece</h2>
+  <h2><span>6</span> · What Harmony listens to: app sound or microphone</h2>
+  <p>Under the scale, the line <b>Source</b> offers two buttons. You can switch at any time; the analysis, the history, the widget and the notification card follow whichever source is active.</p>
+  <table>
+    <tr><th style="width:34mm">Source</th><th>What it hears</th></tr>
+    <tr><td><b>App sound</b></td><td>The sound of the <b>music app only</b>, taken inside the phone: it works with headphones, and the other channel never enters the analysis. On recent versions of Android the privileged service captures it. On Android 12 it cannot, so DuoMix Fader uses Android's own <i>playback capture</i> instead: the first time, Android asks for the recording permission — it is used only to read the music app's sound, the screen is never captured — and may show a cast icon in the status bar while it runs.</td></tr>
+    <tr><td><b>🎙 Microphone</b></td><td>What the phone <b>hears</b>: its own speaker, a stereo in the room, an instrument you play. It hears nothing of a headphone session. Tap it once to start (Android asks for the microphone permission the first time), tap it again to stop. It is never switched on by itself.</td></tr>
+  </table>
+  <h3>Microphone settings</h3>
+  <ul>
+    <li><b>Gain</b>, 0 to +40 dB. A phone microphone is quiet when it is read without processing, and music below a certain level is treated as silence. Raise the gain until the scope comes alive.</li>
+    <li><b>Bass</b> and <b>Treble</b>, −12 to +12 dB. Lifting the bass helps the bass line and the tonic; lowering the treble sets room noise aside. At 0 dB the sound is left untouched.</li>
+    <li><b>The scope</b> shows three lanes — treble, mids, bass — taken <i>after</i> these settings, at a fixed scale. Flat traces: raise the gain. Traces shaved off at the top and bottom: it clips, lower it. Waves filling about half of each lane on loud passages are about right.</li>
+  </ul>
+  <div class="note">When the microphone is off <b>and</b> the music app is switched off under <i>Simultaneous playback</i>, nothing is listened to: the block says <b>Not listening</b>. Turn one of the two back on. An app whose switch cannot be turned on (X) is still analysed.</div>
+</section>
+
+<section>
+  <h2><span>7</span> · History, one section per piece</h2>
   <div class="shots">
     <figure><img src="img/06-history.png" alt=""><figcaption>One section per piece: main scale, scales held in turn with their degree, chord progression.</figcaption></figure>
     <div class="side">
@@ -173,7 +194,7 @@
 </section>
 
 <section>
-  <h2><span>7</span> · The Scales of Harmonies sheet</h2>
+  <h2><span>8</span> · The Scales of Harmonies sheet</h2>
   <p>The link <b>📄 The 33 scales, colour-coded (PDF)</b>, in the Harmony card and in the panel, opens a one-page study sheet inside the app. Pinch to zoom, drag to move around. It exists in English, French and Spanish and follows the app's language.</p>
   <img class="sheet" src="img/08-sheet-en.png" alt="">
   <p style="margin-top:8px">The sheet reproduces the data of Oliver Prehn's overview — 33 scales in 7 families, with popular name, interval steps, systematic name and chords — and adds a colour code:</p>
@@ -187,7 +208,7 @@
 </section>
 
 <section>
-  <h2><span>8</span> · How the analysis works, and its limits</h2>
+  <h2><span>9</span> · How the analysis works, and its limits</h2>
   <ol>
     <li><b>Notes → family.</b> The energy of the 12 pitch classes is averaged over about thirty seconds. The set of notes that explains it best gives the family. When two candidates are close, the more common family wins.</li>
     <li><b>Chords.</b> Short frames are matched against the 48 triads. Pitch classes ignore octaves, so a chord is recognised whatever its inversion or voicing.</li>
@@ -206,16 +227,37 @@
 </section>
 
 <section>
-  <h2><span>9</span> · Privacy</h2>
+  <h2><span>10</span> · Phones and Android versions</h2>
+  <p>DuoMix Fader acts through the rights that Android gives to its <i>shell</i> identity, and those rights are not the same on every version or brand. The app checks what your phone allows when it starts, switches off what it cannot do, and says so on the screen. It installs from Android 12.</p>
+  <table>
+    <tr><th style="width:52mm"></th><th>Recent Android<br><span style="font-weight:400">tested: Pixel 11 Pro XL, Android 17</span></th><th>Android 12<br><span style="font-weight:400">tested: OnePlus 7 Pro, emulator</span></th></tr>
+    <tr><td><b>Two apps playing at once</b></td><td>Yes</td><td>Yes</td></tr>
+    <tr><td><b>Per-app volume, smooth crossfade</b></td><td>Yes</td><td>No — <b>switch mode</b> instead</td></tr>
+    <tr><td><b>Harmony on the app's sound</b></td><td>Yes, by the privileged service</td><td>Yes, by Android's playback capture</td></tr>
+    <tr><td><b>Harmony by the microphone</b></td><td>Yes</td><td>Yes</td></tr>
+    <tr><td><b>Notification</b></td><td>A media-player card: fader, buttons, scale, tiles, progression</td><td>An ordinary notification drawn by the app (see below)</td></tr>
+  </table>
+  <h3>Switch mode</h3>
+  <p>Android 12 does not let the shell reach the players of other apps, so their volume cannot be set. The shell can still switch an app's sound off and on. The fader then becomes a three-way switch — <b>music alone</b> on the left, <b>both</b> in the middle, <b>video alone</b> on the right — and each channel slider mutes its app below 40 %. The mixer card says <i>Switch mode</i> and shows each channel as <i>on</i> or <i>muted</i>. Whatever was muted gets its sound back when DuoMix Fader stops, and again the next time it starts, should it ever be killed in between.</p>
+  <h3>The notification on Android 12</h3>
+  <p>The media-player card of Android 12 cannot show a scale: its text line lets only two tiles through, and it shrinks the artwork to a small square. There, DuoMix Fader posts an ordinary notification instead, outside the media area. <b>Collapsed</b>, it shows the key and the eight tiles in a row. <b>Expanded</b>, it adds the name of the mode, the chord progression, the piece, and the fader as three buttons — music app, <i>Both</i>, video app, the current one outlined — next to <b>♪</b> and <b>✕</b>.</p>
+  <h3>OnePlus, OPPO and realme</h3>
+  <p>These brands remove some rights from adb — and therefore from Shizuku — until you turn on <b>Disable permission monitoring</b> in <i>Developer options</i>, then restart Shizuku. Without it Shizuku warns that “the permission of adb is limited” and DuoMix Fader cannot work; the app reminds you of the option. It lifts a protection that these brands add on top of Android for a computer connected in debugging mode, and gives adb back the behaviour it has on other phones: decide for yourself whether that suits the phone you use.</p>
+  <div class="note">Versions between Android 13 and 16, and other brands, have not been tested. The app does not guess from the version number: it reads what the shell is allowed to do on the phone in hand.</div>
+</section>
+
+<section>
+  <h2><span>11</span> · Privacy</h2>
   <ul>
     <li>The app has <b>no network permission</b>. Nothing it hears, reads or stores can leave the phone.</li>
-    <li>To analyse a piece it listens to the <b>music app only</b>. The sound is reduced on the spot to twelve numbers per instant and discarded; it is never recorded.</li>
+    <li>To analyse a piece it listens to the <b>music app only</b> — or, if <i>you</i> choose it, to the phone's <b>microphone</b>. Either way the sound is reduced on the spot to twelve numbers per instant (and, for the microphone, to the picture of the scope) and discarded; it is never recorded, and the microphone is never switched on by itself.</li>
+    <li>The <b>recording permission</b> is asked only when you choose the microphone, or <i>App sound</i> on Android 12, where Android's playback capture requires it. There, the capture is limited to the music app's sound; the screen is never captured.</li>
     <li>It reads the title and artist that the music app publishes for the lock screen, to name the sections of the history.</li>
     <li>The history is a private file; <b>Clear</b> deletes it. Uninstalling the app removes everything.</li>
-    <li>The privileged service it starts through Shizuku can only do a short, fixed list of things — change the audio-focus setting and the volume of the listed apps, listen to the music app, read its title, open DuoMix Fader's own screen. It runs no arbitrary command and stops by itself when the app stops.</li>
+    <li>The privileged service it starts through Shizuku can only do a short, fixed list of things — change the audio-focus setting and the volume of the listed apps (or, on Android 12, switch their sound off and on), listen to the music app, read its title, open DuoMix Fader's own screen, and allow DuoMix Fader itself to use Android's playback capture. It runs no arbitrary command and stops by itself when the app stops.</li>
   </ul>
 
-  <h2 style="margin-top:10mm"><span>10</span> · Credits</h2>
+  <h2 style="margin-top:10mm"><span>12</span> · Credits</h2>
   <p>The 7 families and 33 <i>Scales of Harmonies</i>, their systematic names and the overview table are the work of <b>Oliver Prehn</b> (NewJazz). If this tool helps you, please support him.</p>
   <ul>
     <li>Lesson: <a href="https://youtu.be/Vq2xt2D3e3E">ALL ABOUT MUSICAL SCALES – A COMPLETE GUIDE!!!</a> — youtu.be/Vq2xt2D3e3E</li>

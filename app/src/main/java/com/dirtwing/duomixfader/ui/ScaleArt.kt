@@ -50,6 +50,20 @@ object ScaleArt {
     fun pastilles(detection: Detection): CharSequence =
         SpannableStringBuilder(NoteNames.letter(detection.root) + "  ").append(tilesText(detection))
 
+    /**
+     * Vrai là où la ligne de texte de la carte multimédia est étroite : la carte compacte
+     * d'Android 12, où l'illustration est une vignette à gauche du texte au lieu d'un fond.
+     * Constaté sur OnePlus 7 Pro : la ligne de texte n'y montre qu'un ou deux pavés, quelle que
+     * soit leur forme, et une grille dans la vignette ne se lit pas comme une suite. Sur ces
+     * versions, la carte de lecteur laisse donc la place à une notification dessinée par nous
+     * (voir [tileRow]).
+     *
+     * Surtout pas de critère sur la largeur de l'écran en dp : le texte grossit avec elle, la
+     * place relative ne change donc pas — et un Pixel réglé en affichage agrandi (353 dp)
+     * passait à tort aux pavés étroits.
+     */
+    fun isCompactCard(sdkInt: Int): Boolean = sdkInt < 33
+
     /** Les pavés seuls, en texte coloré : pour la carte de notification et pour le widget. */
     fun tilesText(detection: Detection): CharSequence {
         val text = SpannableStringBuilder()
@@ -65,6 +79,27 @@ object ScaleArt {
         return text
     }
 
+    /**
+     * La rangée de pavés en image, pour la notification d'Android 12 (voir
+     * MixerNotificationService.compactNotification) : de vrais carrés, en vraies couleurs, de la
+     * tonique à son octave, sur fond transparent. La carte de lecteur de cette version ne sait
+     * pas les montrer — sa ligne de texte n'en laisse passer que deux, et son illustration est
+     * une vignette carrée où une suite ne se lit pas.
+     */
+    fun tileRow(detection: Detection): Bitmap {
+        val colours = tiles(detection)
+        val tile = 72f
+        val gap = 10f
+        val bitmap = Bitmap.createBitmap((colours.size * tile + (colours.size - 1) * gap).toInt(), tile.toInt(), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        colours.forEachIndexed { index, blue ->
+            val left = index * (tile + gap)
+            paint.color = if (blue) PASTEL_BLUE else PASTEL_RED
+            canvas.drawRoundRect(left, 0f, left + tile, tile, 10f, 10f, paint)
+        }
+        return bitmap
+    }
     /**
      * Illustration de la carte multimédia : ce qui est secondaire, en petit. Les flux et leur
      * balance à droite de l'icône de l'app ; dessous, l'artiste puis le titre.

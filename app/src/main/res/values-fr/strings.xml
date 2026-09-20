@@ -33,6 +33,7 @@
     <string name="notif_channel_name">DuoMix fader</string>
     <string name="notif_title">DuoMix fader</string>
     <string name="notif_balance">%1$s %2$d %% · %3$s %4$d %%</string>
+    <string name="notif_switch_both">Les deux</string>
     <string name="notif_action_stop">Masquer le crossfader</string>
 
     <string name="action_licenses">Licences open source</string>
@@ -71,7 +72,7 @@
     <string name="scale_sheet_link">Les 33 gammes, en couleurs (PDF)</string>
     <string name="harmony_how_title">Comment ça marche</string>
     <string name="harmony_how">1. Notes : la moyenne longue des 12 classes de hauteur désigne la famille (quelles notes sont jouées).\n2. Accords : des trames courtes sont comparées aux triades. Une classe de hauteur ignore l\'octave : un accord est reconnu quel que soit son renversement.\n3. Boucle : la musique est comparée à elle-même pour trouver la période à laquelle les accords reviennent. Les répétitions sont superposées et moyennées : les accords ressortent, la mélodie s\'estompe.\n4. Tonique : la note où le morceau passe le plus de temps sur l\'accord que ce mode construit sur sa tonique, confortée par la ligne de basse.\nLe chiffrage se lit sur la gamme majeure de la tonique (♭VI, ♭VII…).</string>
-    <string name="harmony_privacy">Le son de l\'app de musique est analysé sur l\'appareil, en mémoire uniquement. Rien n\'est enregistré ni transmis.</string>
+    <string name="harmony_privacy">Le son — celui de l\'app de musique, ou celui du micro quand vous le choisissez — est analysé sur l\'appareil, en mémoire uniquement. Rien n\'est enregistré ni transmis, et le micro n\'est jamais allumé d\'office.</string>
     <string name="harmony_credits_title">Crédits</string>
     <string name="harmony_credits">Les 7 familles et les 33 « Scales of Harmonies », leurs noms systématiques et le tableau de synthèse sont l\'œuvre d\'Oliver Prehn (NewJazz). Si cet outil vous est utile, pensez à le soutenir.</string>
     <string name="harmony_credits_video">Voir la leçon</string>

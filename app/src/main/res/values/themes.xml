@@ -2,4 +2,18 @@
 <resources>
     <!-- Thème minimal : Compose dessine tout -->
     <style name="Theme.DuoMix" parent="android:Theme.Material.NoActionBar" />
+
+    <!-- Bouton de la notification d'Android 12 (bascule du fader, ♪, ✕) : texte du système, qui
+         suit les thèmes clair et sombre, sur un fond gris translucide lisible dans les deux. -->
+    <style name="NotifSwitch">
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:background">@drawable/notif_switch</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Notification</item>
+    </style>
 </resources>

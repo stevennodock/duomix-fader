@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: Apache-2.0 — Copyright 2026 Steve Nodock <stb@outlook.fr> -->
+<!-- Notification d'Android 12, repliée : l'essentiel sur une ligne — la tonalité, puis les huit
+     pavés en rangée. Sans gamme retenue, le texte donne les deux flux et la rangée est masquée.
+     Les styles de texte sont ceux du système : ils suivent les thèmes clair et sombre. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/small_tonic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:maxLines="1"
+        android:textAppearance="@android:style/TextAppearance.Material.Notification.Title"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/small_tiles"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:scaleType="fitStart" />
+</LinearLayout>
