@@ -42,4 +42,9 @@ interface IMixerService {
     // Morceau en cours d'un paquet de la liste blanche, tel que l'app le publie elle-même
     // dans sa session multimédia : {"title","artist","album"} en JSON, ou null.
     String nowPlaying(String pkg) = 10;
+
+    // Ce que l'identité shell a le droit de faire sur CET appareil (voir ShellCapabilities) :
+    // bit 0 régler l'audio focus, bit 1 piloter le volume des lecteurs, bit 2 capter le son.
+    // Selon la version d'Android et le constructeur, le shell n'a pas les mêmes permissions.
+    int capabilities() = 11;
 }

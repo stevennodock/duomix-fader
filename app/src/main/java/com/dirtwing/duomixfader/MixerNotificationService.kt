@@ -20,12 +20,14 @@ import android.os.IBinder
 import com.dirtwing.duomixfader.harmony.Detection
 import com.dirtwing.duomixfader.harmony.romanNumeral
 import com.dirtwing.duomixfader.ui.ScaleArt
+import com.dirtwing.duomixfader.widget.HistoryWidget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -50,6 +52,7 @@ class MixerNotificationService : Service() {
         private const val FADER_DURATION_MS = 100_000L
         private const val STEP = 0.1f
         private const val PROGRESSION_HOLD_MS = 4_000L
+        private const val WIDGET_HOLD_MS = 2_000L
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, MixerNotificationService::class.java))
@@ -93,7 +96,7 @@ class MixerNotificationService : Service() {
         publish(engine.state.value)
         scope.launch {
             engine.state
-                .map { listOf(it.crossfader, it.music.volume, it.video.volume, it.music.pkg, it.video.pkg) }
+                .map { listOf(it.crossfader, it.music.volume, it.video.volume, it.music.pkg, it.video.pkg, it.capabilities) }
                 .distinctUntilChanged()
                 .collect { publish(engine.state.value) }
         }
@@ -111,6 +114,7 @@ class MixerNotificationService : Service() {
             }
         }
         watchProgression()
+        watchHistory()
     }
 
     /**
@@ -134,10 +138,26 @@ class MixerNotificationService : Service() {
         }
     }
 
+    /**
+     * Tient le widget « Historique » à jour : morceau en cours et morceaux archivés. La
+     * confiance, qui bouge à chaque seconde, n'y figure pas : on l'ignore pour ne redessiner
+     * le widget que lorsque son contenu change, et au plus toutes les deux secondes.
+     */
+    private fun watchHistory() = scope.launch {
+        combine(engine.liveRecord, engine.history) { live, history -> live?.copy(confidence = 0f) to history }
+            .distinctUntilChanged()
+            .collectLatest { (live, history) ->
+                delay(WIDGET_HOLD_MS)
+                HistoryWidget.push(this@MixerNotificationService, live, history)
+            }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
 
     override fun onDestroy() {
         scope.cancel()
+        // Plus de morceau « en cours » : le widget ne garde que l'historique
+        HistoryWidget.push(this, null, engine.history.value)
         session.isActive = false
         session.release()
         engine.release()
@@ -219,13 +239,16 @@ class MixerNotificationService : Service() {
                         PlaybackState.ACTION_SKIP_TO_PREVIOUS or
                         PlaybackState.ACTION_SKIP_TO_NEXT
                 )
-                .addCustomAction(
-                    PlaybackState.CustomAction.Builder(
-                        ACTION_HARMONY,
-                        getString(R.string.notif_action_harmony),
-                        R.drawable.ic_stat_note,
-                    ).build()
-                )
+                .apply {
+                    // Pas de bouton ♪ là où l'appareil ne permet pas l'analyse harmonique
+                    if (state.canCapture) addCustomAction(
+                        PlaybackState.CustomAction.Builder(
+                            ACTION_HARMONY,
+                            getString(R.string.notif_action_harmony),
+                            R.drawable.ic_stat_note,
+                        ).build()
+                    )
+                }
                 .addCustomAction(
                     PlaybackState.CustomAction.Builder(
                         ACTION_STOP,

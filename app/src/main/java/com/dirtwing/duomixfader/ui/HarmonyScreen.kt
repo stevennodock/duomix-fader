@@ -82,7 +82,11 @@ fun CurrentScale(state: HarmonyState, modifier: Modifier = Modifier) {
         modifier = modifier,
     ) { detection ->
         Column {
-            if (detection == null) {
+            if (!state.supported) {
+                // L'appareil ne laisse pas capter le son d'une app : on le dit, sans faire attendre
+                Text(stringResource(R.string.harmony_off), style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.harmony_unsupported), style = MaterialTheme.typography.bodyMedium)
+            } else if (detection == null) {
                 Text(
                     stringResource(if (state.listening) R.string.harmony_listening else R.string.harmony_off),
                     style = MaterialTheme.typography.titleLarge,
@@ -218,7 +222,11 @@ fun HarmonyScreen(
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.harmony_sequences), style = MaterialTheme.typography.titleMedium)
                 if (state.segments.isEmpty()) {
-                    Text(stringResource(R.string.harmony_empty), style = MaterialTheme.typography.bodySmall)
+                    // Sans capture possible, ne pas inviter à attendre « quelques secondes de musique »
+                    Text(
+                        stringResource(if (state.supported) R.string.harmony_empty else R.string.harmony_unsupported),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 } else {
                     // Le tableau est plus large qu'un téléphone : il défile horizontalement
                     Column(Modifier.horizontalScroll(rememberScrollState())) {

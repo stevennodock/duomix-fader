@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_OPEN_HARMONY = "open_harmony"
+        const val EXTRA_OPEN_HISTORY = "open_history"
     }
 
     private val viewModel: MixerViewModel by viewModels()
@@ -101,6 +102,8 @@ class MainActivity : ComponentActivity() {
     private fun openRequestedScreen(intent: Intent?) {
         android.util.Log.d("DuoMixNav", "intent extras=${intent?.extras?.keySet()?.joinToString { k -> "$k=${intent.extras?.get(k)} (${intent.extras?.get(k)?.javaClass?.simpleName})" }} ecran=$screen")
         if (intent?.getBooleanExtra(EXTRA_OPEN_HARMONY, false) == true) screen = Screen.HARMONY
+        // Le widget ouvre l'historique des détections
+        if (intent?.getBooleanExtra(EXTRA_OPEN_HISTORY, false) == true) screen = Screen.HISTORY
     }
 
     override fun onStart() {

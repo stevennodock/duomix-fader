@@ -47,8 +47,12 @@ object ScaleArt {
      * Le pavé plein occupe toute la hauteur de la ligne : c'est le plus gros signe coloré
      * qu'on puisse y mettre.
      */
-    fun pastilles(detection: Detection): CharSequence {
-        val text = SpannableStringBuilder(NoteNames.letter(detection.root) + "  ")
+    fun pastilles(detection: Detection): CharSequence =
+        SpannableStringBuilder(NoteNames.letter(detection.root) + "  ").append(tilesText(detection))
+
+    /** Les pavés seuls, en texte coloré : pour la carte de notification et pour le widget. */
+    fun tilesText(detection: Detection): CharSequence {
+        val text = SpannableStringBuilder()
         val colours = tiles(detection)
         // Deux pavés par note ; un et demi pour les gammes de huit notes, sinon la ligne déborde
         val tile = if (colours.size <= 8) "██" else "█▌"

@@ -109,4 +109,9 @@
         <item>Si♭</item>
         <item>Si</item>
     </string-array>
+    <string name="harmony_unsupported">This phone does not let DuoMix Fader capture the sound of another app, so the harmonic analysis is switched off here. It needs a more recent version of Android.</string>
+    <string name="mixer_unsupported">This version of Android does not give access to the players of other apps: per-app volume and the crossfader are switched off. Playing two apps at once still works.</string>
+    <string name="hint_adb_restricted">OnePlus, OPPO and realme phones restrict adb, and therefore Shizuku. In Developer options, turn on “Disable permission monitoring”, restart Shizuku, then ask for the permission again.</string>
+    <string name="widget_title">DuoMix · Detection history</string>
+    <string name="widget_description">The pieces you listened to, with their scale, colour tiles and chord progression. Scroll the list; tap to open the history.</string>
 </resources>

@@ -3,6 +3,7 @@
 
 package com.dirtwing.duomixfader.ui
 
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,6 +74,8 @@ fun MixerScreen(
                     Button(onClick = { viewModel.requestPermission() }) {
                         Text(stringResource(R.string.action_request_permission))
                     }
+                    // Sur ces marques, Shizuku refuse tant qu'adb est bridé : dire quoi activer
+                    if (restrictsAdb) Text(stringResource(R.string.hint_adb_restricted), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -110,10 +113,11 @@ fun MixerScreen(
                     stringResource(R.string.focus_description),
                     style = MaterialTheme.typography.bodySmall,
                 )
-                FocusSwitch(state.music, enabled = state.serviceBound) {
+                if (!state.canSetFocus) Limitation(stringResource(R.string.hint_adb_restricted))
+                FocusSwitch(state.music, enabled = state.serviceBound && state.canSetFocus) {
                     viewModel.setFocusIgnored(state.music.pkg, it)
                 }
-                FocusSwitch(state.video, enabled = state.serviceBound) {
+                FocusSwitch(state.video, enabled = state.serviceBound && state.canSetFocus) {
                     viewModel.setFocusIgnored(state.video.pkg, it)
                 }
             }
@@ -123,10 +127,13 @@ fun MixerScreen(
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.mixer_title), style = MaterialTheme.typography.titleMedium)
-                ChannelSlider(state.music, enabled = state.serviceBound) {
+                // Sans accès aux lecteurs des autres apps, curseurs et crossfader n'auraient aucun effet
+                val mixable = state.serviceBound && state.canControlPlayers
+                if (!state.canControlPlayers) Limitation(stringResource(R.string.mixer_unsupported))
+                ChannelSlider(state.music, enabled = mixable) {
                     viewModel.setChannelVolume(Slot.MUSIC, it)
                 }
-                ChannelSlider(state.video, enabled = state.serviceBound) {
+                ChannelSlider(state.video, enabled = mixable) {
                     viewModel.setChannelVolume(Slot.VIDEO, it)
                 }
                 Text(stringResource(R.string.crossfader_title), style = MaterialTheme.typography.titleSmall)
@@ -135,7 +142,7 @@ fun MixerScreen(
                     Slider(
                         value = state.crossfader,
                         onValueChange = { viewModel.setCrossfader(it) },
-                        enabled = state.serviceBound,
+                        enabled = mixable,
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 8.dp),
@@ -191,6 +198,24 @@ private fun AppPicker(
             }
         }
     }
+}
+
+/**
+ * Marques dont la surcouche (OxygenOS, ColorOS, realme UI) retire des droits à adb, donc à
+ * Shizuku, tant que l'option développeur « Désactiver la surveillance des autorisations »
+ * est éteinte. Ne sert qu'à afficher un indice ; n'a aucun effet sur les autres appareils.
+ */
+private val restrictsAdb: Boolean =
+    Build.MANUFACTURER.lowercase() in setOf("oneplus", "oppo", "realme")
+
+/** Une fonction que cet appareil ne permet pas : encadré discret, dans la carte concernée. */
+@Composable
+private fun Limitation(text: String) {
+    Text(
+        "ⓘ  $text",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable

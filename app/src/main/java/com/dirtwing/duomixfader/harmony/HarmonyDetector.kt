@@ -25,6 +25,8 @@ data class HarmonyState(
     val progression: Progression? = null,
     /** Morceau annoncé par l'app de musique, s'il l'est. */
     val track: TrackInfo? = null,
+    /** Faux : cet appareil ne permet pas de capter le son d'une app, l'analyse y est éteinte. */
+    val supported: Boolean = true,
 )
 
 /**

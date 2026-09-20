@@ -62,7 +62,13 @@ data class MixerUiState(
     val installedVideo: List<AppTarget> = emptyList(),
     val crossfader: Float = 0.5f,
     val lastError: String? = null,
+    /** Ce que le shell peut faire sur cet appareil (voir ShellCapabilities) ; tout, tant qu'on ne sait pas. */
+    val capabilities: Int = ShellCapabilities.ALL,
 ) {
+    val canSetFocus: Boolean get() = capabilities and ShellCapabilities.FOCUS != 0
+    val canControlPlayers: Boolean get() = capabilities and ShellCapabilities.PLAYERS != 0
+    val canCapture: Boolean get() = capabilities and ShellCapabilities.CAPTURE != 0
+
     fun channel(slot: Slot): Channel = if (slot == Slot.MUSIC) music else video
 
     fun withChannel(slot: Slot, channel: Channel): MixerUiState =
@@ -121,7 +127,9 @@ class MixerEngine private constructor(private val appContext: Context) {
             if (binder != null && binder.pingBinder()) {
                 service = IMixerService.Stub.asInterface(binder)
                 runCatching { service?.attachClient(clientToken) }
-                _state.update { it.copy(serviceBound = true, lastError = null) }
+                // Un service shell d'une version antérieure ne connaît pas la question : on ne bride rien
+                val capabilities = runCatching { service?.capabilities() }.getOrNull() ?: ShellCapabilities.ALL
+                _state.update { it.copy(serviceBound = true, lastError = null, capabilities = capabilities) }
                 refreshFocusStates()
                 startPolling()
                 startHarmony()
@@ -195,6 +203,11 @@ class MixerEngine private constructor(private val appContext: Context) {
         harmonyJob?.cancel()
         harmonyJob = scope.launch {
             val svc = service ?: return@launch
+            // Cet appareil ne laisse pas le shell capter le son : fonction éteinte, et dite comme telle
+            if (!_state.value.canCapture) {
+                _harmony.value = HarmonyState(supported = false)
+                return@launch
+            }
             val pkg = _state.value.music.pkg
             synchronized(detector) { detector.reset() }
             val listening = runCatching { svc.startHarmony(pkg) }.getOrDefault(false)

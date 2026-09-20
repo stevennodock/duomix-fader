@@ -5,6 +5,7 @@ package com.dirtwing.duomixfader.shizuku
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaSessionManager
@@ -17,6 +18,7 @@ import com.dirtwing.duomixfader.AppCatalog
 import com.dirtwing.duomixfader.BuildConfig
 import com.dirtwing.duomixfader.IMixerService
 import com.dirtwing.duomixfader.MainActivity
+import com.dirtwing.duomixfader.ShellCapabilities
 import org.json.JSONArray
 import org.json.JSONObject
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -162,6 +164,28 @@ class MixerUserService() : IMixerService.Stub() {
             "am", "start", "-n", "${BuildConfig.APPLICATION_ID}/.MainActivity",
             "--ez", MainActivity.EXTRA_OPEN_HARMONY, "true",
         )
+    }
+
+    /**
+     * Ce que le shell peut faire ici (voir ShellCapabilities). Lecture seule : les permissions
+     * détenues par com.android.shell, et la propriété par laquelle OxygenOS / ColorOS retire à
+     * adb le réglage des appops. Dans le doute (contexte absent, lecture impossible), on ne
+     * bride rien : l'échec éventuel se verra à l'usage, comme avant.
+     */
+    override fun capabilities(): Int {
+        val ctx = context ?: return ShellCapabilities.ALL
+        val routing = runCatching {
+            ctx.packageManager.checkPermission("android.permission.MODIFY_AUDIO_ROUTING", "com.android.shell") ==
+                PackageManager.PERMISSION_GRANTED
+        }.getOrDefault(true)
+        val appopsMonitored = runCatching {
+            Class.forName("android.os.SystemProperties").getMethod("get", String::class.java)
+                .invoke(null, "persist.sys.permission.enable") == "true"
+        }.getOrDefault(false)
+        var capabilities = 0
+        if (!appopsMonitored) capabilities = capabilities or ShellCapabilities.FOCUS
+        if (routing) capabilities = capabilities or ShellCapabilities.PLAYERS or ShellCapabilities.CAPTURE
+        return capabilities
     }
 
     override fun setFocusIgnored(pkg: String, ignored: Boolean): Boolean {

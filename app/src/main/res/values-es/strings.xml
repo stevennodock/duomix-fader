@@ -103,4 +103,9 @@
         <item>B♭</item>
         <item>B</item>
     </string-array>
+    <string name="harmony_unsupported">Este teléfono no permite que DuoMix Fader capture el sonido de otra app: el análisis armónico está desactivado aquí. Requiere una versión más reciente de Android.</string>
+    <string name="mixer_unsupported">Esta versión de Android no da acceso a los reproductores de otras apps: el volumen por app y el crossfader están desactivados. La reproducción simultánea de dos apps sigue funcionando.</string>
+    <string name="hint_adb_restricted">Los teléfonos OnePlus, OPPO y realme restringen adb y, por tanto, Shizuku. En Opciones para desarrolladores, active «Desactivar la supervisión de permisos», reinicie Shizuku y vuelva a pedir el permiso.</string>
+    <string name="widget_title">DuoMix · Historial de detecciones</string>
+    <string name="widget_description">Las piezas escuchadas, con su escala, sus baldosas de color y su progresión de acordes. Desplace la lista; toque para abrir el historial.</string>
 </resources>
