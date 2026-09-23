@@ -23,11 +23,30 @@ interval steps, systematic names, chords - with his credit and support links. It
 introduction and footnote are paraphrased, not copied; the layout and the blue/red
 whole-tone colour code are by Steve Nodock.
 
-No licence is stated for that material (checked on newjazz.dk, 2026-09-19), so
-it is NOT covered by this project's Apache-2.0 licence and all rights remain
-with its author. Scale names and interval patterns are common music theory;
-the detection code is original work of this project. DuoMix Fader is not
+That material is used with the written permission of Oliver Prehn (received
+September 2026). It is NOT covered by this project's Apache-2.0 licence: all
+rights remain with its author, and anyone reusing it outside this app should
+ask him. Scale names and interval patterns are common music theory; the
+detection code is original work of this project. DuoMix Fader is not
 affiliated with or endorsed by Oliver Prehn.
+
+------------------------------------------------------------------------
+Contributors
+------------------------------------------------------------------------
+
+* Oliver Prehn (NewJazz) - music theory: the method itself. The 7 families and
+  33 "Scales of Harmonies", their systematic names and the overview table that
+  the harmony feature, the history and the colour-coded sheet are built on.
+  https://www.youtube.com/@NewJazz - https://www.patreon.com/newjazz - https://www.newjazz.dk
+
+* Steve Nodock <stb@outlook.fr> - author, product and testing. Idea, design of
+  every feature, choices of security and compatibility, colour code of the
+  scales, validation on real devices. Publishes under this pen name.
+
+* Claude (Anthropic) - co-contributor with Steve Nodock, engineering. Wrote the
+  code, the harmonic-analysis method and its tests, the Shizuku service, the
+  documentation and the study sheet, in pair with Steve Nodock, who directed,
+  tested and decided each step.
 
 ------------------------------------------------------------------------
 Third-party software linked into the application

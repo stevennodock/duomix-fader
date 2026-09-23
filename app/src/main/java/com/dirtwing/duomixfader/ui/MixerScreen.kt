@@ -59,7 +59,7 @@ fun sourceChoice(state: MixerUiState, viewModel: MixerViewModel) = SourceChoice(
 /** Écran unique : état Shizuku, bascules audio focus, mixeur 2 canaux + crossfader. */
 @Composable
 fun MixerScreen(
-    viewModel: MixerViewModel, onShowLicenses: () -> Unit, onShowHarmony: () -> Unit, onShowSheet: () -> Unit,
+    viewModel: MixerViewModel, onShowAbout: () -> Unit, onShowHarmony: () -> Unit, onShowSheet: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val harmony by viewModel.harmony.collectAsStateWithLifecycle()
@@ -182,7 +182,7 @@ fun MixerScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        TextButton(onClick = onShowLicenses) { Text(stringResource(R.string.action_licenses)) }
+        TextButton(onClick = onShowAbout) { Text(stringResource(R.string.about_title)) }
     }
 }
 

@@ -11,7 +11,7 @@ Responsable : Steve Nodock <stb@outlook.fr>
 
 - [x] `LICENSE` (Apache 2.0) et `NOTICE` (copyright + tiers) à la racine.
 - [x] En-tête `SPDX-License-Identifier: Apache-2.0` + copyright sur chaque fichier source.
-- [x] Écran **« Licences open source »** dans l'app (`ui/LicensesScreen.kt`) : affiche
+- [x] Écran **« À propos »** dans l'app (`ui/AboutScreen.kt`, modèle Markor) : build copiable, justification de Shizuku, droits, contributeurs, puis
       `NOTICE` puis `LICENSE`, copiés dans `assets/licenses/` par la tâche Gradle
       `copyLicenseAssets`. Les fichiers de la racine sont la seule source de vérité.
 - [x] Audit du 2026-09-18 : 95 modules dans `releaseRuntimeClasspath`, tous Apache 2.0
@@ -47,14 +47,15 @@ Responsable : Steve Nodock <stb@outlook.fr>
 
 ## 2 bis. Analyse harmonique : droits et confidentialité
 
-- [ ] **Autorisation d'Oliver Prehn (NewJazz)** : l'app reprend sa classification (7 familles,
+- [x] **Autorisation d'Oliver Prehn (NewJazz)** — accord écrit reçu en septembre 2026 (conserver
+      le message : c'est la pièce à produire si Google ou un tiers conteste). Historique : l'app reprend sa classification (7 familles,
       33 gammes, noms systématiques) et les cinq colonnes de son tableau. Aucune licence
       n'est publiée sur newjazz.dk (vérifié le 2026-09-19) : par défaut, tous droits réservés.
       Les noms de gammes et les intervalles relèvent de la théorie musicale commune, mais
       la présentation est la sienne. **Lui écrire avant toute publication** (contact indiqué
       sur son site) pour obtenir son accord écrit sur l'usage, le crédit et le lien Patreon.
       Sans réponse : retirer les noms systématiques et la mise en tableau, garder le crédit.
-- [ ] **Fiche PDF embarquée** (`assets/docs/scales-of-harmonies-*.pdf`) : elle reprend les
+- [x] **Fiche PDF embarquée** (couverte par l'accord ci-dessus ; les liens de soutien restent en tête) (`assets/docs/scales-of-harmonies-*.pdf`) : elle reprend les
       données de son tableau (textes reformulés, crédit et liens de soutien en tête). C'est
       la reproduction la plus directe de son travail dans l'app : **à ne pas publier sans
       son accord écrit**. Pour un usage personnel sur son propre appareil, pas de difficulté.
@@ -144,8 +145,44 @@ Ces points ne relèvent pas des licences mais peuvent entraîner un refus ou un 
       de démonstration) pour chaque type de service de premier plan. DuoMix ne joue aucun
       son : sa MediaSession n'est qu'une surface de contrôle (barre de progression =
       crossfader). Usage détourné à justifier ; repli possible sur le type `specialUse`.
+- [ ] **Stratégie de soumission** (2026-09-23) : voir section 4 bis.
 - [ ] Plan B si refus : distribution hors Play (GitHub Releases, F-Droid — ce dernier
       exige un build reproductible depuis les sources et aucune dépendance propriétaire).
+
+## 4 bis. Stratégie pour un avis favorable de Google Play (2026-09-23)
+
+Le risque n'est pas Shizuku en soi (Shizuku est sur Play, et des apps qui en dépendent y sont
+publiées) mais l'**opacité** : un relecteur qui ne comprend pas pourquoi une app demande des
+privilèges shell refuse. Tout ce qui suit vise à ce qu'il comprenne en deux minutes.
+
+1. **Compte développeur** — compte Google dédié à la publication, au nom réel (Google vérifie
+   l'identité : le pseudonyme « Steve Nodock » n'est que le nom d'affichage du développeur, le
+   nom légal reste privé). Prévoir la vérification d'identité (pièce, parfois D-U-N-S pour une
+   organisation : rester en compte individuel), le paiement unique, et les **20 testeurs pendant
+   14 jours** exigés des nouveaux comptes individuels avant l'accès à la production — prévoir
+   un test fermé dès maintenant.
+2. **Fiche transparente** — dire dès la première ligne : « Nécessite l'app gratuite Shizuku,
+   démarrée par le débogage sans fil. » Expliquer pourquoi (Android ne permet pas ceci sans
+   privilèges) et ce que le service fait EXACTEMENT (la liste de l'écran À propos), captures à
+   l'appui. Ne rien promettre d'Android 12 que l'app n'y fait pas (mode bascule).
+3. **Déclarations à l'envoi** — *Foreground service* : `mediaPlayback` (la carte du fader),
+   `microphone` (seulement pendant l'écoute par le micro), `mediaProjection` (Android 12,
+   son de l'app de musique seulement) : une vidéo courte par type, montrant le geste de
+   l'utilisateur qui déclenche chacun. *Data safety* : audio traité sur l'appareil, éphémère,
+   aucune collecte, aucun réseau. *Permissions sensibles* : RECORD_AUDIO justifiée par la
+   source « Micro », jamais demandée au lancement.
+4. **Politique de confidentialité** publiée à une URL stable (page GitHub du projet) : même
+   contenu que la section Privacy du guide, en anglais.
+5. **Ne pas s'exposer inutilement** — l'app n'a pas la permission INTERNET (à conserver :
+   c'est l'argument le plus fort face à un relecteur), ne cite aucune marque dans son icône ni
+   son nom, précise qu'elle n'est affiliée ni à Google, ni à YouTube, ni à Shizuku, ni à
+   Oliver Prehn. La capture privilégiée du son d'autres apps (Android 13+) doit être décrite
+   sans détour ; la capture de lecture (Android 12) respecte le choix des éditeurs.
+6. **Ordre de marche** — (a) dépôt GitHub public avec politique de confidentialité et guide ;
+   (b) build release signé, testé sur les deux appareils ; (c) test fermé 14 jours ; (d) envoi
+   en production avec les déclarations et vidéos ; (e) si refus : lire le motif exact, répondre
+   par l'appel avec la description technique, et distribuer en parallèle par GitHub Releases
+   (F-Droid ensuite : build reproductible à préparer).
 
 ## 5. Autres prérequis Play (hors licences, pour mémoire)
 

@@ -36,7 +36,6 @@
     <string name="notif_switch_both">Ambas</string>
     <string name="notif_action_stop">Ocultar el crossfader</string>
 
-    <string name="action_licenses">Licencias de código abierto</string>
     <string name="action_back">← Volver</string>
     <string name="licenses_missing">%1$s no encontrado en el APK</string>
 
@@ -124,4 +123,37 @@
     <string name="hint_adb_restricted">Los teléfonos OnePlus, OPPO y realme restringen adb y, por tanto, Shizuku. En Opciones para desarrolladores, active «Desactivar la supervisión de permisos», reinicie Shizuku y vuelva a pedir el permiso.</string>
     <string name="widget_title">DuoMix · Historial de detecciones</string>
     <string name="widget_description">Las piezas escuchadas, con su escala, sus baldosas de color y su progresión de acordes. Desplace la lista; toque para abrir el historial.</string>
+    <!-- Écran « À propos » (modèle : Markor) -->
+    <string name="about_title">Acerca de DuoMix Fader</string>
+    <string name="about_build_title">Información de compilación</string>
+    <string name="about_build_copy">Copiar la información de compilación</string>
+    <string name="about_build_copied">Información de compilación copiada</string>
+    <string name="about_build_package">Paquete</string>
+    <string name="about_build_version">Versión</string>
+    <string name="about_build_date">Fecha de compilación</string>
+    <string name="about_build_commit">Commit del código fuente</string>
+    <string name="about_build_android">Android</string>
+    <string name="about_build_device">Dispositivo</string>
+    <string name="about_build_rights">Derechos del shell en este dispositivo:</string>
+    <string name="about_rights_focus">ajuste del foco de audio (reproducción simultánea)</string>
+    <string name="about_rights_players">volumen por app (fader)</string>
+    <string name="about_rights_capture">captura del sonido de la app (armonía)</string>
+    <string name="about_why_title">Por qué Shizuku, en modo ADB</string>
+    <string name="about_why_text">Android solo deja reproducir a una app a la vez y nunca permite que una app ajuste el volumen de otra. Solo el sistema, el root o la identidad «shell» que usa ADB pueden hacerlo. DuoMix Fader no pide root: se apoya en Shizuku, una app libre y gratuita que inicia, mediante la depuración inalámbrica, un pequeño servicio privilegiado con la identidad shell: los mismos derechos que obtiene un ordenador al conectar el teléfono en depuración, nada más. Usted inicia Shizuku, usted concede su permiso a DuoMix Fader, y puede retirarlo en cualquier momento.</string>
+    <string name="about_methods_title">Qué hace el servicio privilegiado, y con qué derechos</string>
+    <string name="about_methods_text">El servicio se ejecuta como usuario shell y solo acepta una breve lista fija de órdenes, únicamente para las apps del catálogo integrado:\n• appops TAKE_AUDIO_FOCUS: una app deja de ser pausada por la otra (derecho: MANAGE_APP_OPS_MODES, del shell).\n• Volumen de cada reproductor de una app, mediante AudioPlaybackConfiguration, una API del sistema (derecho: MODIFY_AUDIO_ROUTING).\n• Sonido de la app de música, reducido en el acto a doce energías de clases de altura: una AudioPolicy con mezcla en bucle (derechos: CAPTURE_MEDIA_OUTPUT, MODIFY_AUDIO_ROUTING). No se graba nada.\n• Título y artista de la pieza en curso: su propia sesión multimedia (derecho: MEDIA_CONTENT_CONTROL).\n• Cerrar el panel de notificaciones y abrir la pantalla de DuoMix Fader (cmd statusbar, am start).\n• En Android 12: silenciar o restablecer el sonido de una app (appops PLAY_AUDIO) y autorizar al propio DuoMix Fader a usar la captura de reproducción de Android (appops PROJECT_MEDIA).\nNo ejecuta ningún comando arbitrario, rechaza cualquier otro paquete y se detiene solo con la app. La app no tiene permiso de red.</string>
+    <string name="about_compat_title">Android anterior a la versión 13</string>
+    <string name="about_compat_text">En Android 12 el shell tiene menos derechos: no alcanza los reproductores de otras apps ni su sonido. DuoMix Fader lee lo que el shell puede hacer al conectarse y se adapta: el fader se convierte en un conmutador de tres posiciones (música, ambas, vídeo), la armonía usa la captura de reproducción de Android o el micrófono, y la tarjeta de reproductor —que allí solo muestra dos baldosas de color y reduce la ilustración a una miniatura— se sustituye por una notificación dibujada por la app. A partir de Android 13, nada de esto se aplica.</string>
+    <string name="about_source_title">Código fuente</string>
+    <string name="about_source_text">Libre y de código abierto, licencia Apache 2.0. El commit indicado arriba identifica exactamente las fuentes de esta compilación.</string>
+    <string name="about_contributors_title">Colaboradores</string>
+    <string name="about_contrib_prehn_role">Teoría musical: el método en sí</string>
+    <string name="about_contrib_prehn_text">Las 7 familias y las 33 «Scales of Harmonies», sus nombres sistemáticos y la tabla de síntesis en que se basan el análisis armónico, el historial y la ficha en color. Usados con su permiso escrito (septiembre de 2026). Si esta herramienta le resulta útil, apóyele.</string>
+    <string name="about_contrib_prehn_youtube">NewJazz en YouTube</string>
+    <string name="about_contrib_steve_role">Autor, producto y pruebas</string>
+    <string name="about_contrib_steve_text">La idea, el diseño de cada función, las decisiones de seguridad y compatibilidad, el código de color de las escalas y la validación de oído y de vista en dispositivos reales (Pixel 11 Pro XL, OnePlus 7 Pro). Publica bajo este seudónimo.</string>
+    <string name="about_contrib_coffee">Invítame a un café</string>
+    <string name="about_contrib_claude_role">Cocolaborador de Steve Nodock: ingeniería</string>
+    <string name="about_contrib_claude_text">Escribió el código, el método de análisis armónico y sus pruebas, el servicio Shizuku, la documentación y la ficha de estudio, en pareja con Steve Nodock, que dirigió, probó y decidió cada paso. Asistente de IA de Anthropic.</string>
+    <string name="about_licenses_title">Licencias</string>
 </resources>

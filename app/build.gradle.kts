@@ -1,4 +1,5 @@
 // Module applicatif DuoMix
+import java.time.LocalDate
 import java.util.Properties
 
 plugins {
@@ -20,8 +21,14 @@ android {
         targetSdk = 36
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
-        versionCode = 13
-        versionName = "0.8.1"
+        versionCode = 14
+        versionName = "0.9.0"
+
+        // Ã‰cran Â« Ã€ propos Â» : informations de build copiables (modÃ¨le : Markor). Le hash git
+        // identifie exactement les sources d'un APK ; Â« inconnu Â» hors dÃ©pÃ´t (archive, CI sans git).
+        buildConfigField("String", "GIT_HASH", "\"${gitHash()}\"")
+        buildConfigField("String", "BUILD_DATE", "\"${LocalDate.now()}\"")
+        buildConfigField("String", "SOURCE_URL", "\"https://github.com/stevenodock/duomix-fader\"")
     }
 
     androidResources {
@@ -73,6 +80,14 @@ android {
         jvmTarget = "17"
     }
 }
+
+/** Hash court du commit courant, ou « inconnu » si git n'est pas là. */
+fun gitHash(): String = runCatching {
+    val process = ProcessBuilder("git", "rev-parse", "--short=10", "HEAD")
+        .directory(rootProject.projectDir).redirectErrorStream(true).start()
+    val out = process.inputStream.bufferedReader().readText().trim()
+    if (process.waitFor() == 0 && out.matches(Regex("[0-9a-f]{7,12}"))) out else "inconnu"
+}.getOrDefault("inconnu")
 
 // Conformité licences : LICENSE et NOTICE de la racine sont embarqués tels quels dans
 // l'APK (assets/licenses/) et affichés par LicensesScreen — une seule source de vérité.

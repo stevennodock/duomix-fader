@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dirtwing.duomixfader.ui.HarmonyScreen
 import com.dirtwing.duomixfader.ui.HistoryScreen
-import com.dirtwing.duomixfader.ui.LicensesScreen
+import com.dirtwing.duomixfader.ui.AboutScreen
 import com.dirtwing.duomixfader.ui.MixerScreen
 import com.dirtwing.duomixfader.ui.ScaleSheetScreen
 import com.dirtwing.duomixfader.ui.sourceChoice
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MixerViewModel by viewModels()
 
-    private enum class Screen { MIXER, HARMONY, HISTORY, SHEET, LICENSES }
+    private enum class Screen { MIXER, HARMONY, HISTORY, SHEET, ABOUT }
 
     /** Écran d'où la fiche PDF a été ouverte, pour y revenir. */
     private var sheetOrigin = Screen.MIXER
@@ -87,7 +87,10 @@ class MainActivity : ComponentActivity() {
                     // sans cette marge, la rangée du haut (Retour, Effacer…) est hors d'atteinte.
                     Box(Modifier.safeDrawingPadding()) {
                         when (screen) {
-                            Screen.LICENSES -> LicensesScreen(onBack = { screen = Screen.MIXER })
+                            Screen.ABOUT -> {
+                                val mixer by viewModel.state.collectAsStateWithLifecycle()
+                                AboutScreen(capabilities = mixer.capabilities, onBack = { screen = Screen.MIXER })
+                            }
                             Screen.HARMONY -> {
                                 val harmony by viewModel.harmony.collectAsStateWithLifecycle()
                                 val mixer by viewModel.state.collectAsStateWithLifecycle()
@@ -108,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             }
                             Screen.MIXER -> MixerScreen(
                                 viewModel,
-                                onShowLicenses = { screen = Screen.LICENSES },
+                                onShowAbout = { screen = Screen.ABOUT },
                                 onShowHarmony = { screen = Screen.HARMONY },
                                 onShowSheet = { openSheet(Screen.MIXER) },
                             )

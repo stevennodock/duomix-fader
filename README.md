@@ -6,6 +6,8 @@ Spotify, Deezer…) et une de vidéo ou de voix (YouTube, X, Telegram, VLC, Chro
 un **mixeur 2 canaux avec crossfader** à puissance constante, le tout **sans root**
 grâce à [Shizuku](https://shizuku.rikka.app/).
 
+Libre et open source (Apache 2.0) : https://github.com/stevenodock/duomix-fader — l'écran **À propos** de l'app (modèle : [Markor](https://github.com/gsantner/markor)) donne les informations de build copiables (paquet, version, date, commit), la justification de Shizuku, la liste exacte des ordres et droits du service privilégié, les limites avant Android 13, les contributeurs et les licences.
+
 ## Principe
 
 1. **Lecture simultanée** — un *UserService* Shizuku (processus shell, uid 2000) exécute
@@ -43,7 +45,19 @@ modulation n'est retenue que si elle dure.
 - Méthode, constantes et limites : [note de recherche](docs/research/harmony-analysis.md).
 - Tests : `gradlew :app:testDebugUnitTest` (signal synthétisé -> gamme détectée).
 
-Crédits et droits du matériel d'Oliver Prehn : voir [NOTICE](NOTICE).
+Crédits et droits du matériel d'Oliver Prehn : voir [NOTICE](NOTICE) — utilisé avec son accord écrit (septembre 2026).
+
+## Contributeurs
+
+1. **Oliver Prehn (NewJazz)** — théorie musicale, la méthode elle-même : les 7 familles et les 33
+   « Scales of Harmonies », leurs noms systématiques et le tableau de synthèse.
+   [YouTube](https://www.youtube.com/@NewJazz) · [Patreon](https://www.patreon.com/newjazz) · [newjazz.dk](https://www.newjazz.dk)
+2. **Steve Nodock** <stb@outlook.fr> — auteur, produit et tests : l'idée, la conception de chaque
+   fonction, les choix de sécurité et de compatibilité, le code couleur des gammes, la validation
+   sur de vrais appareils (Pixel 11 Pro XL, OnePlus 7 Pro). Publie sous ce pseudonyme.
+3. **Claude (Anthropic)** — co-contributeur de Steve Nodock, ingénierie : le code, la méthode
+   d'analyse harmonique et ses tests, le service Shizuku, la documentation et la fiche d'étude,
+   en binôme avec Steve Nodock, qui a dirigé, testé et tranché chaque étape.
 
 ## Structure
 
@@ -58,7 +72,7 @@ duomix/
 │   ├── MixerViewModel.kt            # Façade de l'écran sur le moteur
 │   ├── shizuku/MixerUserService.kt  # Côté shell : appops (liste blanche) + volumes (réflexion)
 │   ├── ui/MixerScreen.kt            # UI : statut, toggles focus, sliders, crossfader
-│   └── ui/LicensesScreen.kt         # Écran « Licences open source » (NOTICE + LICENSE)
+│   └── ui/AboutScreen.kt            # À propos : build copiable, Shizuku, droits, contributeurs, licences
 ├── docs/compliance/PLAY_STORE.md    # Checklist de conformité avant publication
 ├── LICENSE, NOTICE                  # Apache 2.0 + licences tierces (embarqués dans l'APK)
 └── ...

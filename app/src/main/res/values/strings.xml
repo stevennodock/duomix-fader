@@ -37,7 +37,6 @@
     <string name="notif_switch_both">Both</string>
     <string name="notif_action_stop">Hide the crossfader</string>
 
-    <string name="action_licenses">Open source licenses</string>
     <string name="action_back">← Back</string>
     <string name="licenses_missing">%1$s not found in the APK</string>
 
@@ -130,4 +129,37 @@
     <string name="hint_adb_restricted">OnePlus, OPPO and realme phones restrict adb, and therefore Shizuku. In Developer options, turn on “Disable permission monitoring”, restart Shizuku, then ask for the permission again.</string>
     <string name="widget_title">DuoMix · Detection history</string>
     <string name="widget_description">The pieces you listened to, with their scale, colour tiles and chord progression. Scroll the list; tap to open the history.</string>
+    <!-- Écran « À propos » (modèle : Markor) -->
+    <string name="about_title">About DuoMix Fader</string>
+    <string name="about_build_title">Build information</string>
+    <string name="about_build_copy">Copy build information</string>
+    <string name="about_build_copied">Build information copied</string>
+    <string name="about_build_package">Package</string>
+    <string name="about_build_version">Version</string>
+    <string name="about_build_date">Build date</string>
+    <string name="about_build_commit">Source commit</string>
+    <string name="about_build_android">Android</string>
+    <string name="about_build_device">Device</string>
+    <string name="about_build_rights">Shell rights on this device:</string>
+    <string name="about_rights_focus">audio-focus setting (simultaneous playback)</string>
+    <string name="about_rights_players">per-app volume (fader)</string>
+    <string name="about_rights_capture">app sound capture (harmony)</string>
+    <string name="about_why_title">Why Shizuku, in ADB mode</string>
+    <string name="about_why_text">Android lets one app play at a time and never lets an app change another app’s volume. Only the system, root, or the “shell” identity used by ADB can do that. DuoMix Fader asks for no root: it relies on Shizuku, a free open-source app that starts, through Wireless debugging, a small privileged service running as the shell identity — the same rights a computer gets when you connect the phone for debugging, nothing more. You start Shizuku yourself, you grant DuoMix Fader its permission yourself, and you can revoke it at any time.</string>
+    <string name="about_methods_title">What the privileged service does, and with which rights</string>
+    <string name="about_methods_text">The service runs as the shell user and accepts a short, fixed list of orders, only for the apps of the built-in catalogue:\n• appops TAKE_AUDIO_FOCUS — an app stops being paused by the other (right: MANAGE_APP_OPS_MODES, held by the shell).\n• Volume of each player of an app — through AudioPlaybackConfiguration, a system API (right: MODIFY_AUDIO_ROUTING).\n• Sound of the music app, reduced on the spot to twelve pitch-class energies — an AudioPolicy with a loop-back mix (rights: CAPTURE_MEDIA_OUTPUT, MODIFY_AUDIO_ROUTING). Nothing is recorded.\n• Title and artist of the current piece — its own media session (right: MEDIA_CONTENT_CONTROL).\n• Close the notification shade and open DuoMix Fader’s own screen (cmd statusbar, am start).\n• On Android 12: mute or unmute an app (appops PLAY_AUDIO), and allow DuoMix Fader itself to use Android’s playback capture (appops PROJECT_MEDIA).\nIt runs no arbitrary command, refuses any other package, and stops by itself when the app stops. The app has no network permission.</string>
+    <string name="about_compat_title">Android before 13</string>
+    <string name="about_compat_text">On Android 12 the shell holds fewer rights: it cannot reach other apps’ players nor capture their sound. DuoMix Fader reads what the shell is allowed to do when it connects, and adapts: the fader becomes a three-way switch (music, both, video), harmony uses Android’s own playback capture or the microphone, and the media-player card — which there shows only two colour tiles and shrinks the artwork to a thumbnail — is replaced by a notification drawn by the app. On Android 13 and later, nothing of this applies.</string>
+    <string name="about_source_title">Source code</string>
+    <string name="about_source_text">Free and open source, Apache License 2.0. The commit shown above identifies exactly the sources of this build.</string>
+    <string name="about_contributors_title">Contributors</string>
+    <string name="about_contrib_prehn_role">Music theory — the method itself</string>
+    <string name="about_contrib_prehn_text">The 7 families and 33 “Scales of Harmonies”, their systematic names and the overview table that the harmony feature, the history and the colour-coded sheet are built on. Used with his written permission (September 2026). If this tool helps you, support him.</string>
+    <string name="about_contrib_prehn_youtube">NewJazz on YouTube</string>
+    <string name="about_contrib_steve_role">Author, product and testing</string>
+    <string name="about_contrib_steve_text">Idea, design of every feature, choices of security and compatibility, colour code of the scales, and validation by ear and by eye on real devices (Pixel 11 Pro XL, OnePlus 7 Pro). Publishes under this pen name.</string>
+    <string name="about_contrib_coffee">Buy me a coffee</string>
+    <string name="about_contrib_claude_role">Co-contributor with Steve Nodock — engineering</string>
+    <string name="about_contrib_claude_text">Wrote the code, the harmonic-analysis method and its tests, the Shizuku service, the documentation and the study sheet, in pair with Steve Nodock, who directed, tested and decided each step. An AI assistant by Anthropic.</string>
+    <string name="about_licenses_title">Licences</string>
 </resources>
