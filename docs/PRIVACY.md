@@ -5,7 +5,7 @@
 DuoMix Fader is a free, open-source Android app (Apache License 2.0) that lets two apps play
 at once, mixes them with a crossfader, and estimates the musical scale and chord progression of
 the piece being played. This page states what it does with data. The source code is public and
-is the reference: https://github.com/stevenodock/duomix-fader
+is the reference: https://github.com/stevennodock/duomix-fader
 
 ## The short version
 

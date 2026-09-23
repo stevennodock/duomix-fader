@@ -6,7 +6,7 @@ Spotify, Deezer…) et une de vidéo ou de voix (YouTube, X, Telegram, VLC, Chro
 un **mixeur 2 canaux avec crossfader** à puissance constante, le tout **sans root**
 grâce à [Shizuku](https://shizuku.rikka.app/).
 
-Libre et open source (Apache 2.0) : https://github.com/stevenodock/duomix-fader — l'écran **À propos** de l'app (modèle : [Markor](https://github.com/gsantner/markor)) donne les informations de build copiables (paquet, version, date, commit), la justification de Shizuku, la liste exacte des ordres et droits du service privilégié, les limites avant Android 13, les contributeurs et les licences.
+Libre et open source (Apache 2.0) : https://github.com/stevennodock/duomix-fader — l'écran **À propos** de l'app (modèle : [Markor](https://github.com/gsantner/markor)) donne les informations de build copiables (paquet, version, date, commit), la justification de Shizuku, la liste exacte des ordres et droits du service privilégié, les limites avant Android 13, les contributeurs et les licences.
 
 ## Principe
 

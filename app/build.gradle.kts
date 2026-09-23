@@ -28,7 +28,7 @@ android {
         // identifie exactement les sources d'un APK ; Â« inconnu Â» hors dÃ©pÃ´t (archive, CI sans git).
         buildConfigField("String", "GIT_HASH", "\"${gitHash()}\"")
         buildConfigField("String", "BUILD_DATE", "\"${LocalDate.now()}\"")
-        buildConfigField("String", "SOURCE_URL", "\"https://github.com/stevenodock/duomix-fader\"")
+        buildConfigField("String", "SOURCE_URL", "\"https://github.com/stevennodock/duomix-fader\"")
     }
 
     androidResources {
