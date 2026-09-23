@@ -43,8 +43,8 @@ private const val PREHN_YOUTUBE = "https://www.youtube.com/@NewJazz"
 private const val PREHN_PATREON = "https://www.patreon.com/newjazz"
 private const val PREHN_SITE = "https://www.newjazz.dk"
 private const val AUTHOR_EMAIL = "stb@outlook.fr"
-/** Page de soutien de l'auteur ; vide tant qu'elle n'existe pas — le lien n'est alors pas affiché. */
-private const val AUTHOR_COFFEE = ""
+/** Page de soutien de l'auteur (Ko-fi) ; laisser vide pour masquer le lien. */
+private const val AUTHOR_COFFEE = "https://ko-fi.com/stevennodock"
 
 /**
  * Écran « À propos », sur le modèle de celui de Markor (Gregor Santner) : les informations de

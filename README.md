@@ -52,7 +52,7 @@ Crédits et droits du matériel d'Oliver Prehn : voir [NOTICE](NOTICE) — utili
 1. **Oliver Prehn (NewJazz)** — théorie musicale, la méthode elle-même : les 7 familles et les 33
    « Scales of Harmonies », leurs noms systématiques et le tableau de synthèse.
    [YouTube](https://www.youtube.com/@NewJazz) · [Patreon](https://www.patreon.com/newjazz) · [newjazz.dk](https://www.newjazz.dk)
-2. **Steve Nodock** <stb@outlook.fr> — auteur, produit et tests : l'idée, la conception de chaque
+2. **Steve Nodock** <stb@outlook.fr> · [Ko-fi](https://ko-fi.com/stevennodock) — auteur, produit et tests : l'idée, la conception de chaque
    fonction, les choix de sécurité et de compatibilité, le code couleur des gammes, la validation
    sur de vrais appareils (Pixel 11 Pro XL, OnePlus 7 Pro). Publie sous ce pseudonyme.
 3. **Claude (Anthropic)** — co-contributeur de Steve Nodock, ingénierie : le code, la méthode
