@@ -43,8 +43,6 @@ private const val PREHN_YOUTUBE = "https://www.youtube.com/@NewJazz"
 private const val PREHN_PATREON = "https://www.patreon.com/newjazz"
 private const val PREHN_SITE = "https://www.newjazz.dk"
 private const val AUTHOR_EMAIL = "stb@outlook.fr"
-/** Page de soutien de l'auteur (Ko-fi) ; laisser vide pour masquer le lien. */
-private const val AUTHOR_COFFEE = ""
 
 /**
  * Écran « À propos », sur le modèle de celui de Markor (Gregor Santner) : les informations de
@@ -118,7 +116,6 @@ fun AboutScreen(capabilities: Int, onBack: () -> Unit) {
             }
             Contributor("Steve Nodock", stringResource(R.string.about_contrib_steve_role), stringResource(R.string.about_contrib_steve_text)) {
                 Link(AUTHOR_EMAIL, "mailto:$AUTHOR_EMAIL")
-                if (AUTHOR_COFFEE.isNotEmpty()) Link(stringResource(R.string.about_contrib_coffee), AUTHOR_COFFEE)
             }
             Contributor("Claude (Anthropic)", stringResource(R.string.about_contrib_claude_role), stringResource(R.string.about_contrib_claude_text)) {}
         }

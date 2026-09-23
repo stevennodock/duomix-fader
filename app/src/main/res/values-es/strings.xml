@@ -152,7 +152,6 @@
     <string name="about_contrib_prehn_youtube">NewJazz en YouTube</string>
     <string name="about_contrib_steve_role">Autor, producto y pruebas</string>
     <string name="about_contrib_steve_text">La idea, el diseño de cada función, las decisiones de seguridad y compatibilidad, el código de color de las escalas y la validación de oído y de vista en dispositivos reales (Pixel 11 Pro XL, OnePlus 7 Pro). Publica bajo este seudónimo.</string>
-    <string name="about_contrib_coffee">Invítame a un café</string>
     <string name="about_contrib_claude_role">Cocolaborador de Steve Nodock: ingeniería</string>
     <string name="about_contrib_claude_text">Escribió el código, el método de análisis armónico y sus pruebas, el servicio Shizuku, la documentación y la ficha de estudio, en pareja con Steve Nodock, que dirigió, probó y decidió cada paso. Asistente de IA de Anthropic.</string>
     <string name="about_licenses_title">Licencias</string>
