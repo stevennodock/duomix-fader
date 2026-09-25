@@ -26,9 +26,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -214,8 +222,8 @@ private fun ToneSlider(
 
 /**
  * La gamme en pavés de couleur : un par degré, de la tonique à son octave, bleu ou rouge selon
- * la gamme par tons de la note (voir ScaleArt). Un rond de la couleur opposée marque le pavé
- * atteint par un ton et demi (familles 3, 4, 7). La même empreinte que sur la notification et
+ * la gamme par tons de la note (voir ScaleArt). Le pavé atteint par un ton et demi est coupé en
+ * deux : moitié haute de la couleur d'où l'on vient (familles 3, 4, 7). La même empreinte que sur la notification et
  * sur la fiche des 33 gammes.
  */
 @Composable
@@ -230,11 +238,21 @@ fun ScaleTiles(detection: Detection, tile: Dp = 22.dp) {
             ) {
                 if (leap) Box(
                     Modifier
-                        .size(tile * ScaleArt.LEAP_DOT)
-                        .background(Color(if (blue) ScaleArt.PASTEL_RED else ScaleArt.PASTEL_BLUE), CircleShape)
+                        .size(tile)
+                        .background(Color(if (blue) ScaleArt.PASTEL_RED else ScaleArt.PASTEL_BLUE), UpperHalf)
                 )
             }
         }
+    }
+}
+
+/** Moitié haute d'un pavé à coins arrondis de 3 dp : la couleur « d'où l'on vient ». */
+private val UpperHalf = object : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val corner = with(density) { 3.dp.toPx() }
+        val tile = Path().apply { addRoundRect(RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner))) }
+        val top = Path().apply { addRect(androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height / 2)) }
+        return Outline.Generic(Path().apply { op(tile, top, PathOperation.Intersect) })
     }
 }
 

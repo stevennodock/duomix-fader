@@ -17,6 +17,7 @@ import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Bundle
 import android.os.IBinder
+import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
 import com.dirtwing.duomixfader.harmony.Detection
@@ -246,11 +247,26 @@ class MixerNotificationService : Service() {
     }
 
     /** Reflète l'état du mixeur dans la session et la notification. */
+    /** Build debug : propriété système lue par réflexion (le shell a le droit d'écrire debug.*). */
+    private fun sysProp(name: String): String? = if (!BuildConfig.DEBUG) null else runCatching {
+        Class.forName("android.os.SystemProperties").getMethod("get", String::class.java).invoke(null, name) as String
+    }.getOrNull()?.takeIf { it.isNotBlank() }
+
+    /** Build debug : gamme imposée à la carte par `debug.duomix.scale` = « rang:tonique », pour les essais de rendu. */
+    private fun debugScale(): Detection? = sysProp("debug.duomix.scale")?.split(':')?.let { (index, root) ->
+        runCatching { Detection(com.dirtwing.duomixfader.harmony.ScaleCatalog.scales[index.toInt()], root.toInt()) }.getOrNull()
+    }
+
     private fun publish(state: MixerUiState) {
         // Les deux flux et leur balance, en abrégé : dessinés dans l'illustration
         fun short(channel: Channel) = AppCatalog.find(channel.pkg)?.shortLabel ?: channel.label
         val balance = "${short(state.music)} ${(state.music.volume * 100).roundToInt()} · " +
             "${short(state.video)} ${(state.video.volume * 100).roundToInt()}"
+        debugScale()?.let { forced ->
+            scaleName = getString(R.string.notif_scale, noteName(forced.root), forced.scale.popularName, forced.scale.family)
+            pastilles = SpannableStringBuilder(com.dirtwing.duomixfader.harmony.NoteNames.letter(forced.root) + "  ")
+                .append(ScaleArt.tilesText(forced))
+        }
         val title = scaleName ?: getString(R.string.notif_title)
         // Avant Android 13, la carte de lecteur ne sait pas montrer une gamme (voir
         // ScaleArt.isCompactCard) : on publie à sa place une notification dessinée par nous,

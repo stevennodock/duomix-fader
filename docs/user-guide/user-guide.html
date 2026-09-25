@@ -36,7 +36,7 @@
   th { text-align: left; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .5px; font-size: 8pt; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
   td { padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   .chip { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 3px; }
-  .sheet { width: 108mm; display: block; margin: 4px auto 0; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  .sheet { width: 100mm; display: block; margin: 4px auto 0; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
   .shots.small figure { width: 47mm; }
   code { font: 9.2pt Consolas, monospace; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
   .toc { columns: 2; column-gap: 12mm; margin-top: 8mm; font-size: 10.4pt; }
@@ -52,7 +52,7 @@
     <div>
       <h1>DuoMix <span>Fader</span></h1>
       <p class="lead">Play two apps at once, mix them with a crossfader — and see, while the music plays, which scale it is in and which chords it loops through.</p>
-      <p class="meta">User guide · version 0.8 · September 2026<br>Steve Nodock &lt;stb@outlook.fr&gt; · free and open source (Apache 2.0)</p>
+      <p class="meta">User guide · version 0.9 · September 2026<br>Steve Nodock &lt;stb@outlook.fr&gt; · free and open source (Apache 2.0)</p>
     </div>
   </div>
   <div class="toc">
@@ -119,7 +119,7 @@
   <table>
     <tr><th style="width:42mm">On the card</th><th>What it shows or does</th></tr>
     <tr><td><b>Title</b></td><td>The essential: the mode. Tonic, popular name and family — “E Mixolydian · F1”.</td></tr>
-    <tr><td><b>Colour tiles</b></td><td>The key, in letter notation — “A”, “D♭” — then <b>one tile per note of the scale, from the tonic to its octave</b>. Blue and red are the two whole-tone sets of the keyboard, so a change of colour means a half step or a step and a half. A minor reads R R B B B R R R. This sequence is the fingerprint of the mode.</td></tr>
+    <tr><td><b>Colour tiles</b></td><td>The key, in letter notation — “A”, “D♭” — then <b>one tile per note of the scale, from the tonic to its octave</b>. Blue and red are the two whole-tone sets of the keyboard, so a change of colour means a half step or a step and a half. A minor reads R R B B B R R R. This sequence is the fingerprint of the mode. A tile <span style="display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;background:linear-gradient(var(--blue) 50%,var(--red) 50%)"></span> <b>split in two</b> is reached by a <b>step and a half</b> (families 3, 4 and 7): the colour you come from on top, the one you arrive at below.</td></tr>
     <tr><td><b>Chord progression</b></td><td>Under the tiles, in Roman numerals relative to the tonic: “i – ♭VI – iv – ♭VI    8 s” when a loop was found, with its length; “… i – iv – ♭VII” — the last chords heard — when none was. It only changes once a new progression has held for four seconds.</td></tr>
     <tr><td><b>Small text, top</b></td><td>To the right of the app icon, the two apps and their volumes: “YT Music 71 · YouTube 71”. Beneath, on two lines, the artist and the title of the piece; a long title is cut short. This text is drawn in the card's background artwork, which Android darkens.</td></tr>
     <tr><td><b>Progress bar</b></td><td>It <i>is</i> the crossfader: drag it. Left is the music app, right is the video app. To re-centre, drag it to the middle.</td></tr>
@@ -201,6 +201,7 @@
   <ul>
     <li><span class="chip" style="background:var(--blue)"></span><b>Blue</b> and <span class="chip" style="background:var(--red)"></span><b>red</b> are the two whole-tone sets of the keyboard: C D E F♯ G♯ A♯ and C♯ D♯ F G A B.</li>
     <li>Each scale is a <b>row of square tiles</b>, one per note, from the tonic to its octave — the same notation as the notification card and the history. A <b>whole step</b> stays in the same colour; a <b>half step</b> or a <b>step and a half</b> crosses to the other.</li>
+    <li><span style="display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;background:linear-gradient(var(--blue) 50%,var(--red) 50%)"></span> A tile <b>split in two</b> is reached by a <b>step and a half</b>: the colour you come from on top, the one you arrive at below. A plain change of colour is a half step. Only families 3, 4 and 7 contain steps and a half. The same mark is used in the app, the widget and the notification.</li>
     <li>Colours are given with the first scale of each family starting on C. The scales of a family line up as a <b>staircase</b> — each one is the family's pattern read from the next degree — so every column is one and the same note. From a red tonic (C♯, F, G, A…), swap the two colours: the app always shows the real ones.</li>
     <li>Each family has its own colour; the scales printed in bold in the original are bold here too.</li>
   </ul>

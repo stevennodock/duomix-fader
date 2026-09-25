@@ -10,6 +10,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import com.dirtwing.duomixfader.harmony.Detection
 import com.dirtwing.duomixfader.harmony.NoteNames
@@ -40,8 +41,10 @@ object ScaleArt {
     /**
      * Vrai pour chaque pavé où l'on arrive par un TON ET DEMI. Un changement de couleur dit « pas
      * impair », sans dire lequel ; or le demi-ton et le ton et demi se jouent tout autrement. Ces
-     * pavés portent donc, au centre, un rond de la couleur opposée — celle du pavé précédent : on
-     * lit « on vient de là, par un saut ». Seules les familles 3, 4 et 7 en contiennent.
+     * pavés sont donc coupés HORIZONTALEMENT : moitié haute de la couleur d'où l'on vient, moitié
+     * basse de celle où l'on arrive. Choix de l'utilisateur (2026-09-25) après essais d'un rond et
+     * d'une diagonale ; le même partout, carte de notification comprise, où seul ce découpage se
+     * dessine proprement. Seules les familles 3, 4 et 7 en contiennent.
      */
     fun leaps(detection: Detection): List<Boolean> {
         val positions = detection.scale.degrees.toList() + 12
@@ -51,9 +54,6 @@ object ScaleArt {
     /** Couleurs et sauts en lettres, pour les tests : un « o » suit le pavé atteint par un ton et demi. */
     fun tileCode(detection: Detection): String =
         tiles(detection).zip(leaps(detection)).joinToString("") { (blue, leap) -> (if (blue) "B" else "R") + if (leap) "o" else "" }
-
-    /** Diamètre du rond « ton et demi », en fraction du côté du pavé. */
-    const val LEAP_DOT = 0.42f
 
     /**
      * « A ██ ██ ██ … » pour la carte de notification : la tonalité en notation anglaise, puis
@@ -86,12 +86,26 @@ object ScaleArt {
     fun tilesText(detection: Detection): CharSequence {
         val text = SpannableStringBuilder()
         val colours = tiles(detection)
+        val leaps = leaps(detection)
         // Deux pavés par note ; un et demi pour les gammes de huit notes, sinon la ligne déborde
         val tile = if (colours.size <= 8) "██" else "█▌"
         colours.forEachIndexed { index, blue ->
             val start = text.length
+            val own = if (blue) PASTEL_BLUE else PASTEL_RED
+            val other = if (blue) PASTEL_RED else PASTEL_BLUE
+            if (leaps[index]) {
+                // Ton et demi : moitié haute de la couleur d'où l'on vient (le FOND du texte), moitié
+                // basse de celle où l'on arrive (« ▄▄ »). La carte du Pixel garde la couleur de fond,
+                // mais refuse les images, et aucun caractère n'y trace une diagonale sur un pavé
+                // entier : essayés (triangles, escalier, rond) et jugés illisibles par l'utilisateur.
+                text.append("\u2584\u2584")
+                text.setSpan(BackgroundColorSpan(other), start, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                text.setSpan(ForegroundColorSpan(own), start, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (index < colours.lastIndex) text.append(' ')
+                return@forEachIndexed
+            }
             text.append(tile)
-            text.setSpan(ForegroundColorSpan(if (blue) PASTEL_BLUE else PASTEL_RED), start, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            text.setSpan(ForegroundColorSpan(own), start, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             if (index < colours.lastIndex) text.append(' ') // espace fine : un joint entre deux pavés
         }
         return text
@@ -117,8 +131,15 @@ object ScaleArt {
             paint.color = if (blue) PASTEL_BLUE else PASTEL_RED
             canvas.drawRoundRect(left, 0f, left + tile, tile, radius, radius, paint)
             if (leaps[index]) {
+                // Moitié haute : la couleur d'où l'on vient
                 paint.color = if (blue) PASTEL_RED else PASTEL_BLUE
-                canvas.drawCircle(left + tile / 2, tile / 2, tile * LEAP_DOT / 2, paint)
+                val half = android.graphics.Path().apply { addRect(left, 0f, left + tile, tile / 2, android.graphics.Path.Direction.CW) }
+                canvas.save()
+                canvas.clipPath(android.graphics.Path().apply {
+                    addRoundRect(left, 0f, left + tile, tile, radius, radius, android.graphics.Path.Direction.CW)
+                })
+                canvas.drawPath(half, paint)
+                canvas.restore()
             }
         }
         return bitmap
