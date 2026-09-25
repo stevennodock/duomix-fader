@@ -34,12 +34,13 @@
         android:textSize="13sp"
         android:textStyle="bold" />
 
-    <TextView
+    <ImageView
         android:id="@+id/seg_tiles"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="11sp" />
+        android:layout_height="13dp"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:scaleType="fitStart" />
 
     <TextView
         android:id="@+id/seg_name"

@@ -21,8 +21,8 @@ android {
         targetSdk = 36
         // Sert aussi de version du UserService Shizuku : à incrémenter dès que
         // IMixerService.aidl change, sinon l'ancien processus shell est réutilisé
-        versionCode = 14
-        versionName = "0.9.0"
+        versionCode = 15
+        versionName = "0.9.1"
 
         // Ã‰cran Â« Ã€ propos Â» : informations de build copiables (modÃ¨le : Markor). Le hash git
         // identifie exactement les sources d'un APK ; Â« inconnu Â» hors dÃ©pÃ´t (archive, CI sans git).

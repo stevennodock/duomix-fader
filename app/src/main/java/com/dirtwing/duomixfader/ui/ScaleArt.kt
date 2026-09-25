@@ -38,6 +38,24 @@ object ScaleArt {
     fun colourCode(detection: Detection): String = tiles(detection).joinToString("") { if (it) "B" else "R" }
 
     /**
+     * Vrai pour chaque pavé où l'on arrive par un TON ET DEMI. Un changement de couleur dit « pas
+     * impair », sans dire lequel ; or le demi-ton et le ton et demi se jouent tout autrement. Ces
+     * pavés portent donc, au centre, un rond de la couleur opposée — celle du pavé précédent : on
+     * lit « on vient de là, par un saut ». Seules les familles 3, 4 et 7 en contiennent.
+     */
+    fun leaps(detection: Detection): List<Boolean> {
+        val positions = detection.scale.degrees.toList() + 12
+        return positions.indices.map { i -> i > 0 && positions[i] - positions[i - 1] == 3 }
+    }
+
+    /** Couleurs et sauts en lettres, pour les tests : un « o » suit le pavé atteint par un ton et demi. */
+    fun tileCode(detection: Detection): String =
+        tiles(detection).zip(leaps(detection)).joinToString("") { (blue, leap) -> (if (blue) "B" else "R") + if (leap) "o" else "" }
+
+    /** Diamètre du rond « ton et demi », en fraction du côté du pavé. */
+    const val LEAP_DOT = 0.42f
+
+    /**
      * « A ██ ██ ██ … » pour la carte de notification : la tonalité en notation anglaise, puis
      * les pavés. Un seul système de notation : avec les deux, « Ré♭ (D♭) » allongeait la ligne
      * au point de décaler le dernier pavé.
@@ -86,17 +104,22 @@ object ScaleArt {
      * pas les montrer — sa ligne de texte n'en laisse passer que deux, et son illustration est
      * une vignette carrée où une suite ne se lit pas.
      */
-    fun tileRow(detection: Detection): Bitmap {
+    fun tileRow(detection: Detection, tile: Float = 72f): Bitmap {
         val colours = tiles(detection)
-        val tile = 72f
-        val gap = 10f
+        val gap = tile * 0.14f
+        val radius = tile * 0.14f
         val bitmap = Bitmap.createBitmap((colours.size * tile + (colours.size - 1) * gap).toInt(), tile.toInt(), Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        val leaps = leaps(detection)
         colours.forEachIndexed { index, blue ->
             val left = index * (tile + gap)
             paint.color = if (blue) PASTEL_BLUE else PASTEL_RED
-            canvas.drawRoundRect(left, 0f, left + tile, tile, 10f, 10f, paint)
+            canvas.drawRoundRect(left, 0f, left + tile, tile, radius, radius, paint)
+            if (leaps[index]) {
+                paint.color = if (blue) PASTEL_RED else PASTEL_BLUE
+                canvas.drawCircle(left + tile / 2, tile / 2, tile * LEAP_DOT / 2, paint)
+            }
         }
         return bitmap
     }

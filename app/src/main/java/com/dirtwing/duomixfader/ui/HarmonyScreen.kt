@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
@@ -172,7 +173,7 @@ private fun SourceRow(state: HarmonyState, choice: SourceChoice) {
                 selected = state.viaMicrophone,
                 // Une bascule : un second appui arrête le micro
                 onClick = { if (state.viaMicrophone) choice.stopMicrophone() else askMicrophone.launch(Manifest.permission.RECORD_AUDIO) },
-                label = { Text("🎙 " + stringResource(R.string.harmony_source_mic)) },
+                label = { Text(stringResource(R.string.harmony_source_mic)) },
             )
         }
         if (state.viaMicrophone) {
@@ -213,18 +214,26 @@ private fun ToneSlider(
 
 /**
  * La gamme en pavés de couleur : un par degré, de la tonique à son octave, bleu ou rouge selon
- * la gamme par tons de la note (voir ScaleArt). La même empreinte que sur la notification et
+ * la gamme par tons de la note (voir ScaleArt). Un rond de la couleur opposée marque le pavé
+ * atteint par un ton et demi (familles 3, 4, 7). La même empreinte que sur la notification et
  * sur la fiche des 33 gammes.
  */
 @Composable
 fun ScaleTiles(detection: Detection, tile: Dp = 22.dp) {
     Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
-        for (blue in ScaleArt.tiles(detection)) {
+        for ((blue, leap) in ScaleArt.tiles(detection).zip(ScaleArt.leaps(detection))) {
             Box(
                 Modifier
                     .size(tile)
-                    .background(Color(if (blue) ScaleArt.PASTEL_BLUE else ScaleArt.PASTEL_RED), RoundedCornerShape(3.dp))
-            )
+                    .background(Color(if (blue) ScaleArt.PASTEL_BLUE else ScaleArt.PASTEL_RED), RoundedCornerShape(3.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (leap) Box(
+                    Modifier
+                        .size(tile * ScaleArt.LEAP_DOT)
+                        .background(Color(if (blue) ScaleArt.PASTEL_RED else ScaleArt.PASTEL_BLUE), CircleShape)
+                )
+            }
         }
     }
 }

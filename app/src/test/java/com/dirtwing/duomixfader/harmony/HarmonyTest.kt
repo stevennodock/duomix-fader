@@ -58,6 +58,12 @@ class HarmonyTest {
             com.dirtwing.duomixfader.ui.ScaleArt.colourCode(Detection(ScaleCatalog.scales.first { it.popularName == name }, root))
         // Exemple de référence : la mineur = la si | do ré mi | fa sol la
         assertEquals("RRBBBRRR", code("Natural minor", 9))
+        // Le ton et demi est marqué d'un rond (« o ») : la mineur harmonique, fa -> sol#
+        fun tileCode(name: String, root: Int) =
+            com.dirtwing.duomixfader.ui.ScaleArt.tileCode(Detection(ScaleCatalog.scales.first { it.popularName == name }, root))
+        assertEquals("RRBBBRBoR", tileCode("Harmonic minor", 9))
+        assertEquals("RRBBBRRR", tileCode("Natural minor", 9))     // famille 1 : aucun saut
+        assertEquals(3, tileCode("Augmented", 0).count { it == 'o' }) // 1½-½-1½-½-1½-½ : trois sauts
         assertEquals("do majeur : do ré mi | fa sol la si | do", "BBBRRRRB", code("Major", 0))
         assertEquals("gamme par tons : une seule couleur", "BBBBBBB", code("Whole tone", 0))
     }

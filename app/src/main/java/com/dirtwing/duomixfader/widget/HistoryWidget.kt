@@ -95,7 +95,7 @@ object HistoryWidget {
             )
             setTextViewText(R.id.item_tonic, notes[main.root])
             setTextViewText(R.id.item_scale, "${main.scale.popularName}  ·  F${main.scale.family}")
-            setTextViewText(R.id.item_tiles, ScaleArt.tilesText(main))
+            setImageViewBitmap(R.id.item_tiles, ScaleArt.tileRow(main, tile = 36f))
 
             // Une seule gamme : la ligne du haut dit déjà tout
             if (record.segments.size > 1) {
@@ -106,7 +106,7 @@ object HistoryWidget {
                         setTextViewText(R.id.seg_time, "%d:%02d".format(seconds / 60, seconds % 60))
                         setTextViewText(R.id.seg_degree, romanNumeral(Chord(detection.root, detection.scale.tonicTriad), main.root))
                         setTextViewText(R.id.seg_tonic, notes[detection.root])
-                        setTextViewText(R.id.seg_tiles, ScaleArt.tilesText(detection))
+                        setImageViewBitmap(R.id.seg_tiles, ScaleArt.tileRow(detection, tile = 26f))
                         setTextViewText(R.id.seg_name, detection.scale.popularName)
                     })
                 }

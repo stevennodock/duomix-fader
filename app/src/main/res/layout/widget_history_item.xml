@@ -62,12 +62,15 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <TextView
+            <!-- Les pavés en image : un rond au centre marque le ton et demi (voir ScaleArt.leaps) -->
+            <ImageView
                 android:id="@+id/item_tiles"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:textSize="15sp" />
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_marginTop="2dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart" />
         </LinearLayout>
     </LinearLayout>
 
